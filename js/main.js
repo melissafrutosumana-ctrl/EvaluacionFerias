@@ -519,31 +519,31 @@ const PDF = {
 
 function pdfHeader(doc, title, logoDataUrl) {
   let y = PDF.MARGIN + 8;
-  const headerH = 32;
+  const headerH = 28;
   doc.setDrawColor(...PDF.PRIMARY);
   doc.setFillColor(...PDF.PRIMARY);
   doc.roundedRect(PDF.MARGIN, y - 5, PDF.PAGE_W - 2 * PDF.MARGIN, headerH, 2, 2, "F");
 
   const logoX = PDF.MARGIN + 4;
-  const textX = PDF.MARGIN + 30;
   const headerTextY = y;
 
   if (logoDataUrl) {
     try {
-      doc.addImage(logoDataUrl, "PNG", logoX, headerTextY - 2, 24, 24);
+      doc.addImage(logoDataUrl, "PNG", logoX, headerTextY - 1, 38, 11);
     } catch (e) {
       console.warn("Error al añadir logo MEP:", e);
     }
   }
 
+  const textX = PDF.MARGIN + 46;
   doc.setTextColor(...PDF.WHITE);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(15);
+  doc.setFontSize(14);
   doc.text("Ministerio de Educacion Publica", textX, headerTextY + 5);
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(8);
-  doc.text("Direccion Regional de Educacion Central del Pacifico", textX, headerTextY + 13);
-  doc.text("Sistema de Evaluacion de Ferias Institucionales", textX, headerTextY + 19);
+  doc.setFontSize(7.5);
+  doc.text("Direccion Regional de Educacion Central del Pacifico", textX, headerTextY + 12);
+  doc.text("Sistema de Evaluacion de Ferias Institucionales", textX, headerTextY + 17.5);
 
   y += headerH + 7;
   doc.setDrawColor(...PDF.GOLD);
