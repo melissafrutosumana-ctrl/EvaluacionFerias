@@ -482,7 +482,7 @@ async function loadMEPLogo() {
   if (mepLogoPromise) return mepLogoPromise;
   mepLogoPromise = (async () => {
     try {
-      const resp = await fetch("img/LOGO_MEP-removebg-preview.png");
+      const resp = await fetch("img/descarga.png");
       if (!resp.ok) throw new Error("HTTP " + resp.status);
       const blob = await resp.blob();
       const base64 = await new Promise((resolve) => {
