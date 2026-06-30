@@ -1,0 +1,154 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
+    <title>Proyectos y Puntajes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css?v=1.3">
+</head>
+
+<body data-page="admin">
+    <header>
+        <h1 class="header-brand">
+            <span class="logo-wrap">
+                <img src="img/LOGO_MEP-removebg-preview.png" loading="lazy" alt="Logo Ministerio de Educacion Publica">
+            </span>
+            <span>Panel Administrador</span>
+        </h1>
+        <a href="#" data-logout-link class="logout-link">Cerrar sesion</a>
+    </header>
+
+    <main>
+        <section class="identity-bar">
+            <div class="identity-bar-inner">
+                <div class="identity-bar-left">
+                    <strong>Admin:</strong>
+                    <span data-admin-name></span>
+                    <span class="feria-badge" data-feria-tag></span>
+                </div>
+            </div>
+        </section>
+
+        <nav class="quick-nav">
+            <a class="quick-nav-link" href="Proyectos.html">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg>
+                Usuarios
+            </a>
+            <a class="quick-nav-link" href="gestion_proyectos.html">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>
+                Proyectos
+            </a>
+            <a class="quick-nav-link" href="usuarios_admin.html">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><path d="M16 3.128a4 4 0 0 1 0 7.744"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><circle cx="9" cy="7" r="4"/></svg>
+                Asignaciones
+            </a>
+            <a class="quick-nav-link active" href="resultados_admin.html">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+                Resultados
+            </a>
+
+        </nav>
+
+        <section class="card feria-filter-bar">
+            <label>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></svg>
+                Filtrar por feria:
+                <select data-feria-results-filter>
+                    <option value="">Todas las ferias</option>
+                    <option value="Feria Cientifica y Tecnologica">Feria Cientifica y Tecnologica</option>
+                    <option value="Feria Expotecnica">Feria Expotecnica</option>
+                    <option value="Festival Estudiantil de las Artes">Festival Estudiantil de las Artes</option>
+                </select>
+            </label>
+        </section>
+        <section class="results-summary" data-results-summary>
+            <div class="summary-card">
+                <div class="value" data-total-projects>0</div>
+                <div class="label">Proyectos</div>
+            </div>
+            <div class="summary-card">
+                <div class="value" data-total-judges>0</div>
+                <div class="label">Jueces</div>
+            </div>
+            <div class="summary-card">
+                <div class="value" data-total-evaluations>0</div>
+                <div class="label">Evaluaciones</div>
+            </div>
+            <div class="summary-card accent">
+                <div class="value" data-highest-score>0</div>
+                <div class="label">Mayor puntaje</div>
+            </div>
+        </section>
+
+        <section class="card">
+            <div class="card-header">
+                <h2>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg>
+                    Evaluaciones
+                </h2>
+            </div>
+            <p>Listado de evaluaciones registradas para la feria asignada.</p>
+            <div data-admin-evaluations></div>
+        </section>
+
+        <section class="card">
+            <div class="card-header">
+                <h2>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>
+                    Proyectos
+                </h2>
+            </div>
+            <p>Proyectos con evaluaciones en la feria asignada.</p>
+            <div class="table-wrap">
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>Proyecto</th>
+                            <th>ID Proyecto</th>
+                        </tr>
+                    </thead>
+                    <tbody data-admin-projects></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="card">
+            <div class="card-header">
+                <h2>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+                    Puntajes
+                </h2>
+            </div>
+            <p>Resultado final por proyecto con detalle de cada juez.</p>
+            <p class="form-status" data-project-results-status role="alert" aria-live="polite"></p>
+            <div class="table-wrap">
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>Proyecto</th>
+                            <th>Exposición <small class="judge-status">(votaron/asignados)</small></th>
+                            <th>Escrito <small class="judge-status">(votaron/asignados)</small></th>
+                            <th>Puntaje Final</th>
+                        </tr>
+                    </thead>
+                    <tbody data-project-results></tbody>
+                </table>
+            </div>
+            <div class="form-actions" style="margin-top: 1rem;">
+                <button class="btn-primary" id="export-pdf-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg>
+                    Exportar PDF
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <script type="module" src="js/main.js?v=1.6"></script>
+</body>
+
+</html>
