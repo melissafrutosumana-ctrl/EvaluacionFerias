@@ -1,0 +1,226 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
+    <title>Gestion de Proyectos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css?v=1.3">
+</head>
+
+<body data-page="admin">
+    <header>
+        <h1 class="header-brand">
+            <span class="logo-wrap">
+                <img src="img/LOGO_MEP-removebg-preview.png" loading="lazy" alt="Logo Ministerio de Educacion Publica">
+            </span>
+            <span>Panel Administrador</span>
+        </h1>
+        <a href="#" data-logout-link class="logout-link">Cerrar sesion</a>
+    </header>
+
+    <main>
+        <section class="identity-bar">
+            <div class="identity-bar-inner">
+                <div class="identity-bar-left">
+                    <strong>Admin:</strong>
+                    <span data-admin-name></span>
+                    <span class="feria-badge" data-feria-tag></span>
+                </div>
+            </div>
+        </section>
+
+        <nav class="quick-nav">
+            <a class="quick-nav-link" href="Proyectos.html">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg>
+                Usuarios
+            </a>
+            <a class="quick-nav-link active" href="gestion_proyectos.html">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>
+                Proyectos
+            </a>
+            <a class="quick-nav-link" href="usuarios_admin.html">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><path d="M16 3.128a4 4 0 0 1 0 7.744"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><circle cx="9" cy="7" r="4"/></svg>
+                Asignaciones
+            </a>
+            <a class="quick-nav-link" href="resultados_admin.html">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+                Resultados
+            </a>
+
+        </nav>
+
+        <section class="card form-card">
+            <div class="card-header">
+                <h2>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>
+                    Agregar Proyecto
+                </h2>
+            </div>
+            <form data-project-form class="project-form">
+                <div class="field-group">
+                    <label class="field-label">
+                        <span>Titulo del proyecto</span>
+                        <input name="titulo" type="text" required placeholder="Ingresa el titulo del proyecto">
+                    </label>
+                </div>
+
+                <div class="field-group">
+                    <label class="field-label">
+                        <span>Descripcion</span>
+                        <textarea name="descripcion" rows="3" placeholder="Breve descripcion del proyecto (opcional)"></textarea>
+                    </label>
+                </div>
+
+                <div class="field-group">
+                    <label class="field-label">
+                        <span>Tipo de feria</span>
+                        <select name="tipo_feria" required>
+                            <option value="">Selecciona una feria</option>
+                            <option value="Festival Estudiantil de las Artes">Festival Estudiantil de las Artes</option>
+                            <option value="Feria Cientifica y Tecnologica">Feria Cientifica y Tecnologica</option>
+                            <option value="Feria Expotecnica">Feria Expotecnica</option>
+                        </select>
+                    </label>
+                </div>
+
+                <div data-integrantes-block>
+                    <div class="field-row">
+                        <label class="field-label" data-integrantes-wrap>
+                            <span>Integrante 1</span>
+                            <input name="integrante_1" type="text" placeholder="Nombre completo">
+                        </label>
+                        <label class="field-label" data-integrantes-wrap>
+                            <span>Integrante 2</span>
+                            <input name="integrante_2" type="text" placeholder="Nombre completo">
+                        </label>
+                        <label class="field-label" data-integrantes-wrap>
+                            <span>Integrante 3</span>
+                            <input name="integrante_3" type="text" placeholder="Nombre completo">
+                        </label>
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <label class="field-label">
+                        <span>Participacion</span>
+                        <input name="participacion" type="text" placeholder="Ej: Individual, grupal, etc.">
+                    </label>
+                </div>
+
+                <div data-feria-section="Festival Estudiantil de las Artes" hidden>
+                    <div class="field-group">
+                        <label class="field-label" data-festival-category-wrap>
+                            <span>Categoria del Festival</span>
+                            <select name="categoria_festival">
+                                <option value="">Selecciona una categoria</option>
+                                <option value="Artes Visuales">Artes Visuales</option>
+                                <option value="Artes Literarias">Artes Literarias</option>
+                                <option value="Artes Digitales">Artes Digitales</option>
+                                <option value="Artes Musicales">Artes Musicales</option>
+                                <option value="Artes Escenicas">Artes Escenicas</option>
+                            </select>
+                        </label>
+                        <label class="field-label" data-festival-subcategory-wrap hidden>
+                            <span>Subcategoria del Festival</span>
+                            <select name="subcategoria_festival">
+                                <option value="">Selecciona una subcategoria</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+
+                <div data-feria-section="Feria Cientifica y Tecnologica" hidden>
+                    <div class="field-group">
+                        <label class="field-label">
+                            <span>Categoría PRONAFECYT</span>
+                            <select name="categoria_pronatecyt">
+                                <option value="">Selecciona una categoría</option>
+                                <option value="F8B - Demostraciones Científicas y Tecnológicas">F8B - Demostraciones Científicas y Tecnológicas</option>
+                                <option value="F9B - Investigación Científica">F9B - Investigación Científica</option>
+                                <option value="F10B - I+D Tecnológico">F10B - I+D Tecnológico</option>
+                                <option value="F11B - Quehacer Científico y Tecnológico">F11B - Quehacer Científico y Tecnológico</option>
+                                <option value="F12B - Sumando Experiencias Científicas">F12B - Sumando Experiencias Científicas</option>
+                                <option value="F13B - Mi Experiencia Científica">F13B - Mi Experiencia Científica</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+
+                <div data-feria-section="Feria Expotecnica" hidden>
+                    <div class="field-group">
+                        <label class="field-label" data-expotecnica-category-wrap>
+                            <span>Categoria de ExpoTECNICA</span>
+                            <select name="categoria_expotecnica">
+                                <option value="">Selecciona una categoria</option>
+                                <option value="DESAFIO STEAM">DESAFIO STEAM</option>
+                                <option value="EMPRENDIMIENTO E INNOVACION">EMPRENDIMIENTO E INNOVACION</option>
+                            </select>
+                        </label>
+                        <label class="field-label" data-expotecnica-eje-wrap hidden>
+                            <span>Eje tematico</span>
+                            <select name="eje_tematico">
+                                <option value="">Selecciona un eje tematico</option>
+                                <option value="PRODUCCION AGRICOLA Y PECUARIA">PRODUCCION AGRICOLA Y PECUARIA</option>
+                                <option value="INDUSTRIA ALIMENTARIA">INDUSTRIA ALIMENTARIA</option>
+                                <option value="ENERGIAS RENOVABLES">ENERGIAS RENOVABLES</option>
+                                <option value="INGENIERIA AMBIENTAL">INGENIERIA AMBIENTAL</option>
+                                <option value="MECATRONICA">MECATRONICA</option>
+                                <option value="TECNOLOGIAS DE LA INFORMACION APLICADAS A LA INFORMATICA">TECNOLOGIAS DE LA INFORMACION APLICADAS A LA INFORMATICA</option>
+                                <option value="INGENIERIA MECANICA">INGENIERIA MECANICA</option>
+                                <option value="INGENIERIA DE MATERIALES">INGENIERIA DE MATERIALES</option>
+                                <option value="INDUSTRIA CREATIVA">INDUSTRIA CREATIVA</option>
+                                <option value="CONTABILIDAD, FINANZAS Y BANCA">CONTABILIDAD, FINANZAS Y BANCA</option>
+                                <option value="SERVICIOS SECRETARIALES">SERVICIOS SECRETARIALES</option>
+                                <option value="HOSTELERIA Y SERVICIOS TURISTICOS">HOSTELERIA Y SERVICIOS TURISTICOS</option>
+                                <option value="GESTION DE SUMINISTROS">GESTION DE SUMINISTROS</option>
+                                <option value="MERCADEO">MERCADEO</option>
+                                <option value="SEGURIDAD Y PROTECCION LABORAL">SEGURIDAD Y PROTECCION LABORAL</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg>
+                        Guardar proyecto
+                    </button>
+                </div>
+            </form>
+            <p class="form-status" data-project-form-status role="alert" aria-live="polite"></p>
+        </section>
+
+        <section class="card">
+            <div class="card-header">
+                <h2>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>
+                    Proyectos registrados
+                </h2>
+            </div>
+            <p class="form-status" data-projects-table-status role="alert" aria-live="polite"></p>
+            <div class="table-wrap">
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>Titulo</th>
+                            <th>Tipo de feria</th>
+                            <th>Detalle</th>
+                            <th>ID</th>
+                            <th>Accion</th>
+                        </tr>
+                    </thead>
+                    <tbody data-projects-table></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script type="module" src="js/main.js?v=1.6"></script>
+</body>
+
+</html>

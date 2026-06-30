@@ -1,0 +1,13 @@
+# Skills de asistentes AI (no parte del proyecto)
+.agents/
+.opencode/
+.specify/
+# AGENTS.md
+skills-lock.json
+
+# Dependencias
+node_modules/
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
