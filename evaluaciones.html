@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
+    <title>Panel Juez</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css?v=1.5">
+</head>
+
+<body data-page="judge">
+    <header>
+        <h1 class="header-brand">
+            <span class="logo-wrap">
+                <img src="img/LOGO_MEP-removebg-preview.png" loading="lazy" alt="Logo Ministerio de Educacion Publica">
+            </span>
+            <span>Panel de Juez</span>
+        </h1>
+        <button class="hamburger" data-hamburger aria-label="Menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <nav>
+            <a href="evaluaciones.html" data-nav-link>Mis evaluaciones</a>
+            <a href="#" data-logout-link>Cerrar sesion</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="identity-bar">
+            <div class="identity-bar-inner">
+                <div class="identity-bar-left">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>
+                    <strong>Juez:</strong>
+                    <span data-judge-name></span>
+                    <span class="feria-badge" data-feria-tag></span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" data-judge-progress hidden>
+            <div class="card-header">
+                <h2>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                    Progreso general
+                </h2>
+            </div>
+            <div class="progress-stats">
+                <div class="progress-stat">
+                    <span class="progress-value" data-progress-evaluated>0</span>
+                    <span class="progress-label">Evaluados</span>
+                </div>
+                <div class="progress-stat">
+                    <span class="progress-value" data-progress-total>0</span>
+                    <span class="progress-label">Asignados</span>
+                </div>
+                <div class="progress-stat accent">
+                    <span class="progress-value" data-progress-percent>0%</span>
+                    <span class="progress-label">Completado</span>
+                </div>
+            </div>
+            <div class="progress-track">
+                <div class="progress-bar" data-progress-bar style="width:0%"></div>
+            </div>
+        </section>
+
+        <section class="card" data-judge-category-filter hidden>
+            <div class="card-header">
+                <h2>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h.01"/><path d="M3 12h.01"/><path d="M3 19h.01"/><path d="M8 5h13"/><path d="M8 12h13"/><path d="M8 19h13"/></svg>
+                    Filtrar proyectos por categoria
+                </h2>
+            </div>
+            <label class="filter-label">
+                <select data-judge-category-select>
+                    <option value="">Todas las categorias</option>
+                </select>
+            </label>
+            <p class="filter-status" data-judge-category-status role="alert" aria-live="polite"></p>
+        </section>
+
+        <section class="card form-card">
+            <div class="card-header">
+                <h2>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg>
+                    Evaluacion de proyectos asignados
+                </h2>
+            </div>
+            <form data-evaluation-form class="project-form">
+                <div class="field-group">
+                    <label class="field-label">
+                        <span>Proyecto a evaluar</span>
+                        <select name="proyecto_id" data-project-select required></select>
+                    </label>
+                    <span class="evaluation-type-badge" data-evaluation-type-badge hidden></span>
+                </div>
+
+                <div class="subcategoria-info" data-subcategoria-display hidden></div>
+
+                <div class="table-wrap">
+                    <table class="results-table rubric-table">
+                        <thead>
+                            <tr>
+                                <th>Indicadores a evaluar</th>
+                                <th>3</th>
+                                <th>2</th>
+                                <th>1</th>
+                                <th>0</th>
+                            </tr>
+                        </thead>
+                        <tbody data-rubric-body></tbody>
+                    </table>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg>
+                        Guardar evaluacion
+                    </button>
+                </div>
+            </form>
+            <p class="form-status" data-evaluation-form-status role="alert" aria-live="polite"></p>
+        </section>
+
+        <section class="card">
+            <div class="card-header">
+                <h2>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg>
+                    Mis evaluaciones registradas
+                </h2>
+                <button class="btn-primary btn-sm" id="judge-download-pdf" data-pdf-btn hidden>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg>
+                    PDF
+                </button>
+            </div>
+            <p class="form-status" data-my-evaluations-status role="alert" aria-live="polite"></p>
+            <div class="table-wrap">
+                    <table class="results-table">
+                        <thead>
+                            <tr>
+                                <th>Proyecto / Tipo</th>
+                                <th>Indicadores</th>
+                                <th>Puntaje</th>
+                            </tr>
+                        </thead>
+                    <tbody data-my-evaluations></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script type="module" src="js/main.js?v=1.6"></script>
+</body>
+
+</html>
