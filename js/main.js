@@ -3636,35 +3636,6 @@ function renderJudgeRubric(indicators, scoreOptions = null) {
   tbody.innerHTML = rows.join("");
 }
 
-async function renderProjectResults() {
-  const list = document.querySelector("[data-project-results]");
-
-  if (!list) {
-    return;
-  }
-
-  showSkeleton(list, 5);
-
-  const { data, error } = await supabase
-    .from("resultados_finales_proyectos")
-    .select("proyecto_id, titulo, resultado_final, total_jueces")
-    .order("titulo", { ascending: true });
-
-  if (error) {
-    setMessage(document.querySelector("[data-project-results-status]"), "No se pudieron cargar los resultados.", "error");
-    return;
-  }
-
-  if (!data || data.length === 0) {
-    list.innerHTML = '<tr><td colspan="3">No hay proyectos registrados.</td></tr>';
-    return;
-  }
-
-  list.innerHTML = data
-    .map((item) => `<tr><td>${item.titulo}</td><td>${item.resultado_final}</td><td>${item.total_jueces}</td></tr>`)
-    .join("");
-}
-
 function renderAdminEvaluationsTable(rows, usersById, projectsById) {
   const container = document.querySelector("[data-admin-evaluations]");
 
@@ -4160,25 +4131,8 @@ function closeAssignmentModal() {
   if (overlay) overlay.hidden = true;
 }
 
-async function verifySupabaseStatus() {
-  const statusEls = document.querySelectorAll("[data-supabase-status]");
-
-  try {
-    const { error } = await supabase.from("roles").select("id").limit(1);
-
-    statusEls.forEach((el) => {
-      el.textContent = error ? "Conectado a Supabase, pero revisa tablas o permisos." : "Conectado a Supabase.";
-    });
-  } catch {
-    statusEls.forEach((el) => {
-      el.textContent = "No se pudo validar la conexion a Supabase.";
-    });
-  }
-}
-
 function enforceRole(requiredRole) {
   const user = getSession();
-  const authStatus = document.querySelector("[data-auth-status]");
   const normalizedRequiredRole = normalizeRoleName(requiredRole);
 
   if (!user) {
@@ -4189,7 +4143,7 @@ function enforceRole(requiredRole) {
   const normalizedSessionRole = normalizeRoleName(user.role);
 
   if (normalizedSessionRole !== normalizedRequiredRole) {
-    setMessage(authStatus, `Acceso denegado: esta pagina es solo para ${normalizedRequiredRole}.`, "error");
+    showToast(`Acceso denegado: esta pagina es solo para ${normalizedRequiredRole}.`, "error");
     return null;
   }
 
@@ -4403,6 +4357,7 @@ async function bootstrapJudgePage() {
     currentRubricModel = resolveRubricModelForProject(projectId);
     renderJudgeRubric(currentRubricModel.indicators, currentRubricModel.scoreOptions);
     loadSavedEvaluations(projectId, user.id);
+    loadSavedObservacion(projectId, user.id);
 
     const badge = document.querySelector("[data-evaluation-type-badge]");
     if (badge) {
@@ -4440,6 +4395,61 @@ async function bootstrapJudgePage() {
       }
       inputIndex++;
     });
+  }
+
+  async function loadSavedObservacion(projectId, judgeId) {
+    const textarea = document.querySelector("[data-observacion-input]");
+    if (!textarea || !projectId) {
+      if (textarea) textarea.value = "";
+      return;
+    }
+    const selectedProject = assignedProjectsCache.find((p) => Number(p.id) === Number(projectId));
+    const tipoEval = selectedProject?.tipo_evaluacion ?? "Exposición";
+    const { data, error } = await supabase
+      .from("observaciones_proyectos")
+      .select("texto")
+      .eq("proyecto_id", projectId)
+      .eq("juez_id", judgeId)
+      .eq("tipo_evaluacion", tipoEval)
+      .maybeSingle();
+    if (error) {
+      return;
+    }
+    textarea.value = data?.texto ?? "";
+  }
+
+  async function saveObservacion(projectId, judgeId, tipoEval, texto) {
+    const trimmed = String(texto ?? "").trim();
+    if (!projectId || !judgeId) return;
+
+    try {
+      const { data: existing } = await supabase
+        .from("observaciones_proyectos")
+        .select("id")
+        .eq("proyecto_id", projectId)
+        .eq("juez_id", judgeId)
+        .eq("tipo_evaluacion", tipoEval)
+        .maybeSingle();
+
+      if (!trimmed) {
+        if (existing?.id) {
+          await supabase.from("observaciones_proyectos").delete().eq("id", existing.id);
+        }
+        return;
+      }
+
+      if (existing?.id) {
+        await supabase
+          .from("observaciones_proyectos")
+          .update({ texto: trimmed, updated_at: new Date().toISOString() })
+          .eq("id", existing.id);
+        return;
+      }
+
+      await supabase
+        .from("observaciones_proyectos")
+        .insert({ proyecto_id: projectId, juez_id: judgeId, tipo_evaluacion: tipoEval, texto: trimmed });
+    } catch {}
   }
 
   function populateCategoryFilter(projects) {
@@ -4553,6 +4563,7 @@ async function bootstrapJudgePage() {
       }
 
       const evaluatedKeys = new Set((data ?? []).map((e) => `${e.proyecto_id}-${e.tipo_evaluacion ?? "Exposición"}`));
+      const evaluatedProjectIds = new Set((data ?? []).map((e) => e.proyecto_id));
 
       const progressSection = document.querySelector("[data-judge-progress]");
       if (progressSection) {
@@ -4708,6 +4719,9 @@ async function bootstrapJudgePage() {
           const { error: insertError } = await supabase.from("evaluaciones_proyectos").insert(payload);
           if (insertError) throw insertError;
         }
+
+        const observacionTexto = String(formData.get("observacion") ?? "");
+        try { await saveObservacion(proyectoId, user.id, tipoEval, observacionTexto); } catch {} // ponytail: fallo silencioso si tabla no existe
 
       evaluationForm.reset();
       showToast("Evaluacion guardada correctamente.", "success");
@@ -5077,6 +5091,155 @@ async function bootstrapAdminPage() {
     exportBtn.addEventListener("click", generateAdminPDF);
   }
 
+  if (document.querySelector("[data-observaciones-groups]")) {
+    const feriaFilter = document.querySelector("[data-observaciones-feria-filter]");
+    const proyectoFilter = document.querySelector("[data-observaciones-proyecto-filter]");
+    const juezFilter = document.querySelector("[data-observaciones-juez-filter]");
+
+    async function refreshObservaciones() {
+      await renderAdminObservaciones(feriaFilter?.value ?? "", proyectoFilter, juezFilter);
+    }
+
+    await refreshObservaciones();
+
+    feriaFilter?.addEventListener("change", refreshObservaciones);
+    proyectoFilter?.addEventListener("change", refreshObservaciones);
+    juezFilter?.addEventListener("change", refreshObservaciones);
+  }
+
+  document.addEventListener("users-changed", () => refreshAdminDataView());
+
+}
+
+async function renderAdminObservaciones(feriaType = "", proyectoFilter, juezFilter) {
+  const container = document.querySelector("[data-observaciones-groups]");
+  const status = document.querySelector("[data-observaciones-status]");
+  const countBadge = document.querySelector("[data-observaciones-count]");
+  if (!container) return;
+
+  // skeleton
+  container.innerHTML = Array.from({ length: 3 }, () => `
+    <div class="skeleton-group">
+      <div class="skeleton-group-bar"></div>
+      ${Array.from({ length: 2 }, () => `
+        <div class="skeleton-item">
+          <div class="skeleton-item-meta">
+            <div class="skeleton-meta-badge"></div>
+            <div class="skeleton-meta-badge"></div>
+            <div class="skeleton-meta-date"></div>
+          </div>
+          <div class="skeleton-text-line"></div>
+          <div class="skeleton-text-line"></div>
+        </div>
+      `).join("")}
+    </div>
+  `).join("");
+  if (countBadge) countBadge.hidden = true;
+
+  const [usersResult, projectsResult, observacionesResult] = await Promise.all([
+    loadUsers(),
+    supabase.from("proyectos_ferias").select("id, titulo, tipo_feria"),
+    supabase.from("observaciones_proyectos").select("proyecto_id, juez_id, tipo_evaluacion, texto, created_at").order("created_at", { ascending: false })
+  ]);
+
+  if (observacionesResult.error) {
+    container.innerHTML = '<p class="form-status form-status--error">No se pudieron cargar las observaciones.</p>';
+    setMessage(status, "Error al cargar observaciones.", "error");
+    return;
+  }
+
+  const allProjects = (projectsResult.data ?? []).filter((p) => !feriaType || p.tipo_feria === feriaType);
+  const allUsers = usersResult ?? [];
+  const usersById = new Map(allUsers.map((u) => [u.id, u]));
+  const projectsById = new Map(allProjects.map((p) => [p.id, p]));
+  const projectIdsInFeria = new Set(allProjects.map((p) => p.id));
+  const rows = (observacionesResult.data ?? []).filter((r) => projectIdsInFeria.has(r.proyecto_id));
+
+  const selectedProjectId = proyectoFilter ? Number(proyectoFilter.value) : 0;
+  const selectedJudgeId = juezFilter ? Number(juezFilter.value) : 0;
+
+  const filtered = rows.filter((r) => {
+    if (selectedProjectId && Number(r.proyecto_id) !== selectedProjectId) return false;
+    if (selectedJudgeId && Number(r.juez_id) !== selectedJudgeId) return false;
+    return true;
+  });
+
+  // populate filter selects
+  const projectOpts = allProjects.sort((a, b) => a.titulo.localeCompare(b.titulo));
+  if (proyectoFilter) {
+    const curVal = proyectoFilter.value;
+    proyectoFilter.innerHTML = '<option value="">Todos los proyectos</option>'
+      + projectOpts.map((p) => `<option value="${p.id}">${escapeHTML(p.titulo)}</option>`).join("");
+    if (curVal && [...proyectoFilter.options].some((o) => o.value === curVal)) proyectoFilter.value = curVal;
+  }
+
+  const judges = allUsers.filter((u) => rows.some((r) => r.juez_id === u.id));
+  if (juezFilter) {
+    const curVal = juezFilter.value;
+    juezFilter.innerHTML = '<option value="">Todos los jueces</option>'
+      + judges.map((j) => `<option value="${j.id}">${escapeHTML(j.nombre)}</option>`).join("");
+    if (curVal && [...juezFilter.options].some((o) => o.value === curVal)) juezFilter.value = curVal;
+  }
+
+  if (!filtered.length) {
+    const hasFilters = selectedProjectId || selectedJudgeId;
+    container.innerHTML = `<p class="form-status">${hasFilters ? "Ninguna observacion coincide con los filtros seleccionados." : "Aun no hay observaciones registradas. Las observaciones apareceran aqui a medida que los jueces evalúen proyectos."}</p>`;
+    if (countBadge) { countBadge.textContent = "0"; countBadge.hidden = false; }
+    setMessage(status, "Observaciones cargadas.", "success");
+    return;
+  }
+
+  // group by proyecto
+  const grouped = new Map();
+  filtered.forEach((row) => {
+    const pid = row.proyecto_id;
+    if (!grouped.has(pid)) {
+      grouped.set(pid, { title: projectsById.get(pid)?.titulo ?? "Proyecto", rows: [] });
+    }
+    grouped.get(pid).rows.push(row);
+  });
+
+  container.innerHTML = "";
+  for (const [pid, data] of grouped) {
+    const block = document.createElement("div");
+    block.className = "observacion-group";
+
+    const heading = document.createElement("div");
+    heading.className = "observacion-group-heading";
+    heading.textContent = data.title;
+    block.appendChild(heading);
+
+    data.rows.forEach((row) => {
+      const judge = usersById.get(row.juez_id);
+      const judgeName = judge?.nombre ?? `Juez #${row.juez_id}`;
+      const tipo = row.tipo_evaluacion ?? "Exposición";
+      const fecha = row.created_at ? new Date(row.created_at).toLocaleDateString("es-CR") : "";
+
+      const item = document.createElement("div");
+      item.className = "observacion-item";
+
+      const meta = document.createElement("div");
+      meta.className = "observacion-item-meta";
+      meta.innerHTML = `
+        <span class="role-badge role-judge">${escapeHTML(judgeName)}</span>
+        <span class="tipo-badge tipo-badge--${tipo === "Escrito" ? "escrito" : "expo"}">${escapeHTML(tipo)}</span>
+        <span class="observacion-item-date">${escapeHTML(fecha)}</span>
+      `;
+
+      const texto = document.createElement("p");
+      texto.className = "observacion-item-texto";
+      texto.textContent = row.texto;
+
+      item.appendChild(meta);
+      item.appendChild(texto);
+      block.appendChild(item);
+    });
+
+    container.appendChild(block);
+  }
+
+  if (countBadge) { countBadge.textContent = `${filtered.length} obs.`; countBadge.hidden = false; }
+  setMessage(status, `${filtered.length} observacion${filtered.length !== 1 ? "es" : ""} en ${grouped.size} proyecto${grouped.size !== 1 ? "s" : ""}.`, "success");
 }
 
 function pdfSubHeader(doc, title, y) {
@@ -5594,7 +5757,7 @@ function showEditUserModal(user, roles) {
       status.style.color = "#16a34a";
       setTimeout(() => {
         overlay.remove();
-        window.location.reload();
+        document.dispatchEvent(new CustomEvent("users-changed"));
       }, 800);
     } catch (err) {
       const msg = err?.message || err || "Error desconocido";
@@ -5912,10 +6075,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (page === "login") {
     bootstrapLoginPage();
   } else if (page === "judge") {
-    await verifySupabaseStatus();
     await bootstrapJudgePage();
   } else if (page === "admin") {
-    await verifySupabaseStatus();
     await bootstrapAdminPage();
   }
 });
