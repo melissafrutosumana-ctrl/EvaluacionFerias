@@ -1,11 +1,11 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
-    <title>Asignaciones</title>
+    <title>Observaciones por Proyecto</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -43,7 +43,7 @@
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>
                 Proyectos
             </a>
-            <a class="quick-nav-link active" href="usuarios_admin.html">
+            <a class="quick-nav-link" href="usuarios_admin.html">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><path d="M16 3.128a4 4 0 0 1 0 7.744"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><circle cx="9" cy="7" r="4"/></svg>
                 Asignaciones
             </a>
@@ -51,54 +51,51 @@
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
                 Resultados
             </a>
-            <a class="quick-nav-link" href="observaciones_admin.html">
+            <a class="quick-nav-link active" href="observaciones_admin.html">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
                 Observaciones
             </a>
-
         </nav>
+
+        <section class="card feria-filter-bar" data-observaciones-filters>
+            <label>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></svg>
+                Filtrar por feria:
+                <select data-observaciones-feria-filter>
+                    <option value="">Todas las ferias</option>
+                    <option value="Feria Cientifica y Tecnologica">Feria Cientifica y Tecnologica</option>
+                    <option value="Feria Expotecnica">Feria Expotecnica</option>
+                    <option value="Festival Estudiantil de las Artes">Festival Estudiantil de las Artes</option>
+                </select>
+            </label>
+            <label>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>
+                Por proyecto:
+                <select data-observaciones-proyecto-filter>
+                    <option value="">Todos los proyectos</option>
+                </select>
+            </label>
+            <label>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                Por juez:
+                <select data-observaciones-juez-filter>
+                    <option value="">Todos los jueces</option>
+                </select>
+            </label>
+        </section>
 
         <section class="card">
             <div class="card-header">
                 <h2>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg>
-                    Jueces registrados y asignacion de proyectos
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
+                    Observaciones por proyecto
                 </h2>
+                <span class="card-header-badge" data-observaciones-count hidden></span>
             </div>
-            <p>Asigna hasta 8 proyectos a cada juez desde esta tabla.</p>
-            <p class="form-status" data-judge-assignments-status role="alert" aria-live="polite"></p>
-            <div class="table-wrap">
-                <table class="results-table assignments-table">
-                    <thead>
-                        <tr>
-                            <th>Juez</th>
-                            <th>Proyectos asignados</th>
-                            <th>Accion</th>
-                        </tr>
-                    </thead>
-                    <tbody data-judge-assignments></tbody>
-                </table>
-            </div>
+            <p class="form-status" data-observaciones-status role="alert" aria-live="polite"></p>
+            <div data-observaciones-groups></div>
         </section>
     </main>
-
-    <div class="modal-overlay" data-assignment-modal hidden>
-      <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-        <div class="modal-header">
-          <h3 id="modal-title">Asignar proyectos</h3>
-          <button type="button" class="modal-close" data-modal-close aria-label="Cerrar">&times;</button>
-        </div>
-        <div class="modal-body">
-          <p class="modal-judge-name" data-modal-judge-name></p>
-          <p class="modal-counter" data-modal-counter>0/8 seleccionados</p>
-          <div class="modal-project-list" data-modal-project-list></div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn-secondary" data-modal-cancel>Cancelar</button>
-          <button type="button" class="btn-primary" data-modal-save>Guardar asignaciones</button>
-        </div>
-      </div>
-    </div>
 
     <script type="module" src="js/main.js?v=1.7"></script>
 </body>
