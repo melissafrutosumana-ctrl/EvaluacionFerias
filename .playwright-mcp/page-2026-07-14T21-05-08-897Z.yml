@@ -1,0 +1,138 @@
+- generic [active] [ref=f5e1]:
+  - banner [ref=f5e2]:
+    - heading "Logo Ministerio de Educacion Publica Panel Administrador" [level=1] [ref=f5e3]:
+      - img "Logo Ministerio de Educacion Publica" [ref=f5e5]
+      - generic [ref=f5e6]: Panel Administrador
+    - link "Cerrar sesion" [ref=f5e7] [cursor=pointer]:
+      - /url: "#"
+  - main [ref=f5e8]:
+    - generic [ref=f5e11]:
+      - strong [ref=f5e12]: "Admin:"
+      - generic [ref=f5e13]: Mely
+      - generic [ref=f5e14]: Feria Cientifica y Tecnologica
+    - navigation [ref=f5e15]:
+      - link "Usuarios" [ref=f5e16] [cursor=pointer]:
+        - /url: Proyectos.html
+      - link "Proyectos" [ref=f5e20] [cursor=pointer]:
+        - /url: gestion_proyectos.html
+      - link "Asignaciones" [ref=f5e23] [cursor=pointer]:
+        - /url: usuarios_admin.html
+      - link "Resultados" [ref=f5e29] [cursor=pointer]:
+        - /url: resultados_admin.html
+      - link "Observaciones" [ref=f5e35] [cursor=pointer]:
+        - /url: observaciones_admin.html
+    - generic [ref=f5e39]:
+      - heading "Agregar Usuario" [level=2] [ref=f5e41]
+      - generic [ref=f5e44]:
+        - generic [ref=f5e45]:
+          - generic [ref=f5e46]:
+            - generic [ref=f5e47]: Nombre
+            - textbox "Nombre" [ref=f5e48]:
+              - /placeholder: Nombre del usuario
+          - generic [ref=f5e49]:
+            - generic [ref=f5e50]: Contraseña
+            - textbox "Contraseña" [ref=f5e51]
+        - generic [ref=f5e52]:
+          - generic [ref=f5e53]:
+            - generic [ref=f5e54]: Tipo de feria
+            - combobox "Tipo de feria" [ref=f5e55]:
+              - option "Selecciona un tipo de feria" [selected]
+              - option "Feria Cientifica y Tecnologica"
+              - option "Feria Expotecnica"
+              - option "Festival Estudiantil de las Artes"
+          - generic [ref=f5e56]:
+            - generic [ref=f5e57]: Rol
+            - combobox "Rol" [ref=f5e58]:
+              - option "Selecciona un rol" [selected]
+              - option "Admin"
+              - option "Juez"
+        - button "Guardar usuario" [ref=f5e60] [cursor=pointer]
+      - alert [ref=f5e65]
+    - generic [ref=f5e66]:
+      - heading "Usuarios" [level=2] [ref=f5e68]
+      - alert [ref=f5e74]: Usuarios.
+      - table [ref=f5e76]:
+        - rowgroup [ref=f5e77]:
+          - row [ref=f5e78]:
+            - columnheader "Nombre" [ref=f5e79]
+            - columnheader "Rol" [ref=f5e80]
+            - columnheader "Tipo de feria" [ref=f5e81]
+            - columnheader "Accion" [ref=f5e82]
+        - rowgroup [ref=f5e83]:
+          - row [ref=f5e84]:
+            - cell "Ana Vargas" [ref=f5e85]
+            - cell "Juez" [ref=f5e86]
+            - cell "Feria Expotecnica" [ref=f5e88]
+            - cell [ref=f5e89]:
+              - button "Editar" [ref=f5e90] [cursor=pointer]
+              - button "Eliminar" [ref=f5e91] [cursor=pointer]
+          - row [ref=f5e92]:
+            - cell "Carmen Rojas" [ref=f5e93]
+            - cell "Juez" [ref=f5e94]
+            - cell "Feria Expotecnica" [ref=f5e96]
+            - cell [ref=f5e97]:
+              - button "Editar" [ref=f5e98] [cursor=pointer]
+              - button "Eliminar" [ref=f5e99] [cursor=pointer]
+          - row [ref=f5e100]:
+            - cell "Diego Quiros" [ref=f5e101]
+            - cell "Juez" [ref=f5e102]
+            - cell "Festival Estudiantil de las Artes" [ref=f5e104]
+            - cell [ref=f5e105]:
+              - button "Editar" [ref=f5e106] [cursor=pointer]
+              - button "Eliminar" [ref=f5e107] [cursor=pointer]
+          - row [ref=f5e108]:
+            - cell "frutos" [ref=f5e109]
+            - cell "Juez" [ref=f5e110]
+            - cell "Feria Expotecnica" [ref=f5e112]
+            - cell [ref=f5e113]:
+              - button "Editar" [ref=f5e114] [cursor=pointer]
+              - button "Eliminar" [ref=f5e115] [cursor=pointer]
+          - row [ref=f5e116]:
+            - cell "Jorge Solis" [ref=f5e117]
+            - cell "Juez" [ref=f5e118]
+            - cell "Feria Expotecnica" [ref=f5e120]
+            - cell [ref=f5e121]:
+              - button "Editar" [ref=f5e122] [cursor=pointer]
+              - button "Eliminar" [ref=f5e123] [cursor=pointer]
+          - row [ref=f5e124]:
+            - cell "Luis Mendez" [ref=f5e125]
+            - cell "Juez" [ref=f5e126]
+            - cell "Feria Cientifica y Tecnologica" [ref=f5e128]
+            - cell [ref=f5e129]:
+              - button "Editar" [ref=f5e130] [cursor=pointer]
+              - button "Eliminar" [ref=f5e131] [cursor=pointer]
+          - row [ref=f5e132]:
+            - cell "MELI" [ref=f5e133]
+            - cell "Juez" [ref=f5e134]
+            - cell "Festival Estudiantil de las Artes" [ref=f5e136]
+            - cell [ref=f5e137]:
+              - button "Editar" [ref=f5e138] [cursor=pointer]
+              - button "Eliminar" [ref=f5e139] [cursor=pointer]
+          - row [ref=f5e140]:
+            - cell "Mely" [ref=f5e141]
+            - cell "administrador" [ref=f5e142]
+            - cell "Feria Cientifica y Tecnologica" [ref=f5e144]
+            - cell [ref=f5e145]:
+              - button "Editar" [ref=f5e146] [cursor=pointer]
+              - button "Eliminar" [ref=f5e147] [cursor=pointer]
+          - row [ref=f5e148]:
+            - cell "ronnyCenteno" [ref=f5e149]
+            - cell "administrador" [ref=f5e150]
+            - cell "Feria Cientifica y Tecnologica" [ref=f5e152]
+            - cell [ref=f5e153]:
+              - button "Editar" [ref=f5e154] [cursor=pointer]
+              - button "Eliminar" [ref=f5e155] [cursor=pointer]
+          - row [ref=f5e156]:
+            - cell "RonnyJuez" [ref=f5e157]
+            - cell "Juez" [ref=f5e158]
+            - cell "Feria Expotecnica" [ref=f5e160]
+            - cell [ref=f5e161]:
+              - button "Editar" [ref=f5e162] [cursor=pointer]
+              - button "Eliminar" [ref=f5e163] [cursor=pointer]
+          - row [ref=f5e164]:
+            - cell "Sofia Herrera" [ref=f5e165]
+            - cell "Juez" [ref=f5e166]
+            - cell "Festival Estudiantil de las Artes" [ref=f5e168]
+            - cell [ref=f5e169]:
+              - button "Editar" [ref=f5e170] [cursor=pointer]
+              - button "Eliminar" [ref=f5e171] [cursor=pointer]
