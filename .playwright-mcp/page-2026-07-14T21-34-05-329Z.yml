@@ -1,0 +1,58 @@
+- generic [active] [ref=f25e1]:
+  - banner [ref=f25e2]:
+    - heading "Logo Ministerio de Educacion Publica Panel Administrador" [level=1] [ref=f25e3]:
+      - img "Logo Ministerio de Educacion Publica" [ref=f25e5]
+      - generic [ref=f25e6]: Panel Administrador
+    - link "Cerrar sesion" [ref=f25e7] [cursor=pointer]:
+      - /url: "#"
+  - main [ref=f25e8]:
+    - generic [ref=f25e11]:
+      - strong [ref=f25e12]: "Admin:"
+      - generic [ref=f25e13]: Mely
+      - generic [ref=f25e14]: Feria Cientifica y Tecnologica
+    - navigation [ref=f25e15]:
+      - link "Usuarios" [ref=f25e16] [cursor=pointer]:
+        - /url: Proyectos.html
+      - link "Proyectos" [ref=f25e20] [cursor=pointer]:
+        - /url: gestion_proyectos.html
+      - link "Asignaciones" [ref=f25e23] [cursor=pointer]:
+        - /url: usuarios_admin.html
+      - link "Resultados" [ref=f25e29] [cursor=pointer]:
+        - /url: resultados_admin.html
+      - link "Observaciones" [ref=f25e35] [cursor=pointer]:
+        - /url: observaciones_admin.html
+    - generic [ref=f25e39]:
+      - heading "Agregar Usuario" [level=2] [ref=f25e41]
+      - generic [ref=f25e44]:
+        - generic [ref=f25e45]:
+          - generic [ref=f25e46]:
+            - generic [ref=f25e47]: Nombre
+            - textbox "Nombre" [ref=f25e48]:
+              - /placeholder: Nombre del usuario
+          - generic [ref=f25e49]:
+            - generic [ref=f25e50]: Contraseña
+            - textbox "Contraseña" [ref=f25e51]
+        - generic [ref=f25e52]:
+          - generic [ref=f25e53]:
+            - generic [ref=f25e54]: Tipo de feria
+            - combobox "Tipo de feria" [ref=f25e55]:
+              - option "Selecciona un tipo de feria" [selected]
+              - option "Feria Cientifica y Tecnologica"
+              - option "Feria Expotecnica"
+              - option "Festival Estudiantil de las Artes"
+          - generic [ref=f25e56]:
+            - generic [ref=f25e57]: Rol
+            - combobox "Rol" [ref=f25e58]
+        - button "Guardar usuario" [ref=f25e60] [cursor=pointer]
+      - alert [ref=f25e65]
+    - generic [ref=f25e66]:
+      - heading "Usuarios" [level=2] [ref=f25e68]
+      - alert [ref=f25e74]
+      - table [ref=f25e76]:
+        - rowgroup [ref=f25e77]:
+          - row [ref=f25e78]:
+            - columnheader "Nombre" [ref=f25e79]
+            - columnheader "Rol" [ref=f25e80]
+            - columnheader "Tipo de feria" [ref=f25e81]
+            - columnheader "Accion" [ref=f25e82]
+        - rowgroup [ref=f25e83]

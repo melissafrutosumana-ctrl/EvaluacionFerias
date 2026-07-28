@@ -4003,13 +4003,25 @@ function openAssignmentModal(judgeId, judgeName, allProjects, currentAssignments
 
   if (!overlay) return;
 
+  const searchEl = document.querySelector("[data-modal-search]");
   nameEl.textContent = `Juez: ${judgeName}`;
   overlay.hidden = false;
+  searchEl.value = "";
+  searchEl.focus();
 
   const assignedIds = new Set(currentAssignments.map((a) => a.id));
   const selectedTipoMap = new Map(currentAssignments.map((a) => [a.id, a.tipo_evaluacion]));
 
+  let searchTerm = "";
+
   function renderList() {
+    const rows = listEl.querySelectorAll("[data-project-row]");
+    rows.forEach((row) => {
+      const title = row.querySelector(".modal-project-title").textContent.toLowerCase();
+      const match = !searchTerm || title.includes(searchTerm);
+      row.hidden = !match;
+    });
+
     const checkedCount = listEl.querySelectorAll("[data-project-checkbox]:checked").length;
     counterEl.textContent = `${checkedCount}/${allProjects.length} seleccionados`;
 
@@ -4062,6 +4074,11 @@ function openAssignmentModal(judgeId, judgeName, allProjects, currentAssignments
   }).join("");
 
   renderList();
+
+  searchEl.addEventListener("input", (e) => {
+    searchTerm = e.target.value.toLowerCase().trim();
+    renderList();
+  });
 
   listEl.addEventListener("change", (e) => {
     if (e.target.matches("[data-project-checkbox]")) {

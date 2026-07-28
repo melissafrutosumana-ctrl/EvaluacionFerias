@@ -1,0 +1,42 @@
+- generic [active] [ref=f10e1]:
+  - banner [ref=f10e2]:
+    - heading "Logo Ministerio de Educacion Publica Panel Administrador" [level=1] [ref=f10e3]:
+      - img "Logo Ministerio de Educacion Publica" [ref=f10e5]
+      - generic [ref=f10e6]: Panel Administrador
+    - link "Cerrar sesion" [ref=f10e7] [cursor=pointer]:
+      - /url: "#"
+  - main [ref=f10e8]:
+    - generic [ref=f10e11]:
+      - strong [ref=f10e12]: "Admin:"
+      - generic [ref=f10e13]: Mely
+      - generic [ref=f10e14]: Feria Cientifica y Tecnologica
+    - navigation [ref=f10e15]:
+      - link "Usuarios" [ref=f10e16] [cursor=pointer]:
+        - /url: Proyectos.html
+      - link "Proyectos" [ref=f10e20] [cursor=pointer]:
+        - /url: gestion_proyectos.html
+      - link "Asignaciones" [ref=f10e23] [cursor=pointer]:
+        - /url: usuarios_admin.html
+      - link "Resultados" [ref=f10e29] [cursor=pointer]:
+        - /url: resultados_admin.html
+      - link "Observaciones" [ref=f10e35] [cursor=pointer]:
+        - /url: observaciones_admin.html
+    - generic [ref=f10e39]:
+      - generic [ref=f10e40] [cursor=pointer]:
+        - text: "Filtrar por feria:"
+        - combobox "Filtrar por feria:" [ref=f10e43]:
+          - option "Todas las ferias" [selected]
+          - option "Feria Cientifica y Tecnologica"
+          - option "Feria Expotecnica"
+          - option "Festival Estudiantil de las Artes"
+      - generic [ref=f10e44] [cursor=pointer]:
+        - text: "Por proyecto:"
+        - combobox "Por proyecto:" [ref=f10e47]:
+          - option "Todos los proyectos" [selected]
+      - generic [ref=f10e48] [cursor=pointer]:
+        - text: "Por juez:"
+        - combobox "Por juez:" [ref=f10e52]:
+          - option "Todos los jueces" [selected]
+    - generic [ref=f10e53]:
+      - heading "Observaciones por proyecto" [level=2] [ref=f10e55]
+      - alert [ref=f10e60]

@@ -1,0 +1,34 @@
+- generic [active] [ref=f12e1]:
+  - banner [ref=f12e2]:
+    - heading "Logo Ministerio de Educacion Publica Panel Administrador" [level=1] [ref=f12e3]:
+      - img "Logo Ministerio de Educacion Publica" [ref=f12e5]
+      - generic [ref=f12e6]: Panel Administrador
+    - link "Cerrar sesion" [ref=f12e7] [cursor=pointer]:
+      - /url: "#"
+  - main [ref=f12e8]:
+    - generic [ref=f12e11]:
+      - strong [ref=f12e12]: "Admin:"
+      - generic [ref=f12e13]: Mely
+      - generic [ref=f12e14]: Feria Cientifica y Tecnologica
+    - navigation [ref=f12e15]:
+      - link "Usuarios" [ref=f12e16] [cursor=pointer]:
+        - /url: Proyectos.html
+      - link "Proyectos" [ref=f12e20] [cursor=pointer]:
+        - /url: gestion_proyectos.html
+      - link "Asignaciones" [ref=f12e23] [cursor=pointer]:
+        - /url: usuarios_admin.html
+      - link "Resultados" [ref=f12e29] [cursor=pointer]:
+        - /url: resultados_admin.html
+      - link "Observaciones" [ref=f12e35] [cursor=pointer]:
+        - /url: observaciones_admin.html
+    - generic [ref=f12e39]:
+      - heading "Jueces registrados y asignacion de proyectos" [level=2] [ref=f12e41]
+      - paragraph [ref=f12e46]: Asigna hasta 8 proyectos a cada juez desde esta tabla.
+      - alert [ref=f12e47]
+      - table [ref=f12e49]:
+        - rowgroup [ref=f12e50]:
+          - row [ref=f12e51]:
+            - columnheader "Juez" [ref=f12e52]
+            - columnheader "Proyectos asignados" [ref=f12e53]
+            - columnheader "Accion" [ref=f12e54]
+        - rowgroup
