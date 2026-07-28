@@ -3985,7 +3985,7 @@ function renderJudgeAssignmentsTable(judges, projects, assignments) {
           <td>
             <button type="button" class="btn-secondary btn-sm" data-open-assign-modal data-judge-id="${judge.id}" data-judge-name="${escapeHTML(judge.nombre)}">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6"/><path d="M22 11h-6"/></svg>
-              Asignar (${count}/8)
+              Asignar (${count}/${allProjects.length})
             </button>
           </td>
         </tr>
@@ -4011,7 +4011,7 @@ function openAssignmentModal(judgeId, judgeName, allProjects, currentAssignments
 
   function renderList() {
     const checkedCount = listEl.querySelectorAll("[data-project-checkbox]:checked").length;
-    counterEl.textContent = `${checkedCount}/8 seleccionados`;
+    counterEl.textContent = `${checkedCount}/${allProjects.length} seleccionados`;
 
     listEl.querySelectorAll("[data-project-checkbox]").forEach((cb) => {
       const tipoSelect = cb.closest("[data-project-row]").querySelector("[data-tipo-select]");
@@ -4028,7 +4028,7 @@ function openAssignmentModal(judgeId, judgeName, allProjects, currentAssignments
       parent.setAttribute("data-disabled", "");
     });
 
-    if (checkedCount >= 8) {
+    if (checkedCount >= allProjects.length) {
       listEl.querySelectorAll("[data-project-checkbox]:not(:checked)").forEach((cb) => {
         cb.disabled = true;
       });
@@ -4084,8 +4084,8 @@ function openAssignmentModal(judgeId, judgeName, allProjects, currentAssignments
       return;
     }
 
-    if (assignments.length > 8) {
-      showToast("Maximo 8 proyectos por juez.", "error");
+    if (assignments.length > allProjects.length) {
+      showToast("Maximo " + allProjects.length + " proyectos por juez.", "error");
       return;
     }
 
