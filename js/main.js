@@ -4111,8 +4111,9 @@ function openAssignmentModal(judgeId, judgeName, allProjects, currentAssignments
 
       const refreshEvent = new CustomEvent("assignments-changed");
       document.dispatchEvent(refreshEvent);
-    } catch {
-      showToast("No se pudo guardar la asignacion.", "error");
+    } catch (e) {
+      showToast("Error: " + (e.message ?? "desconocido"), "error");
+      console.error("Save assignments error:", e);
     }
 
     saveBtn.disabled = false;
