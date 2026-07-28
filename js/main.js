@@ -1247,7 +1247,7 @@ function renderProjectsManagementTable(projects) {
           <td>${escapeHTML(detailText)}</td>
           <td>${item.id}</td>
           <td>
-            <button class="table-action-btn edit-project-btn" data-edit-project='${escapeHTML(JSON.stringify(item))}'>Editar</button>
+            <button class="table-action-btn edit-project-btn" data-project-id="${item.id}">Editar</button>
             <button class="table-action-btn delete-project-btn" data-delete-project-id="${item.id}">Eliminar</button>
           </td>
         </tr>
@@ -5063,12 +5063,13 @@ async function bootstrapAdminPage() {
       const deleteBtn = event.target.closest(".delete-project-btn");
 
       if (editBtn) {
-        try {
-          const projectData = JSON.parse(editBtn.dataset.editProject);
-          showEditProjectModal(projectData);
-        } catch {
+        const projectId = Number(editBtn.dataset.projectId);
+        const { data, error } = await supabase.from("proyectos_ferias").select("*").eq("id", projectId).maybeSingle();
+        if (error || !data) {
           showToast("Error al leer datos del proyecto.", "error");
+          return;
         }
+        showEditProjectModal(data);
         return;
       }
 
