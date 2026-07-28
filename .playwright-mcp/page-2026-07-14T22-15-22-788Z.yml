@@ -1,0 +1,181 @@
+- generic [ref=f12e1]:
+  - banner [ref=f12e2]:
+    - heading "Logo Ministerio de Educacion Publica Panel Administrador" [level=1] [ref=f12e3]:
+      - img "Logo Ministerio de Educacion Publica" [ref=f12e5]
+      - generic [ref=f12e6]: Panel Administrador
+    - link "Cerrar sesion" [ref=f12e7] [cursor=pointer]:
+      - /url: "#"
+  - main [ref=f12e8]:
+    - generic [ref=f12e11]:
+      - strong [ref=f12e12]: "Admin:"
+      - generic [ref=f12e13]: Mely
+      - generic [ref=f12e14]: Feria Cientifica y Tecnologica
+    - navigation [ref=f12e15]:
+      - link "Usuarios" [ref=f12e16] [cursor=pointer]:
+        - /url: Proyectos.html
+      - link "Proyectos" [ref=f12e20] [cursor=pointer]:
+        - /url: gestion_proyectos.html
+      - link "Asignaciones" [ref=f12e23] [cursor=pointer]:
+        - /url: usuarios_admin.html
+      - link "Resultados" [ref=f12e29] [cursor=pointer]:
+        - /url: resultados_admin.html
+      - link "Observaciones" [ref=f12e35] [cursor=pointer]:
+        - /url: observaciones_admin.html
+    - generic [ref=f12e39]:
+      - heading "Jueces registrados y asignacion de proyectos" [level=2] [ref=f12e41]
+      - paragraph [ref=f12e46]: Asigna hasta 8 proyectos a cada juez desde esta tabla.
+      - alert [ref=f12e47]
+      - table [ref=f12e49]:
+        - rowgroup [ref=f12e50]:
+          - row [ref=f12e51]:
+            - columnheader "Juez" [ref=f12e52]
+            - columnheader "Proyectos asignados" [ref=f12e53]
+            - columnheader "Accion" [ref=f12e54]
+        - rowgroup [ref=f12e55]:
+          - row [ref=f12e56]:
+            - cell [ref=f12e57]:
+              - strong [ref=f12e58]: Ana Vargas
+            - cell "Biodigestor Casero Exposición Puente Levadizo Automatico Exposición" [ref=f12e59]:
+              - text: Biodigestor Casero
+              - generic [ref=f12e60]: Exposición
+              - text: Puente Levadizo Automatico
+              - generic [ref=f12e61]: Exposición
+            - cell [ref=f12e62]:
+              - button "Asignar (2/8)" [active] [ref=f12e63] [cursor=pointer]
+          - row [ref=f12e67]:
+            - cell [ref=f12e68]:
+              - strong [ref=f12e69]: Carmen Rojas
+            - cell "Biodigestor Casero Exposición EcoMarket App Exposición" [ref=f12e70]:
+              - text: Biodigestor Casero
+              - generic [ref=f12e71]: Exposición
+              - text: EcoMarket App
+              - generic [ref=f12e72]: Exposición
+            - cell [ref=f12e73]:
+              - button "Asignar (2/8)" [ref=f12e74] [cursor=pointer]
+          - row [ref=f12e78]:
+            - cell [ref=f12e79]:
+              - strong [ref=f12e80]: Diego Quiros
+            - cell "Puente Levadizo Automatico Exposición Invernadero Inteligente Exposición" [ref=f12e81]:
+              - text: Puente Levadizo Automatico
+              - generic [ref=f12e82]: Exposición
+              - text: Invernadero Inteligente
+              - generic [ref=f12e83]: Exposición
+            - cell [ref=f12e84]:
+              - button "Asignar (2/8)" [ref=f12e85] [cursor=pointer]
+          - row [ref=f12e89]:
+            - cell [ref=f12e90]:
+              - strong [ref=f12e91]: frutos
+            - cell "Invernadero Inteligente Exposición Puente Levadizo Automatico Escrito EcoMarket App Exposición" [ref=f12e92]:
+              - text: Invernadero Inteligente
+              - generic [ref=f12e93]: Exposición
+              - text: Puente Levadizo Automatico
+              - generic [ref=f12e94]: Escrito
+              - text: EcoMarket App
+              - generic [ref=f12e95]: Exposición
+            - cell [ref=f12e96]:
+              - button "Asignar (3/8)" [ref=f12e97] [cursor=pointer]
+          - row [ref=f12e101]:
+            - cell [ref=f12e102]:
+              - strong [ref=f12e103]: Jorge Solis
+            - cell "Puente Levadizo Automatico Exposición" [ref=f12e104]:
+              - text: Puente Levadizo Automatico
+              - generic [ref=f12e105]: Exposición
+            - cell [ref=f12e106]:
+              - button "Asignar (1/8)" [ref=f12e107] [cursor=pointer]
+          - row [ref=f12e111]:
+            - cell [ref=f12e112]:
+              - strong [ref=f12e113]: Luis Mendez
+            - cell "Biodigestor Casero Exposición" [ref=f12e114]:
+              - text: Biodigestor Casero
+              - generic [ref=f12e115]: Exposición
+            - cell [ref=f12e116]:
+              - button "Asignar (1/8)" [ref=f12e117] [cursor=pointer]
+          - row [ref=f12e121]:
+            - cell [ref=f12e122]:
+              - strong [ref=f12e123]: MELI
+            - cell "Sin proyectos asignados" [ref=f12e124]
+            - cell [ref=f12e125]:
+              - button "Asignar (0/8)" [ref=f12e126] [cursor=pointer]
+          - row [ref=f12e130]:
+            - cell [ref=f12e131]:
+              - strong [ref=f12e132]: RonnyJuez
+            - cell "Biodigestor Casero Escrito EcoMarket App Exposición" [ref=f12e133]:
+              - text: Biodigestor Casero
+              - generic [ref=f12e134]: Escrito
+              - text: EcoMarket App
+              - generic [ref=f12e135]: Exposición
+            - cell [ref=f12e136]:
+              - button "Asignar (2/8)" [ref=f12e137] [cursor=pointer]
+          - row [ref=f12e141]:
+            - cell [ref=f12e142]:
+              - strong [ref=f12e143]: Sofia Herrera
+            - cell "Sin proyectos asignados" [ref=f12e144]
+            - cell [ref=f12e145]:
+              - button "Asignar (0/8)" [ref=f12e146] [cursor=pointer]
+  - dialog [ref=f12e151]:
+    - generic [ref=f12e152]:
+      - heading "Asignar proyectos" [level=3] [ref=f12e153]
+      - button "Cerrar" [ref=f12e154] [cursor=pointer]: ×
+    - generic [ref=f12e155]:
+      - paragraph [ref=f12e156]: "Juez: Ana Vargas"
+      - paragraph [ref=f12e157]: 2/8 seleccionados
+      - generic [ref=f12e158]:
+        - generic [ref=f12e159]:
+          - generic [ref=f12e160] [cursor=pointer]:
+            - checkbox "App de Reciclaje Feria Cientifica y Tecnologica" [ref=f12e161]
+            - generic: App de Reciclaje
+            - generic [ref=f12e162]: Feria Cientifica y Tecnologica
+          - combobox [ref=f12e163] [cursor=pointer]:
+            - option "Exposición" [selected]
+            - option "Escrito"
+        - generic [ref=f12e164]:
+          - generic [ref=f12e165] [cursor=pointer]:
+            - checkbox "Biodigestor Casero Feria Cientifica y Tecnologica" [checked] [ref=f12e166]
+            - generic: Biodigestor Casero
+            - generic [ref=f12e167]: Feria Cientifica y Tecnologica
+          - combobox [ref=f12e168] [cursor=pointer]:
+            - option "Exposición" [selected]
+            - option "Escrito"
+        - generic [ref=f12e169]:
+          - generic [ref=f12e170] [cursor=pointer]:
+            - checkbox "EcoMarket App Feria Expotecnica" [ref=f12e171]
+            - generic: EcoMarket App
+            - generic [ref=f12e172]: Feria Expotecnica
+          - combobox [ref=f12e173] [cursor=pointer]:
+            - option "Exposición" [selected]
+            - option "Escrito"
+        - generic [ref=f12e174]:
+          - generic [ref=f12e175] [cursor=pointer]:
+            - checkbox "Invernadero Inteligente Feria Expotecnica" [ref=f12e176]
+            - generic: Invernadero Inteligente
+            - generic [ref=f12e177]: Feria Expotecnica
+          - combobox [ref=f12e178] [cursor=pointer]:
+            - option "Exposición" [selected]
+            - option "Escrito"
+        - generic [ref=f12e179]:
+          - generic [ref=f12e180] [cursor=pointer]:
+            - checkbox "Puente Levadizo Automatico Feria Expotecnica" [checked] [ref=f12e181]
+            - generic: Puente Levadizo Automatico
+            - generic [ref=f12e182]: Feria Expotecnica
+          - combobox [ref=f12e183] [cursor=pointer]:
+            - option "Exposición" [selected]
+            - option "Escrito"
+        - generic [ref=f12e184]:
+          - generic [ref=f12e185] [cursor=pointer]:
+            - checkbox "Purificador de Agua Solar Feria Cientifica y Tecnologica" [ref=f12e186]
+            - generic: Purificador de Agua Solar
+            - generic [ref=f12e187]: Feria Cientifica y Tecnologica
+          - combobox [ref=f12e188] [cursor=pointer]:
+            - option "Exposición" [selected]
+            - option "Escrito"
+        - generic [ref=f12e189]:
+          - generic [ref=f12e190] [cursor=pointer]:
+            - checkbox "ReciclaYa Feria Expotecnica" [ref=f12e191]
+            - generic: ReciclaYa
+            - generic [ref=f12e192]: Feria Expotecnica
+          - combobox [ref=f12e193] [cursor=pointer]:
+            - option "Exposición" [selected]
+            - option "Escrito"
+    - generic [ref=f12e194]:
+      - button "Cancelar" [ref=f12e195] [cursor=pointer]
+      - button "Guardar asignaciones" [ref=f12e196] [cursor=pointer]

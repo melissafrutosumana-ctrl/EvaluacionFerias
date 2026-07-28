@@ -1,0 +1,72 @@
+- generic [active] [ref=f7e1]:
+  - banner [ref=f7e2]:
+    - heading "Logo Ministerio de Educacion Publica Panel Administrador" [level=1] [ref=f7e3]:
+      - img "Logo Ministerio de Educacion Publica" [ref=f7e5]
+      - generic [ref=f7e6]: Panel Administrador
+    - link "Cerrar sesion" [ref=f7e7] [cursor=pointer]:
+      - /url: "#"
+  - main [ref=f7e8]:
+    - generic [ref=f7e11]:
+      - strong [ref=f7e12]: "Admin:"
+      - generic [ref=f7e13]: Mely
+      - generic [ref=f7e14]: Feria Cientifica y Tecnologica
+    - navigation [ref=f7e15]:
+      - link "Usuarios" [ref=f7e16] [cursor=pointer]:
+        - /url: Proyectos.html
+      - link "Proyectos" [ref=f7e20] [cursor=pointer]:
+        - /url: gestion_proyectos.html
+      - link "Asignaciones" [ref=f7e23] [cursor=pointer]:
+        - /url: usuarios_admin.html
+      - link "Resultados" [ref=f7e29] [cursor=pointer]:
+        - /url: resultados_admin.html
+      - link "Observaciones" [ref=f7e35] [cursor=pointer]:
+        - /url: observaciones_admin.html
+    - generic [ref=f7e39]:
+      - heading "Agregar Proyecto" [level=2] [ref=f7e41]
+      - generic [ref=f7e44]:
+        - generic [ref=f7e46]:
+          - generic [ref=f7e47]: Titulo del proyecto
+          - textbox "Titulo del proyecto" [ref=f7e48]:
+            - /placeholder: Ingresa el titulo del proyecto
+        - generic [ref=f7e50]:
+          - generic [ref=f7e51]: Descripcion
+          - textbox "Descripcion" [ref=f7e52]:
+            - /placeholder: Breve descripcion del proyecto (opcional)
+        - generic [ref=f7e54]:
+          - generic [ref=f7e55]: Tipo de feria
+          - combobox "Tipo de feria" [ref=f7e56]:
+            - option "Selecciona una feria" [selected]
+            - option "Festival Estudiantil de las Artes"
+            - option "Feria Cientifica y Tecnologica"
+            - option "Feria Expotecnica"
+        - generic [ref=f7e58]:
+          - generic [ref=f7e59]:
+            - generic [ref=f7e60]: Integrante 1
+            - textbox "Integrante 1" [ref=f7e61]:
+              - /placeholder: Nombre completo
+          - generic [ref=f7e62]:
+            - generic [ref=f7e63]: Integrante 2
+            - textbox "Integrante 2" [ref=f7e64]:
+              - /placeholder: Nombre completo
+          - generic [ref=f7e65]:
+            - generic [ref=f7e66]: Integrante 3
+            - textbox "Integrante 3" [ref=f7e67]:
+              - /placeholder: Nombre completo
+        - generic [ref=f7e69]:
+          - generic [ref=f7e70]: Participacion
+          - textbox "Participacion" [ref=f7e71]:
+            - /placeholder: "Ej: Individual, grupal, etc."
+        - button "Guardar proyecto" [ref=f7e73] [cursor=pointer]
+      - alert [ref=f7e78]
+    - generic [ref=f7e79]:
+      - heading "Proyectos registrados" [level=2] [ref=f7e81]
+      - alert [ref=f7e84]
+      - table [ref=f7e86]:
+        - rowgroup [ref=f7e87]:
+          - row [ref=f7e88]:
+            - columnheader "Titulo" [ref=f7e89]
+            - columnheader "Tipo de feria" [ref=f7e90]
+            - columnheader "Detalle" [ref=f7e91]
+            - columnheader "ID" [ref=f7e92]
+            - columnheader "Accion" [ref=f7e93]
+        - rowgroup
