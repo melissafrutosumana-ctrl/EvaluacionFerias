@@ -3262,6 +3262,22 @@ body[data-page="judge"] .btn-sm:hover {
   padding: 0.2rem 0.65rem;
   border-radius: 999px;
 }
+.modal-search {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  background: var(--bg);
+  color: var(--text);
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.modal-search:focus {
+  border-color: var(--primary);
+}
 .modal-project-list {
   display: flex;
   flex-direction: column;
