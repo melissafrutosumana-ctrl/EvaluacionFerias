@@ -5881,12 +5881,12 @@ function showEditProjectModal(project) {
               <span>Categoria PRONAFECYT</span>
               <select name="categoria_pronatecyt">
                 <option value="">Selecciona una categoria</option>
-                <option value="F8B - Demostraciones Cientificas y Tecnologicas">F8B - Demostraciones Cientificas y Tecnologicas</option>
-                <option value="F9B - Investigacion Cientifica">F9B - Investigacion Cientifica</option>
-                <option value="F10B - I+D Tecnologico">F10B - I+D Tecnologico</option>
-                <option value="F11B - Quehacer Cientifico y Tecnologico">F11B - Quehacer Cientifico y Tecnologico</option>
-                <option value="F12B - Sumando Experiencias Cientificas">F12B - Sumando Experiencias Cientificas</option>
-                <option value="F13B - Mi Experiencia Cientifica">F13B - Mi Experiencia Cientifica</option>
+                <option value="F8B - Demostraciones Científicas y Tecnológicas">F8B - Demostraciones Científicas y Tecnológicas</option>
+                <option value="F9B - Investigación Científica">F9B - Investigación Científica</option>
+                <option value="F10B - I+D Tecnológico">F10B - I+D Tecnológico</option>
+                <option value="F11B - Quehacer Científico y Tecnológico">F11B - Quehacer Científico y Tecnológico</option>
+                <option value="F12B - Sumando Experiencias Científicas">F12B - Sumando Experiencias Científicas</option>
+                <option value="F13B - Mi Experiencia Científica">F13B - Mi Experiencia Científica</option>
               </select>
             </label>
           </div>
@@ -5990,7 +5990,13 @@ function showEditProjectModal(project) {
 
   const pronatecytSelect = form.querySelector('select[name="categoria_pronatecyt"]');
   if (pronatecytSelect) {
-    pronatecytSelect.value = String(project.categoria_pronatecyt ?? "");
+    const stored = String(project.categoria_pronatecyt ?? "");
+    pronatecytSelect.value = stored;
+    if (!pronatecytSelect.value && stored) {
+      const norm = stored.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      const match = [...pronatecytSelect.options].find((o) => o.value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") === norm);
+      if (match) match.selected = true;
+    }
   }
 
   festivalCategorySelect?.addEventListener("change", () => {
