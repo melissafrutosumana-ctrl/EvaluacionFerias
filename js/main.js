@@ -4014,11 +4014,13 @@ function openAssignmentModal(judgeId, judgeName, allProjects, currentAssignments
 
   let searchTerm = "";
 
+  function normalize(str) {
+    return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  }
   function renderList() {
     const rows = listEl.querySelectorAll("[data-project-row]");
     rows.forEach((row) => {
-      const title = row.querySelector(".modal-project-title").textContent.toLowerCase();
-      const match = !searchTerm || title.includes(searchTerm);
+      const match = !searchTerm || normalize(row.querySelector(".modal-project-title").textContent).includes(searchTerm);
       row.style.display = match ? "" : "none";
     });
 
@@ -4076,7 +4078,7 @@ function openAssignmentModal(judgeId, judgeName, allProjects, currentAssignments
   renderList();
 
   searchEl.addEventListener("input", (e) => {
-    searchTerm = e.target.value.toLowerCase().trim();
+    searchTerm = e.target.value.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     renderList();
   });
 
