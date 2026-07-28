@@ -4019,7 +4019,7 @@ function openAssignmentModal(judgeId, judgeName, allProjects, currentAssignments
     rows.forEach((row) => {
       const title = row.querySelector(".modal-project-title").textContent.toLowerCase();
       const match = !searchTerm || title.includes(searchTerm);
-      row.hidden = !match;
+      row.style.display = match ? "" : "none";
     });
 
     const checkedCount = listEl.querySelectorAll("[data-project-checkbox]:checked").length;
