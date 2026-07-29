@@ -3440,6 +3440,30 @@ body[data-page="judge"] .btn-sm:hover {
   border-radius: 0;
 }
 
+/* ===== EVALUATION JUDGE COLORS ===== */
+.eval-table .eval-judge-row {
+  border-left: 3px solid transparent;
+  transition: background 0.15s;
+}
+.eval-table .eval-judge-first {
+  border-top: 2px solid var(--judge-color, #e5e7eb);
+}
+.eval-table .eval-judge-row:hover {
+  background: rgba(0,0,0,0.02);
+}
+.eval-table .eval-judge-row td:first-child {
+  padding-left: 1rem;
+}
+.judge-color-badge {
+  font-weight: 600;
+  border: 1px solid;
+}
+.eval-nota-cell {
+  font-weight: 600;
+  text-align: center;
+  min-width: 3rem;
+}
+
 /* ===== INLINE ASSIGNMENT ===== */
 .assignment-tipo-select {
   font-size: 0.7rem;
