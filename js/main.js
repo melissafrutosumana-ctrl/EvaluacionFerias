@@ -3863,6 +3863,25 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject) {
     .join("");
 }
 
+async function fetchAllEvaluations() {
+  const pageSize = 1000;
+  let allRows = [];
+  let start = 0;
+  while (true) {
+    const { data, error } = await supabase
+      .from("evaluaciones_proyectos")
+      .select("proyecto_id, juez_id, criterio, nota, tipo_evaluacion")
+      .order("created_at", { ascending: false })
+      .range(start, start + pageSize - 1);
+    if (error) throw error;
+    if (!data || !data.length) break;
+    allRows = allRows.concat(data);
+    if (data.length < pageSize) break;
+    start += pageSize;
+  }
+  return allRows;
+}
+
 async function renderAdminReportsByFeria() {
   const hasAnyReportTarget =
     document.querySelector("[data-admin-evaluations]") ||
@@ -3876,19 +3895,15 @@ async function renderAdminReportsByFeria() {
   const filterEl = document.querySelector("[data-feria-results-filter]");
   const selectedFeria = filterEl ? filterEl.value : "";
 
-  const [users, projectsResult, evaluationsResult, assignmentsResult] = await Promise.all([
+  const [users, projectsResult, allEvals, assignmentsResult] = await Promise.all([
     loadUsers(),
     supabase.from("proyectos_ferias").select("id, titulo, tipo_feria"),
-    supabase.from("evaluaciones_proyectos").select("proyecto_id, juez_id, criterio, nota, tipo_evaluacion").order("created_at", { ascending: false }).limit(10000),
+    fetchAllEvaluations(),
     supabase.from("asignaciones_jueces").select("juez_id, proyecto_id, tipo_evaluacion")
   ]);
-  
+
   if (projectsResult.error) {
     throw projectsResult.error;
-  }
-
-  if (evaluationsResult.error) {
-    throw evaluationsResult.error;
   }
 
   const allProjects = projectsResult.data ?? [];
@@ -3900,7 +3915,7 @@ async function renderAdminReportsByFeria() {
 
   const usersById = new Map((users ?? []).map((item) => [item.id, item]));
   const projectsById = new Map(filteredProjects.map((item) => [item.id, item]));
-  const filteredRows = (evaluationsResult.data ?? []).filter((r) =>
+  const filteredRows = (allEvals ?? []).filter((r) =>
     projectIdsInFeria.has(r.proyecto_id)
   );
 
@@ -5282,14 +5297,14 @@ async function generateAdminPDF() {
   const logoData = await loadMEPLogo();
 
   try {
-    const [users, projectsResult, evaluationsResult, assignmentsResult] = await Promise.all([
+    const [users, projectsResult, evaluations, assignmentsResult] = await Promise.all([
       loadUsers(),
       supabase.from("proyectos_ferias").select("id, titulo, tipo_feria, categoria_expotecnica, categoria_pronatecyt"),
-      supabase.from("evaluaciones_proyectos").select("proyecto_id, juez_id, criterio, nota, tipo_evaluacion").order("created_at", { ascending: false }).limit(10000),
+      fetchAllEvaluations(),
       supabase.from("asignaciones_jueces").select("juez_id, proyecto_id, tipo_evaluacion")
     ]);
 
-    if (projectsResult.error || evaluationsResult.error) {
+    if (projectsResult.error) {
       throw new Error("Error al cargar datos");
     }
 
@@ -5303,9 +5318,9 @@ async function generateAdminPDF() {
     const projectIds = new Set(filteredProjects.map((p) => p.id));
     const usersById = new Map((users ?? []).map((item) => [item.id, item]));
     const projectsById = new Map(filteredProjects.map((item) => [item.id, item]));
-    const evaluations = (evaluationsResult.data ?? []).filter((r) => projectIds.has(r.proyecto_id));
+    const filteredEvals = (evaluations ?? []).filter((r) => projectIds.has(r.proyecto_id));
 
-    if (!evaluations.length) {
+    if (!filteredEvals.length) {
       showToast("No hay evaluaciones para generar el reporte.", "info");
       return;
     }
@@ -5313,7 +5328,7 @@ async function generateAdminPDF() {
     // Build score data per project per judge per tipo
     const votedSet = new Set();
     const scoreMap = new Map();
-    evaluations.forEach((row) => {
+    filteredEvals.forEach((row) => {
       const tipo = row.tipo_evaluacion ?? "Exposición";
       const key = `${row.proyecto_id}-${row.juez_id}-${tipo}`;
       votedSet.add(key);
