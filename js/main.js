@@ -3685,15 +3685,35 @@ function renderAdminEvaluationsTable(rows, usersById, projectsById) {
     const tableWrap = document.createElement("div");
     tableWrap.className = "table-wrap";
 
+    // Assign color per judge
+    const judgeColors = [
+      "#2563eb", "#dc2626", "#16a34a", "#ca8a04", "#9333ea",
+      "#0891b2", "#e11d48", "#65a30d", "#7c3aed", "#d97706"
+    ];
+    const colorMap = new Map();
+    const judgeIds = [...new Set(data.rows.map((r) => r.juez_id))].sort();
+    judgeIds.forEach((jid, i) => colorMap.set(jid, judgeColors[i % judgeColors.length]));
+
+    // Sort rows by judge so each judge's criteria appear together
+    const sortedRows = [...data.rows].sort((a, b) => {
+      const orderA = judgeIds.indexOf(a.juez_id);
+      const orderB = judgeIds.indexOf(b.juez_id);
+      return orderA - orderB;
+    });
+
     const table = document.createElement("table");
-    table.className = "results-table";
+    table.className = "results-table eval-table";
     table.innerHTML = `<thead><tr><th>Juez</th><th>Criterio</th><th>Nota</th></tr></thead>`;
 
     const tbody = document.createElement("tbody");
-    tbody.innerHTML = data.rows
+    let lastJuez = null;
+    tbody.innerHTML = sortedRows
       .map((row) => {
         const judgeName = usersById.get(row.juez_id)?.nombre ?? "Juez";
-        return `<tr><td><span class="role-badge role-judge">${escapeHTML(judgeName)}</span></td><td>${escapeHTML(row.criterio)}</td><td>${row.nota}</td></tr>`;
+        const color = colorMap.get(row.juez_id) ?? "#6b7280";
+        const isFirstOfJudge = row.juez_id !== lastJuez;
+        lastJuez = row.juez_id;
+        return `<tr class="eval-judge-row${isFirstOfJudge ? " eval-judge-first" : ""}" style="--judge-color:${color}"><td><span class="role-badge judge-color-badge" style="background:${color}18;color:${color};border-color:${color}33">${escapeHTML(judgeName)}</span></td><td>${escapeHTML(row.criterio)}</td><td class="eval-nota-cell">${row.nota}</td></tr>`;
       })
       .join("");
 
