@@ -3879,10 +3879,10 @@ async function renderAdminReportsByFeria() {
   const [users, projectsResult, evaluationsResult, assignmentsResult] = await Promise.all([
     loadUsers(),
     supabase.from("proyectos_ferias").select("id, titulo, tipo_feria"),
-    supabase.from("evaluaciones_proyectos").select("proyecto_id, juez_id, criterio, nota, tipo_evaluacion").order("created_at", { ascending: false }),
+    supabase.from("evaluaciones_proyectos").select("proyecto_id, juez_id, criterio, nota, tipo_evaluacion").order("created_at", { ascending: false }).limit(10000),
     supabase.from("asignaciones_jueces").select("juez_id, proyecto_id, tipo_evaluacion")
   ]);
-
+  
   if (projectsResult.error) {
     throw projectsResult.error;
   }
@@ -4707,13 +4707,14 @@ async function bootstrapJudgePage() {
     const evaluaciones = [];
     currentRubricModel.indicators.forEach((criterio) => {
       if (typeof criterio !== "string") return;
-      const nota = Number(formData.get(`indicador_${inputIndex}`));
+      const raw = formData.get(`indicador_${inputIndex}`);
+      const nota = Number.isFinite(Number(raw)) ? Number(raw) : 0; // ponytail: no marcado = 0
       evaluaciones.push({ criterio, nota });
       inputIndex++;
     });
 
-    if (!proyectoId || evaluaciones.some((item) => Number.isNaN(item.nota))) {
-      setMessage(evaluationStatus, "Completa todos los campos de la evaluacion.", "error");
+    if (!proyectoId || !evaluaciones.length) {
+      setMessage(evaluationStatus, "Selecciona un proyecto para evaluar.", "error");
       return;
     }
 
@@ -5284,7 +5285,7 @@ async function generateAdminPDF() {
     const [users, projectsResult, evaluationsResult, assignmentsResult] = await Promise.all([
       loadUsers(),
       supabase.from("proyectos_ferias").select("id, titulo, tipo_feria, categoria_expotecnica, categoria_pronatecyt"),
-      supabase.from("evaluaciones_proyectos").select("proyecto_id, juez_id, criterio, nota, tipo_evaluacion").order("created_at", { ascending: false }),
+      supabase.from("evaluaciones_proyectos").select("proyecto_id, juez_id, criterio, nota, tipo_evaluacion").order("created_at", { ascending: false }).limit(10000),
       supabase.from("asignaciones_jueces").select("juez_id, proyecto_id, tipo_evaluacion")
     ]);
 
