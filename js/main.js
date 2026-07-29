@@ -4722,14 +4722,13 @@ async function bootstrapJudgePage() {
     const evaluaciones = [];
     currentRubricModel.indicators.forEach((criterio) => {
       if (typeof criterio !== "string") return;
-      const raw = formData.get(`indicador_${inputIndex}`);
-      const nota = Number.isFinite(Number(raw)) ? Number(raw) : 0; // ponytail: no marcado = 0
+      const nota = Number(formData.get(`indicador_${inputIndex}`));
       evaluaciones.push({ criterio, nota });
       inputIndex++;
     });
 
-    if (!proyectoId || !evaluaciones.length) {
-      setMessage(evaluationStatus, "Selecciona un proyecto para evaluar.", "error");
+    if (!proyectoId || evaluaciones.some((item) => Number.isNaN(item.nota))) {
+      setMessage(evaluationStatus, "Completa todos los campos de la evaluacion.", "error");
       return;
     }
 
