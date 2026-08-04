@@ -1096,37 +1096,48 @@ function filterByFeria(items, feriaType) {
 }
 
 async function loadUserForLogin(username) {
-  const tryWithFeria = await supabase
+  const tryExact = await supabase
+    .from("usuarios")
+    .select("id, nombre, contrasena_hash, role_id, tipo_feria")
+    .eq("nombre", username)
+    .maybeSingle();
+
+  if (!tryExact.error && tryExact.data) {
+    return tryExact;
+  }
+
+  if (tryExact.error && !isMissingColumnError(tryExact.error, "tipo_feria")) {
+    return tryExact;
+  }
+
+  const tryILikeWithFeria = await supabase
     .from("usuarios")
     .select("id, nombre, contrasena_hash, role_id, tipo_feria")
     .ilike("nombre", username)
     .maybeSingle();
 
-  if (!tryWithFeria.error) {
-    return tryWithFeria;
+  if (!tryILikeWithFeria.error && tryILikeWithFeria.data) {
+    return tryILikeWithFeria;
   }
 
-  if (!isMissingColumnError(tryWithFeria.error, "tipo_feria")) {
-    return tryWithFeria;
+  if (tryILikeWithFeria.error && !isMissingColumnError(tryILikeWithFeria.error, "tipo_feria")) {
+    return tryILikeWithFeria;
   }
 
-  const fallback = await supabase
+  const tryILike = await supabase
     .from("usuarios")
     .select("id, nombre, contrasena_hash, role_id")
     .ilike("nombre", username)
     .maybeSingle();
 
-  if (fallback.data) {
+  if (tryILike.data) {
     return {
-      data: {
-        ...fallback.data,
-        tipo_feria: null
-      },
-      error: fallback.error
+      data: { ...tryILike.data, tipo_feria: null },
+      error: tryILike.error
     };
   }
 
-  return fallback;
+  return tryILike;
 }
 
 function renderUsersTable(users, roles) {
@@ -4208,6 +4219,7 @@ function enforceRole(requiredRole) {
 }
 
 async function bootstrapLoginPage() {
+  await supabase.auth.signOut().catch(() => {});
   setupHideOnScroll();
   const user = getSession();
   const sessionRole = normalizeRoleName(user?.role);
@@ -4250,11 +4262,21 @@ async function bootstrapLoginPage() {
       const { data, error } = await loadUserForLogin(usuario);
 
       if (error) {
-        throw error;
+        setMessage(status, "Error de conexion. Recarga la pagina e intenta de nuevo.", "error");
+        btn.disabled = false;
+        btn.textContent = originalText;
+        return;
       }
 
-      if (!data || !(await passwordMatches(password, data.contrasena_hash))) {
-        setMessage(status, "Credenciales invalidas.", "error");
+      if (!data) {
+        setMessage(status, "Usuario no encontrado.", "error");
+        btn.disabled = false;
+        btn.textContent = originalText;
+        return;
+      }
+
+      if (!(await passwordMatches(password, data.contrasena_hash))) {
+        setMessage(status, "Contrasena incorrecta.", "error");
         btn.disabled = false;
         btn.textContent = originalText;
         return;
