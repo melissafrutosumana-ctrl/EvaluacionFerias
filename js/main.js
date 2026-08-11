@@ -115,7 +115,7 @@ function getNivelFromPronatecyt(categoria) {
     const code = String(categoria).split(" ")[0];
     if (["F11B", "F11C"].includes(code)) return "Primaria (I y II Ciclos)";
     if (["F8B", "F8C"].includes(code)) return "Secundaria - III Ciclo";
-    if (["F9B", "F9C", "F10B", "F10C"].includes(code)) return "Secundaria - III Ciclo";
+    if (["F9B", "F9C", "F10B", "F10C"].includes(code)) return "Secundaria";
     if (["F12B", "F12C", "F13B"].includes(code)) return "Educación Especial";
     return null;
 }
@@ -128,6 +128,14 @@ const PRONAFECYT_CATEGORIES = [
     "F12B - Sumando Experiencias Científicas",
     "F13B - Mi Experiencia Científica"
 ];
+
+const PRONAFECYT_C_MAX = {
+    "F8C - Demostraciones Científicas y Tecnológicas": 64,
+    "F9C - Investigación Científica": 78,
+    "F10C - Investigación y Desarrollo Tecnológico": 98,
+    "F11C - Quehacer Científico y Tecnológico": 54,
+    "F12C - Sumando Experiencias Científicas": 54
+};
 
 const EXPOTECNICA_EJES = [
     "PRODUCCION AGRICOLA Y PECUARIA",
@@ -3902,6 +3910,31 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
         const manualEscrito = proj ?.puntaje_escrito_manual != null ? Number(proj.puntaje_escrito_manual) : null;
         const escritoAvgFinal = manualEscrito !== null ? manualEscrito : escritoAvg;
         const escritoVotedFinal = manualEscrito !== null ? 1 : escritoVoted;
+
+        let finalScore;
+        const isScientific = proj ?.tipo_feria === "Feria Cientifica y Tecnologica";
+        if (isScientific && proj ?.categoria_pronatecyt) {
+            const cCode = proj.categoria_pronatecyt.replace("B -", "C -");
+            const cMax = PRONAFECYT_C_MAX[cCode];
+            const isF13B = proj.categoria_pronatecyt.startsWith("F13B");
+            if (isF13B) {
+                finalScore = expoAvg;
+            } else if (cMax) {
+                const expoPart = expoVoted > 0 ? expoAvg : 0;
+                let escritoPart = 0;
+                if (manualEscrito !== null) {
+                    escritoPart = (manualEscrito / 100) * 50;
+                } else if (escritoVoted > 0) {
+                    escritoPart = (escritoAvg / cMax) * 50;
+                }
+                finalScore = expoPart + escritoPart;
+            } else {
+                finalScore = calcFinalScore(expoVoted, expoAvg, escritoVotedFinal, escritoAvgFinal);
+            }
+        } else {
+            finalScore = calcFinalScore(expoVoted, expoAvg, escritoVotedFinal, escritoAvgFinal);
+        }
+
         results.push({
             projectId,
             projectName: proj ?.titulo ?? "Proyecto",
@@ -3913,7 +3946,7 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
             expoVoted,
             escritoTotal,
             escritoVoted,
-            finalScore: calcFinalScore(expoVoted, expoAvg, escritoVotedFinal, escritoAvgFinal)
+            finalScore
         });
     }
 
@@ -5552,6 +5585,29 @@ async function generateAdminPDF() {
       const evalComplete =
         (expoTotal === 0 || expoVoted === expoTotal) &&
         (escritoTotal === 0 || escritoVoted === escritoTotal);
+
+      let pdfFinalScore = 0;
+      if (evalComplete) {
+        const projData = projectsById.get(projectId);
+        const isScientific = projData?.tipo_feria === "Feria Cientifica y Tecnologica";
+        if (isScientific && projData?.categoria_pronatecyt) {
+          const cCode = projData.categoria_pronatecyt.replace("B -", "C -");
+          const cMax = PRONAFECYT_C_MAX[cCode];
+          const isF13B = projData.categoria_pronatecyt.startsWith("F13B");
+          if (isF13B) {
+            pdfFinalScore = expoAvg;
+          } else if (cMax) {
+            const expoPart = expoVoted > 0 ? expoAvg : 0;
+            const escritoPart = escritoVoted > 0 ? (escritoAvg / cMax) * 50 : 0;
+            pdfFinalScore = expoPart + escritoPart;
+          } else {
+            pdfFinalScore = calcFinalScore(expoVoted, expoAvg, escritoVoted, escritoAvg);
+          }
+        } else {
+          pdfFinalScore = calcFinalScore(expoVoted, expoAvg, escritoVoted, escritoAvg);
+        }
+      }
+
       results.push({
         projectName: projectsById.get(projectId)?.titulo ?? "Proyecto",
         projectId,
@@ -5560,7 +5616,7 @@ async function generateAdminPDF() {
         escritoTotal, escritoVoted,
         expoAvg, escritoAvg,
         evalComplete,
-        finalScore: evalComplete ? calcFinalScore(expoVoted, expoAvg, escritoVoted, escritoAvg) : 0
+        finalScore: pdfFinalScore
       });
     }
     results.sort((a, b) => b.finalScore - a.finalScore);
@@ -5580,7 +5636,11 @@ async function generateAdminPDF() {
         }
       }
       if (feria === "Feria Cientifica y Tecnologica") {
-        return tipo === "Escrito" ? 72 : 40;
+        if (tipo === "Escrito" && p.categoria_pronatecyt) {
+          const cCode = p.categoria_pronatecyt.replace("B -", "C -");
+          return PRONAFECYT_C_MAX[cCode] ?? 72;
+        }
+        return 40;
       }
       if (feria === FESTIVAL_FERIA_NAME) {
         return tipo === "Escrito" ? 0 : 12;
