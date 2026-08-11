@@ -625,13 +625,8 @@ body.nav-open[data-page="judge"] main {
     border-left: 4px solid var(--secondary);
 }
 
-.identity-bar:has(.identity-bar-right) .identity-bar-inner {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    flex-wrap: wrap;
-}
+
+
 
 .identity-bar-inner {
     display: flex;
@@ -888,15 +883,6 @@ body.nav-open[data-page="judge"] main {
     flex-wrap: wrap;
 }
 
-.card-footer {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-top: 1rem;
-    padding-top: 0.75rem;
-    border-top: 1px solid var(--border);
-}
-
 .btn-primary {
     display: inline-flex;
     align-items: center;
@@ -962,43 +948,11 @@ body.nav-open[data-page="judge"] main {
     transform: translateY(0);
 }
 
-.edit-user-btn,
-.edit-project-btn {
-    color: #1d4ed8;
-    border-color: #bfdbfe;
-    background: #eff6ff;
-}
-
-.edit-user-btn:hover,
-.edit-project-btn:hover {
-    background: #1d4ed8;
-    border-color: #1d4ed8;
-    color: #ffffff;
-    box-shadow: 0 3px 10px rgba(29, 78, 216, 0.25);
-}
-
-.delete-user-btn,
-.delete-project-btn {
-    color: #dc2626;
-    border-color: #fecaca;
-    background: #fef2f2;
-}
-
-.delete-user-btn:hover,
-.delete-project-btn:hover {
-    background: #dc2626;
-    border-color: #dc2626;
-    color: #ffffff;
-    box-shadow: 0 3px 10px rgba(220, 38, 38, 0.25);
-}
-
-
 /* ===== FORMS ===== */
 
 .form-card {
     border: 1px solid var(--border);
     border-left: 3px solid var(--primary);
-    border-left-color: var(--primary);
 }
 
 .form-card .card-header {
@@ -1153,16 +1107,6 @@ body.nav-open[data-page="judge"] main {
     border-radius: 3px;
 }
 
-@keyframes scrollHint {
-    0%,
-    100% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.4;
-    }
-}
-
 .results-table {
     width: 100%;
     border-collapse: collapse;
@@ -1245,13 +1189,6 @@ body.nav-open[data-page="judge"] main {
 
 .results-table tbody tr.category-group-row:nth-child(even) td {
     background: var(--primary);
-}
-
-.empty-state-row td {
-    text-align: center;
-    color: var(--ink-secondary);
-    padding: 2.5rem 1.5rem;
-    font-size: var(--text-sm);
 }
 
 .judge-status {
@@ -2267,10 +2204,6 @@ body[data-page="judge"] .btn-sm:hover {
     .identity-bar-left {
         justify-content: center;
     }
-    .identity-bar-right {
-        display: flex;
-        justify-content: center;
-    }
     .filter-label {
         width: 100%;
         justify-content: center;
@@ -2541,13 +2474,6 @@ body[data-page="judge"] .btn-sm:hover {
     }
     .rubric-table input[type="radio"]:checked {
         transform: scale(1.4);
-    }
-    [data-project-filter] {
-        flex-direction: column;
-    }
-    [data-project-filter] select,
-    [data-project-filter] button {
-        width: 100%;
     }
     .modal-overlay {
         padding: 0.5rem;
@@ -3565,7 +3491,6 @@ body[data-page="judge"] .btn-sm:hover {
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     appearance: none;
     -webkit-appearance: none;
-    -moz-appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%230d2a5b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 0.4rem center;
@@ -3645,7 +3570,6 @@ body[data-page="judge"] .btn-sm:hover {
     min-width: 240px;
     appearance: none;
     -webkit-appearance: none;
-    -moz-appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 0.5rem center;

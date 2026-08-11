@@ -1,7 +1,6 @@
 ﻿import { supabase } from "./supabase.js";
 const SESSION_KEY = "ef_user_session";
 
-const APP_VERSION = "1.0.0";
 const FERIA_TYPES = ["Feria Cientifica y Tecnologica", "Feria Expotecnica", "Festival Estudiantil de las Artes"];
 const FESTIVAL_FERIA_NAME = "Festival Estudiantil de las Artes";
 const FESTIVAL_CATEGORIES = ["Artes Visuales", "Artes Literarias", "Artes Digitales", "Artes Musicales", "Artes Escenicas"];
@@ -184,11 +183,6 @@ function showSkeleton(container, rows = 4) {
         div.className = "skeleton skeleton-row";
         container.appendChild(div);
     }
-}
-
-function showSkeletonCard(container) {
-    if (!container) return;
-    container.innerHTML = `<div class="skeleton skeleton-card"></div>`;
 }
 
 
@@ -1149,14 +1143,6 @@ async function loadUsers() {
     }
 
     return data ?? [];
-}
-
-function filterByFeria(items, feriaType) {
-    if (!feriaType) {
-        return items;
-    }
-
-    return (items ?? []).filter((item) => String(item.tipo_feria ?? "") === feriaType);
 }
 
 async function loadUserForLogin(username) {
@@ -3718,7 +3704,6 @@ function renderAdminEvaluationsTable(rows, usersById, projectsById) {
     });
 
     const projectIds = [...grouped.keys()];
-    const currentTab = projectIds[0];
 
     // Build tabs
     const tabBar = document.createElement("div");
@@ -5231,8 +5216,6 @@ async function bootstrapAdminPage() {
 
       const judgeId = Number(btn.dataset.judgeId);
       const judgeName = btn.dataset.judgeName;
-      const row = btn.closest("[data-judge-row]");
-      const existingProjects = [...document.querySelectorAll(".assigned-projects-cell")];
 
       const existing = [];
 
