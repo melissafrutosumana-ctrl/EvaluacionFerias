@@ -592,8 +592,7 @@ body.nav-open[data-page="judge"] main {
 }
 
 .card:hover {
-    box-shadow: var(--shadow-lg);
-    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
 }
 
 .card h2 {
@@ -1235,8 +1234,13 @@ body.nav-open[data-page="judge"] main {
     font-size: var(--text-sm);
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    padding: 0.55rem 0.85rem;
+    padding: 0.65rem 0.85rem;
     border-bottom: none;
+    border-left: 3px solid var(--secondary);
+}
+
+.results-table .category-group-row td:first-letter {
+    color: var(--secondary-light);
 }
 
 .results-table tbody tr.category-group-row:nth-child(even) td {
