@@ -3857,9 +3857,10 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
     const escritoAvg = calcAverage(escritoJudges);
 
     const proj = projectsById.get(projectId);
+    const cat = proj?.categoria_expotecnica ?? proj?.categoria_festival ?? null;
     results.push({
       projectName: proj?.titulo ?? "Proyecto",
-      categoria: proj?.categoria_expotecnica ?? null,
+      categoria: cat,
       expoJudges, escritoJudges,
       expoTotal, expoVoted,
       escritoTotal, escritoVoted,
@@ -3893,7 +3894,9 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
     </tr>`;
   }
 
-  if (selectedFeria === "Feria Expotecnica") {
+  const groupByCategory = selectedFeria === "Feria Expotecnica" || selectedFeria === "Festival Estudiantil de las Artes";
+
+  if (groupByCategory) {
     const grouped = new Map();
     results.forEach((r) => {
       const cat = r.categoria || "Sin categoría";
@@ -3946,7 +3949,7 @@ async function renderAdminReportsByFeria() {
 
   const [users, projectsResult, allEvals, assignmentsResult] = await Promise.all([
     loadUsers(),
-    supabase.from("proyectos_ferias").select("id, titulo, tipo_feria, categoria_expotecnica"),
+    supabase.from("proyectos_ferias").select("id, titulo, tipo_feria, categoria_expotecnica, categoria_festival"),
     fetchAllEvaluations(),
     supabase.from("asignaciones_jueces").select("juez_id, proyecto_id, tipo_evaluacion")
   ]);
