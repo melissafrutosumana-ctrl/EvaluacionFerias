@@ -3821,15 +3821,15 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
     }
   });
 
-  if (!assignmentsByProject?.size) {
-    tbody.innerHTML = '<tr><td colspan="4">No hay jueces asignados a proyectos.</td></tr>';
+  if (!projectsById?.size) {
+    tbody.innerHTML = '<tr><td colspan="4">No hay proyectos en esta feria.</td></tr>';
     return;
   }
 
   const results = [];
 
-  for (const [projectId, assignedJudges] of assignmentsByProject) {
-    if (!projectsById.has(projectId)) continue;
+  for (const [projectId, proj] of projectsById) {
+    const assignedJudges = assignmentsByProject?.get(projectId) ?? [];
 
     const expoJudges = [];
     const escritoJudges = [];
@@ -3856,7 +3856,6 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
     const expoAvg = calcAverage(expoJudges);
     const escritoAvg = calcAverage(escritoJudges);
 
-    const proj = projectsById.get(projectId);
     const cat = proj?.categoria_expotecnica ?? proj?.categoria_festival ?? null;
     const manualEscrito = proj?.puntaje_escrito_manual != null ? Number(proj.puntaje_escrito_manual) : null;
     const escritoAvgFinal = manualEscrito !== null ? manualEscrito : escritoAvg;
