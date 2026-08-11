@@ -141,15 +141,18 @@
                 <div data-feria-section="Feria Cientifica y Tecnologica" hidden>
                     <div class="field-group">
                         <label class="field-label">
-                            <span>Categoría PRONAFECYT</span>
-                            <select name="categoria_pronatecyt">
-                                <option value="">Selecciona una categoría</option>
-                                <option value="F8B - Demostraciones Científicas y Tecnológicas">F8B - Demostraciones Científicas y Tecnológicas</option>
-                                <option value="F9B - Investigación Científica">F9B - Investigación Científica</option>
-                                <option value="F10B - I+D Tecnológico">F10B - I+D Tecnológico</option>
-                                <option value="F11B - Quehacer Científico y Tecnológico">F11B - Quehacer Científico y Tecnológico</option>
-                                <option value="F12B - Sumando Experiencias Científicas">F12B - Sumando Experiencias Científicas</option>
-                                <option value="F13B - Mi Experiencia Científica">F13B - Mi Experiencia Científica</option>
+                            <span>Nivel educativo</span>
+                            <select name="nivel_cientifico" data-nivel-cientifico-select>
+                                <option value="">Selecciona un nivel</option>
+                                <option value="Primaria">Primaria (I y II Ciclos)</option>
+                                <option value="Secundaria">Secundaria (III Ciclo y Ed. Diversificada)</option>
+                                <option value="Educación Especial">Educación Especial</option>
+                            </select>
+                        </label>
+                        <label class="field-label" data-pronafecyt-cat-wrap hidden>
+                            <span>Formulario PRONAFECYT</span>
+                            <select name="categoria_pronatecyt" data-pronatecyt-select>
+                                <option value="">Selecciona un formulario</option>
                             </select>
                         </label>
                     </div>
