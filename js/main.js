@@ -129,12 +129,14 @@ const PRONAFECYT_CATEGORIES = [
     "F13B - Mi Experiencia Científica"
 ];
 
-const PRONAFECYT_C_MAX = {
-    "F8C - Demostraciones Científicas y Tecnológicas": 64,
-    "F9C - Investigación Científica": 78,
-    "F10C - Investigación y Desarrollo Tecnológico": 98,
-    "F11C - Quehacer Científico y Tecnológico": 54,
-    "F12C - Sumando Experiencias Científicas": 54
+// ponytail: max code = indicadores × 3, normalizado a 40/50 del PDF
+const PRONAFECYT_CODE_MAX = {
+    F8B: 66, F8C: 72,
+    F9B: 72, F9C: 81,
+    F10B: 72, F10C: 81,
+    F11B: 51, F11C: 69,
+    F12B: 54, F12C: 69,
+    F13B: 54
 };
 
 const EXPOTECNICA_EJES = [
@@ -3914,18 +3916,20 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
         let finalScore;
         const isScientific = proj ?.tipo_feria === "Feria Cientifica y Tecnologica";
         if (isScientific && proj ?.categoria_pronatecyt) {
-            const cCode = proj.categoria_pronatecyt.replace("B -", "C -");
-            const cMax = PRONAFECYT_C_MAX[cCode];
-            const isF13B = proj.categoria_pronatecyt.startsWith("F13B");
+            const bCode = String(proj.categoria_pronatecyt).split(" ")[0];
+            const bCMax = PRONAFECYT_CODE_MAX[bCode];
+            const isF13B = bCode === "F13B";
             if (isF13B) {
-                finalScore = expoAvg;
-            } else if (cMax) {
-                const expoPart = expoVoted > 0 ? expoAvg : 0;
+                finalScore = bCMax ? (expoAvg / bCMax) * 40 : expoAvg;
+            } else if (bCMax) {
+                const cCode = bCode.replace("B", "C");
+                const cCMax = PRONAFECYT_CODE_MAX[cCode];
+                const expoPart = expoVoted > 0 ? (expoAvg / bCMax) * 40 : 0;
                 let escritoPart = 0;
                 if (manualEscrito !== null) {
                     escritoPart = (manualEscrito / 100) * 50;
-                } else if (escritoVoted > 0) {
-                    escritoPart = (escritoAvg / cMax) * 50;
+                } else if (cCMax && escritoVoted > 0) {
+                    escritoPart = (escritoAvg / cCMax) * 50;
                 }
                 finalScore = expoPart + escritoPart;
             } else {
@@ -5591,14 +5595,16 @@ async function generateAdminPDF() {
         const projData = projectsById.get(projectId);
         const isScientific = projData?.tipo_feria === "Feria Cientifica y Tecnologica";
         if (isScientific && projData?.categoria_pronatecyt) {
-          const cCode = projData.categoria_pronatecyt.replace("B -", "C -");
-          const cMax = PRONAFECYT_C_MAX[cCode];
-          const isF13B = projData.categoria_pronatecyt.startsWith("F13B");
+          const bCode = String(projData.categoria_pronatecyt).split(" ")[0];
+          const bCMax = PRONAFECYT_CODE_MAX[bCode];
+          const isF13B = bCode === "F13B";
           if (isF13B) {
-            pdfFinalScore = expoAvg;
-          } else if (cMax) {
-            const expoPart = expoVoted > 0 ? expoAvg : 0;
-            const escritoPart = escritoVoted > 0 ? (escritoAvg / cMax) * 50 : 0;
+            pdfFinalScore = bCMax ? (expoAvg / bCMax) * 40 : expoAvg;
+          } else if (bCMax) {
+            const cCode = bCode.replace("B", "C");
+            const cCMax = PRONAFECYT_CODE_MAX[cCode];
+            const expoPart = (expoAvg / bCMax) * 40;
+            const escritoPart = cCMax ? (escritoAvg / cCMax) * 50 : 0;
             pdfFinalScore = expoPart + escritoPart;
           } else {
             pdfFinalScore = calcFinalScore(expoVoted, expoAvg, escritoVoted, escritoAvg);
@@ -5636,11 +5642,7 @@ async function generateAdminPDF() {
         }
       }
       if (feria === "Feria Cientifica y Tecnologica") {
-        if (tipo === "Escrito" && p.categoria_pronatecyt) {
-          const cCode = p.categoria_pronatecyt.replace("B -", "C -");
-          return PRONAFECYT_C_MAX[cCode] ?? 72;
-        }
-        return 40;
+        return tipo === "Escrito" ? 50 : 40;
       }
       if (feria === FESTIVAL_FERIA_NAME) {
         return tipo === "Escrito" ? 0 : 12;
