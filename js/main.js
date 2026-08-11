@@ -92,13 +92,17 @@ const FESTIVAL_SUBCATEGORIES = {
 const EXPOTECNICA_CATEGORIES = ["DESAFIO STEAM", "EMPRENDIMIENTO E INNOVACION"];
 
 const PRONAFECYT_BY_NIVEL = {
-    "Primaria": [
+    "Primaria (I y II Ciclos)": [
         "F11B - Quehacer Científico y Tecnológico"
     ],
-    "Secundaria": [
+    "Secundaria - III Ciclo": [
         "F8B - Demostraciones Científicas y Tecnológicas",
         "F9B - Investigación Científica",
-        "F10B - I+D Tecnológico"
+        "F10B - Investigación y Desarrollo Tecnológico"
+    ],
+    "Secundaria - Ed. Diversificada": [
+        "F9B - Investigación Científica",
+        "F10B - Investigación y Desarrollo Tecnológico"
     ],
     "Educación Especial": [
         "F12B - Sumando Experiencias Científicas",
@@ -109,8 +113,9 @@ const PRONAFECYT_BY_NIVEL = {
 function getNivelFromPronatecyt(categoria) {
     if (!categoria) return null;
     const code = String(categoria).split(" ")[0];
-    if (["F11B", "F11C"].includes(code)) return "Primaria";
-    if (["F8B", "F8C", "F9B", "F9C", "F10B", "F10C"].includes(code)) return "Secundaria";
+    if (["F11B", "F11C"].includes(code)) return "Primaria (I y II Ciclos)";
+    if (["F8B", "F8C"].includes(code)) return "Secundaria - III Ciclo";
+    if (["F9B", "F9C", "F10B", "F10C"].includes(code)) return "Secundaria - III Ciclo";
     if (["F12B", "F12C", "F13B"].includes(code)) return "Educación Especial";
     return null;
 }
@@ -118,7 +123,7 @@ function getNivelFromPronatecyt(categoria) {
 const PRONAFECYT_CATEGORIES = [
     "F8B - Demostraciones Científicas y Tecnológicas",
     "F9B - Investigación Científica",
-    "F10B - I+D Tecnológico",
+    "F10B - Investigación y Desarrollo Tecnológico",
     "F11B - Quehacer Científico y Tecnológico",
     "F12B - Sumando Experiencias Científicas",
     "F13B - Mi Experiencia Científica"
@@ -1747,7 +1752,7 @@ function getPronatecytRubricByCategory(category) {
     };
 
     const F10B = {
-        title: "PRONAFECYT F10B - I+D Tecnológico (40 pts)",
+        title: "PRONAFECYT F10B - Investigación y Desarrollo Tecnológico (40 pts)",
         sections: [{
                 title: "A. Planteamiento de los objetivos y justificación del problema",
                 indicators: [
@@ -2086,7 +2091,7 @@ function getPronatecytRubricByCategory(category) {
     };
 
     const F10C = {
-        title: "PRONAFECYT F10C - I+D Tecnológico (Diario de Experiencias)",
+        title: "PRONAFECYT F10C - Investigación y Desarrollo Tecnológico (Diario de Experiencias)",
         sections: [{
                 title: "Portada y Título",
                 indicators: [
@@ -2265,13 +2270,13 @@ function getPronatecytRubricByCategory(category) {
     const rubrics = {
         "F8B - Demostraciones Científicas y Tecnológicas": F8B,
         "F9B - Investigación Científica": F9B,
-        "F10B - I+D Tecnológico": F10B,
+        "F10B - Investigación y Desarrollo Tecnológico": F10B,
         "F11B - Quehacer Científico y Tecnológico": F11B,
         "F12B - Sumando Experiencias Científicas": F12B,
         "F13B - Mi Experiencia Científica": F13B,
         "F8C - Demostraciones Científicas y Tecnológicas": F8C,
         "F9C - Investigación Científica": F9C,
-        "F10C - I+D Tecnológico": F10C,
+        "F10C - Investigación y Desarrollo Tecnológico": F10C,
         "F11C - Quehacer Científico y Tecnológico": F11C,
         "F12C - Sumando Experiencias Científicas": F12C
     };
@@ -3891,9 +3896,9 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
         const expoAvg = calcAverage(expoJudges);
         const escritoAvg = calcAverage(escritoJudges);
 
-        const cat = proj?.tipo_feria === "Feria Cientifica y Tecnologica"
-            ? getNivelFromPronatecyt(proj?.categoria_pronatecyt)
-            : (proj?.categoria_expotecnica ?? proj?.categoria_festival ?? null);
+        const cat = proj ?.tipo_feria === "Feria Cientifica y Tecnologica" ?
+            getNivelFromPronatecyt(proj ?.categoria_pronatecyt) :
+            (proj ?.categoria_expotecnica ?? proj ?.categoria_festival ?? null);
         const manualEscrito = proj ?.puntaje_escrito_manual != null ? Number(proj.puntaje_escrito_manual) : null;
         const escritoAvgFinal = manualEscrito !== null ? manualEscrito : escritoAvg;
         const escritoVotedFinal = manualEscrito !== null ? 1 : escritoVoted;
