@@ -3900,26 +3900,10 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
 
         let finalScore;
         const isScientific = proj ?.tipo_feria === "Feria Cientifica y Tecnologica";
-        if (isScientific && proj ?.categoria_pronatecyt) {
-            const bCode = String(proj.categoria_pronatecyt).split(" ")[0];
-            const bCMax = PRONAFECYT_CODE_MAX[bCode];
-            const isF13B = bCode === "F13B";
-            if (isF13B) {
-                finalScore = bCMax ? (expoAvg / bCMax) * 40 : expoAvg;
-            } else if (bCMax) {
-                const cCode = bCode.replace("B", "C");
-                const cCMax = PRONAFECYT_CODE_MAX[cCode];
-                const expoPart = expoVoted > 0 ? (expoAvg / bCMax) * 40 : 0;
-                let escritoPart = 0;
-                if (manualEscrito !== null) {
-                    escritoPart = (manualEscrito / 100) * 50;
-                } else if (cCMax && escritoVoted > 0) {
-                    escritoPart = (escritoAvg / cCMax) * 50;
-                }
-                finalScore = expoPart + escritoPart;
-            } else {
-                finalScore = calcFinalScore(expoVoted, expoAvg, escritoVotedFinal, escritoAvgFinal);
-            }
+        if (manualEscrito !== null) {
+            finalScore = expoVoted > 0 ? expoAvg + manualEscrito : manualEscrito;
+        } else if (isScientific) {
+            finalScore = expoAvg + escritoAvg;
         } else {
             finalScore = calcFinalScore(expoVoted, expoAvg, escritoVotedFinal, escritoAvgFinal);
         }
@@ -5574,22 +5558,8 @@ async function generateAdminPDF() {
       let pdfFinalScore = 0;
       if (evalComplete) {
         const projData = projectsById.get(projectId);
-        const isScientific = projData?.tipo_feria === "Feria Cientifica y Tecnologica";
-        if (isScientific && projData?.categoria_pronatecyt) {
-          const bCode = String(projData.categoria_pronatecyt).split(" ")[0];
-          const bCMax = PRONAFECYT_CODE_MAX[bCode];
-          const isF13B = bCode === "F13B";
-          if (isF13B) {
-            pdfFinalScore = bCMax ? (expoAvg / bCMax) * 40 : expoAvg;
-          } else if (bCMax) {
-            const cCode = bCode.replace("B", "C");
-            const cCMax = PRONAFECYT_CODE_MAX[cCode];
-            const expoPart = (expoAvg / bCMax) * 40;
-            const escritoPart = cCMax ? (escritoAvg / cCMax) * 50 : 0;
-            pdfFinalScore = expoPart + escritoPart;
-          } else {
-            pdfFinalScore = calcFinalScore(expoVoted, expoAvg, escritoVoted, escritoAvg);
-          }
+        if (projData?.tipo_feria === "Feria Cientifica y Tecnologica") {
+          pdfFinalScore = expoAvg + escritoAvg;
         } else {
           pdfFinalScore = calcFinalScore(expoVoted, expoAvg, escritoVoted, escritoAvg);
         }
@@ -5623,7 +5593,9 @@ async function generateAdminPDF() {
         }
       }
       if (feria === "Feria Cientifica y Tecnologica") {
-        return tipo === "Escrito" ? 50 : 40;
+        const bCode = String(p.categoria_pronatecyt || "").split(" ")[0];
+        const bMax = PRONAFECYT_CODE_MAX[bCode] || 72;
+        return bMax;
       }
       if (feria === FESTIVAL_FERIA_NAME) {
         return tipo === "Escrito" ? 0 : 12;
