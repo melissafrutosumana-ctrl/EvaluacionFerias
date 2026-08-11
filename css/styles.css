@@ -39,6 +39,7 @@
    z-30: Fixed headers
    z-40: Header expanded states
    z-50: Modals / overlays
+   z-60: Toasts / notifications
    ========================= */
 
 * {
@@ -1089,6 +1090,43 @@ body.nav-open[data-page="judge"] main {
     background: transparent;
     padding: 0;
     margin: 0;
+}
+
+/* Input error state */
+.input-error {
+    border-color: #dc2626 !important;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+.input-error:focus {
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
+}
+
+/* Empty state */
+.empty-state {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    color: var(--ink-secondary);
+}
+
+.empty-state-icon {
+    display: block;
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 1rem;
+    opacity: 0.35;
+}
+
+.empty-state-title {
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 0.4rem;
+}
+
+.empty-state-desc {
+    font-size: var(--text-sm);
+    max-width: 360px;
+    margin: 0 auto;
 }
 
 
@@ -3046,7 +3084,7 @@ body[data-page="judge"] .btn-sm:hover {
     position: fixed;
     top: 1rem;
     right: 1rem;
-    z-index: 10000;
+    z-index: 60;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
@@ -3152,7 +3190,7 @@ body[data-page="judge"] .btn-sm:hover {
 .modal-overlay {
     position: fixed;
     inset: 0;
-    z-index: 9999;
+    z-index: 50;
     background: rgba(0, 0, 0, 0.55);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
