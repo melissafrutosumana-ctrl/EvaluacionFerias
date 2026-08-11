@@ -179,7 +179,7 @@ function showSkeletonCard(container) {
 
 
 function normalizeRoleName(roleName) {
-    const normalized = String(roleName ? ? "").trim().toLowerCase();
+    const normalized = String(roleName ?? "").trim().toLowerCase();
 
     if (normalized === "juez") {
         return "Juez";
@@ -189,7 +189,7 @@ function normalizeRoleName(roleName) {
         return "administrador";
     }
 
-    return String(roleName ? ? "").trim();
+    return String(roleName ?? "").trim();
 }
 
 function setMessage(target, text, kind = "info") {
@@ -202,7 +202,7 @@ function setMessage(target, text, kind = "info") {
 }
 
 function isMissingColumnError(error, columnPrefix) {
-    const message = String(error ? .message ? ? "").toLowerCase();
+    const message = String(error ?.message ?? "").toLowerCase();
     const missingColumnSignals = [
         "does not exist",
         "could not find",
@@ -219,10 +219,10 @@ function updateProjectFormFieldsByFeria(projectForm) {
 
     const feriaInput = projectForm.querySelector('[name="tipo_feria"]');
     const sections = projectForm.querySelectorAll("[data-feria-section]");
-    const selectedFeria = String(feriaInput ? .value ? ? "");
+    const selectedFeria = String(feriaInput ?.value ?? "");
 
     sections.forEach((section) => {
-        const sectionFeria = String(section.dataset.feriaSection ? ? "");
+        const sectionFeria = String(section.dataset.feriaSection ?? "");
         const isActive = sectionFeria === selectedFeria;
         section.hidden = !isActive;
     });
@@ -232,13 +232,13 @@ function updateProjectFormFieldsByFeria(projectForm) {
 
     const festivalCategorySelect = projectForm.querySelector('select[name="categoria_festival"]');
     const festivalSubcategorySelect = projectForm.querySelector('select[name="subcategoria_festival"]');
-    const festivalCategoryValue = String(festivalCategorySelect ? .value ? ? "");
+    const festivalCategoryValue = String(festivalCategorySelect ?.value ?? "");
     const hasFestivalCategory = isFestival && FESTIVAL_CATEGORIES.includes(festivalCategoryValue);
 
     if (isFestival) {
         if (festivalSubcategorySelect) {
-            const subcategories = FESTIVAL_SUBCATEGORIES[festivalCategoryValue] ? ? [];
-            const previousValue = String(festivalSubcategorySelect.value ? ? "");
+            const subcategories = FESTIVAL_SUBCATEGORIES[festivalCategoryValue] ?? [];
+            const previousValue = String(festivalSubcategorySelect.value ?? "");
 
             festivalSubcategorySelect.innerHTML = [
                 '<option value="">Selecciona una subcategoria</option>',
@@ -283,7 +283,7 @@ function updateProjectFormFieldsByFeria(projectForm) {
 
     const expotecnicaCategorySelect = projectForm.querySelector('select[name="categoria_expotecnica"]');
     const expotecnicaEjeSelect = projectForm.querySelector('select[name="eje_tematico"]');
-    const expoCategoryValue = String(expotecnicaCategorySelect ? .value ? ? "");
+    const expoCategoryValue = String(expotecnicaCategorySelect ?.value ?? "");
     const hasExpoCategory = isExpotecnica && EXPOTECNICA_CATEGORIES.includes(expoCategoryValue);
 
     if (isExpotecnica) {
@@ -375,8 +375,8 @@ function fillSelectGroupedByTipo(select, items, evaluatedKeys = new Set()) {
         "Selecciona un proyecto asignado";
     select.appendChild(firstOption);
 
-    const expo = items.filter((p) => (p.tipo_evaluacion ? ? "Exposición") === "Exposición");
-    const escrito = items.filter((p) => (p.tipo_evaluacion ? ? "Exposición") === "Escrito");
+    const expo = items.filter((p) => (p.tipo_evaluacion ?? "Exposición") === "Exposición");
+    const escrito = items.filter((p) => (p.tipo_evaluacion ?? "Exposición") === "Escrito");
 
     if (expo.length) {
         const group = document.createElement("optgroup");
@@ -410,7 +410,7 @@ function fillSelectGroupedByTipo(select, items, evaluatedKeys = new Set()) {
 }
 
 function escapeHTML(value) {
-    return String(value ? ? "")
+    return String(value ?? "")
         .replaceAll("&", "&amp;")
         .replaceAll("<", "&lt;")
         .replaceAll(">", "&gt;")
@@ -510,13 +510,13 @@ function bindLogout() {
 let jspdfPromise = null;
 
 function loadJSPDF() {
-    if (window.jspdf ? .jsPDF) return Promise.resolve();
+    if (window.jspdf ?.jsPDF) return Promise.resolve();
     if (jspdfPromise) return jspdfPromise;
     jspdfPromise = new Promise((resolve, reject) => {
         const s = document.createElement("script");
         s.src = "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
         s.onload = () => {
-            if (window.jspdf ? .jsPDF) resolve();
+            if (window.jspdf ?.jsPDF) resolve();
             else reject(new Error("jsPDF not found after load"));
         };
         s.onerror = () => reject(new Error("Failed to load jspdf library"));
@@ -760,11 +760,11 @@ async function generateJudgePDF(user) {
     const grouped = new Map();
     data.forEach((item) => {
         const pid = Number(item.proyecto_id);
-        const tipo = item.tipo_evaluacion ? ? "Exposición";
+        const tipo = item.tipo_evaluacion ?? "Exposición";
         const key = `${pid}-${tipo}`;
         if (!grouped.has(key)) {
             grouped.set(key, {
-                titulo: item.proyectos_ferias ? .titulo || "Proyecto",
+                titulo: item.proyectos_ferias ?.titulo || "Proyecto",
                 tipo,
                 items: [],
                 total: 0
@@ -924,7 +924,7 @@ async function hashPassword(password) {
 }
 
 async function passwordMatches(inputPassword, storedPassword) {
-    const normalizedStoredPassword = String(storedPassword ? ? "").trim();
+    const normalizedStoredPassword = String(storedPassword ?? "").trim();
 
     if (inputPassword === normalizedStoredPassword || inputPassword.trim() === normalizedStoredPassword) {
         return true;
@@ -967,7 +967,7 @@ async function loadProjects(feriaType = "") {
             .order("titulo", { ascending: true });
 
         if (!withFeriaOnly.error) {
-            projects = (withFeriaOnly.data ? ? []).map((item) => ({
+            projects = (withFeriaOnly.data ?? []).map((item) => ({
                 ...item,
                 integrante_1: null,
                 integrante_2: null,
@@ -986,7 +986,7 @@ async function loadProjects(feriaType = "") {
                 throw fallback.error;
             }
 
-            projects = (fallback.data ? ? []).map((item) => ({
+            projects = (fallback.data ?? []).map((item) => ({
                 ...item,
                 tipo_feria: null,
                 integrante_1: null,
@@ -1000,14 +1000,14 @@ async function loadProjects(feriaType = "") {
             }));
         }
     } else {
-        projects = withMembers.data ? ? [];
+        projects = withMembers.data ?? [];
     }
 
     if (!feriaType) {
         return projects;
     }
 
-    return projects.filter((item) => String(item.tipo_feria ? ? "") === feriaType);
+    return projects.filter((item) => String(item.tipo_feria ?? "") === feriaType);
 }
 
 async function loadJudges(feriaType = "") {
@@ -1024,11 +1024,11 @@ async function loadJudges(feriaType = "") {
         throw rolesError;
     }
 
-    const roleNamesById = new Map((roles ? ? []).map((role) => [role.id, normalizeRoleName(role.nombre)]));
+    const roleNamesById = new Map((roles ?? []).map((role) => [role.id, normalizeRoleName(role.nombre)]));
 
-    return (users ? ? []).filter((item) => {
+    return (users ?? []).filter((item) => {
         const isJudge = roleNamesById.get(item.role_id) === "Juez";
-        const feriaMatches = !feriaType || String(item.tipo_feria ? ? "") === feriaType;
+        const feriaMatches = !feriaType || String(item.tipo_feria ?? "") === feriaType;
         return isJudge && feriaMatches;
     });
 }
@@ -1044,7 +1044,7 @@ async function loadJudgeAssignments() {
         throw error;
     }
 
-    return data ? ? [];
+    return data ?? [];
 }
 
 async function loadAssignedProjectsForJudge(judgeId) {
@@ -1057,8 +1057,8 @@ async function loadAssignedProjectsForJudge(judgeId) {
         throw assignmentsError;
     }
 
-    const projectIds = [...new Set((assignments ? ? []).map((item) => item.proyecto_id).filter(Boolean))];
-    const tipoMap = new Map((assignments ? ? []).map((a) => [a.proyecto_id, a.tipo_evaluacion ? ? "Exposición"]));
+    const projectIds = [...new Set((assignments ?? []).map((item) => item.proyecto_id).filter(Boolean))];
+    const tipoMap = new Map((assignments ?? []).map((a) => [a.proyecto_id, a.tipo_evaluacion ?? "Exposición"]));
 
     if (projectIds.length === 0) {
         return [];
@@ -1089,9 +1089,9 @@ async function loadAssignedProjectsForJudge(judgeId) {
             throw fallback.error;
         }
 
-        return (fallback.data ? ? []).map((item) => ({
+        return (fallback.data ?? []).map((item) => ({
             ...item,
-            tipo_evaluacion: tipoMap.get(item.id) ? ? "Exposición",
+            tipo_evaluacion: tipoMap.get(item.id) ?? "Exposición",
             categoria_festival: null,
             subcategoria_festival: null,
             categoria_expotecnica: null,
@@ -1100,9 +1100,9 @@ async function loadAssignedProjectsForJudge(judgeId) {
         }));
     }
 
-    return (projects ? ? []).map((item) => ({
+    return (projects ?? []).map((item) => ({
         ...item,
-        tipo_evaluacion: tipoMap.get(item.id) ? ? "Exposición"
+        tipo_evaluacion: tipoMap.get(item.id) ?? "Exposición"
     }));
 }
 
@@ -1124,7 +1124,7 @@ async function loadUsers() {
                 throw fallbackError;
             }
 
-            return (fallbackData ? ? []).map((item) => ({
+            return (fallbackData ?? []).map((item) => ({
                 ...item,
                 tipo_feria: null
             }));
@@ -1133,7 +1133,7 @@ async function loadUsers() {
         throw error;
     }
 
-    return data ? ? [];
+    return data ?? [];
 }
 
 function filterByFeria(items, feriaType) {
@@ -1141,7 +1141,7 @@ function filterByFeria(items, feriaType) {
         return items;
     }
 
-    return (items ? ? []).filter((item) => String(item.tipo_feria ? ? "") === feriaType);
+    return (items ?? []).filter((item) => String(item.tipo_feria ?? "") === feriaType);
 }
 
 async function loadUserForLogin(username) {
@@ -1203,11 +1203,11 @@ function renderUsersTable(users, roles) {
         return;
     }
 
-    const roleNamesById = new Map((roles ? ? []).map((role) => [role.id, normalizeRoleName(role.nombre)]));
+    const roleNamesById = new Map((roles ?? []).map((role) => [role.id, normalizeRoleName(role.nombre)]));
 
     tbody.innerHTML = users
         .map((item) => {
-            const roleName = roleNamesById.get(item.role_id) ? ? "Sin rol";
+            const roleName = roleNamesById.get(item.role_id) ?? "Sin rol";
             const roleClass = roleName === "administrador" ? "role-badge role-admin" : roleName === "Juez" ? "role-badge role-judge" : "role-badge";
             return `<tr>
         <td>${escapeHTML(item.nombre)}</td>
@@ -1241,16 +1241,16 @@ function renderProjectsManagementTable(projects) {
     tbody.innerHTML = projects
         .map(
             (item) => {
-                const feriaType = String(item.tipo_feria ? ? "");
+                const feriaType = String(item.tipo_feria ?? "");
                 const isFestival = feriaType === FESTIVAL_FERIA_NAME;
                 const isExpotecnica = feriaType === "Feria Expotecnica";
                 let detailText = "-";
 
                 if (isFestival) {
                     const parts = [];
-                    const category = String(item.categoria_festival ? ? "").trim();
-                    const subcategory = String(item.subcategoria_festival ? ? "").trim();
-                    const participation = String(item.participacion ? ? "").trim();
+                    const category = String(item.categoria_festival ?? "").trim();
+                    const subcategory = String(item.subcategoria_festival ?? "").trim();
+                    const participation = String(item.participacion ?? "").trim();
 
                     if (category) {
                         parts.push(`Categoria: ${category}`);
@@ -1267,8 +1267,8 @@ function renderProjectsManagementTable(projects) {
                     detailText = parts.length ? parts.join(" | ") : "-";
                 } else if (isExpotecnica) {
                     const parts = [];
-                    const category = String(item.categoria_expotecnica ? ? "").trim();
-                    const eje = String(item.eje_tematico ? ? "").trim();
+                    const category = String(item.categoria_expotecnica ?? "").trim();
+                    const eje = String(item.eje_tematico ?? "").trim();
 
                     if (category) {
                         parts.push(`Categoria: ${category}`);
@@ -1281,9 +1281,9 @@ function renderProjectsManagementTable(projects) {
                     detailText = parts.length ? parts.join(" | ") : "-";
                 } else if (feriaType === "Feria Cientifica y Tecnologica") {
                     const parts = [];
-                    const pronatecyt = String(item.categoria_pronatecyt ? ? "").trim();
+                    const pronatecyt = String(item.categoria_pronatecyt ?? "").trim();
                     const integrantes = [item.integrante_1, item.integrante_2, item.integrante_3]
-                        .map((name) => String(name ? ? "").trim())
+                        .map((name) => String(name ?? "").trim())
                         .filter(Boolean);
 
                     if (pronatecyt) {
@@ -1295,7 +1295,7 @@ function renderProjectsManagementTable(projects) {
                     detailText = parts.length ? parts.join(" | ") : "-";
                 } else {
                     const integrantes = [item.integrante_1, item.integrante_2, item.integrante_3]
-                        .map((name) => String(name ? ? "").trim())
+                        .map((name) => String(name ?? "").trim())
                         .filter(Boolean);
                     detailText = integrantes.length ? integrantes.join(" | ") : "-";
                 }
@@ -1320,9 +1320,9 @@ function renderProjectsManagementTable(projects) {
 }
 
 function getAllowedRolesForUserForm(roles) {
-    const roleList = roles ? ? [];
-    const judgeRole = roleList.find((role) => normalizeRoleName(role.nombre) === "Juez") ? ? null;
-    const adminRole = roleList.find((role) => normalizeRoleName(role.nombre) === "administrador") ? ? null;
+    const roleList = roles ?? [];
+    const judgeRole = roleList.find((role) => normalizeRoleName(role.nombre) === "Juez") ?? null;
+    const adminRole = roleList.find((role) => normalizeRoleName(role.nombre) === "administrador") ?? null;
     const allowed = [];
 
     if (adminRole) {
@@ -2305,7 +2305,7 @@ function getFestivalAdvancedScoreOptions() {
 }
 
 function getFestivalRubricBySubcategory(subcategory) {
-    const normalizedSubcategory = String(subcategory ? ? "").trim();
+    const normalizedSubcategory = String(subcategory ?? "").trim();
 
     const rubricBySubcategory = {
         "COREOGRAFIA DE BAILE": [
@@ -3530,7 +3530,7 @@ function getFestivalRubricBySubcategory(subcategory) {
 }
 
 function getFestivalRubricByCategory(category) {
-    const normalizedCategory = String(category ? ? "").trim();
+    const normalizedCategory = String(category ?? "").trim();
 
     if (normalizedCategory === "Artes Escenicas") {
         return {
@@ -3697,7 +3697,7 @@ function renderAdminEvaluationsTable(rows, usersById, projectsById) {
     rows.forEach((row) => {
         const pid = row.proyecto_id;
         if (!grouped.has(pid)) {
-            grouped.set(pid, { title: projectsById.get(pid) ? .titulo ? ? "Proyecto", rows: [] });
+            grouped.set(pid, { title: projectsById.get(pid) ?.titulo ?? "Proyecto", rows: [] });
         }
         grouped.get(pid).rows.push(row);
     });
@@ -3753,8 +3753,8 @@ function renderAdminEvaluationsTable(rows, usersById, projectsById) {
         let lastJuez = null;
         tbody.innerHTML = sortedRows
             .map((row) => {
-                const judgeName = usersById.get(row.juez_id) ? .nombre ? ? "Juez";
-                const color = colorMap.get(row.juez_id) ? ? "#6b7280";
+                const judgeName = usersById.get(row.juez_id) ?.nombre ?? "Juez";
+                const color = colorMap.get(row.juez_id) ?? "#6b7280";
                 const isFirstOfJudge = row.juez_id !== lastJuez;
                 lastJuez = row.juez_id;
                 return `<tr class="eval-judge-row${isFirstOfJudge ? " eval-judge-first" : ""}" style="--judge-color:${color}"><td><span class="role-badge judge-color-badge" style="background:${color}18;color:${color};border-color:${color}33">${escapeHTML(judgeName)}</span></td><td>${escapeHTML(row.criterio)}</td><td class="eval-nota-cell">${row.nota}</td></tr>`;
@@ -3802,7 +3802,7 @@ function renderAdminProjectsTable(rows, projectsById) {
 
     tbody.innerHTML = projectIds
         .map((projectId) => {
-            const projectName = projectsById.get(projectId) ? .titulo ? ? "Proyecto";
+            const projectName = projectsById.get(projectId) ?.titulo ?? "Proyecto";
             return `<tr><td>${escapeHTML(projectName)}</td><td>${projectId}</td></tr>`;
         })
         .join("");
@@ -3845,7 +3845,7 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
     const votedSet = new Set();
     const scoreMap = new Map();
     rows.forEach((row) => {
-        const tipo = row.tipo_evaluacion ? ? "Exposición";
+        const tipo = row.tipo_evaluacion ?? "Exposición";
         const key = `${row.proyecto_id}-${row.juez_id}-${tipo}`;
         votedSet.add(key);
         const nota = Number(row.nota);
@@ -3854,7 +3854,7 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
         }
     });
 
-    if (!projectsById ? .size) {
+    if (!projectsById ?.size) {
         tbody.innerHTML = '<tr><td colspan="4">No hay proyectos en esta feria.</td></tr>';
         return;
     }
@@ -3862,7 +3862,7 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
     const results = [];
 
     for (const [projectId, proj] of projectsById) {
-        const assignedJudges = assignmentsByProject ? .get(projectId) ? ? [];
+        const assignedJudges = assignmentsByProject ?.get(projectId) ?? [];
 
         const expoJudges = [];
         const escritoJudges = [];
@@ -3872,7 +3872,7 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
             escritoTotal = 0;
 
         assignedJudges.forEach((aj) => {
-            const tipo = aj.tipo_evaluacion ? ? "Exposición";
+            const tipo = aj.tipo_evaluacion ?? "Exposición";
             const key = `${projectId}-${aj.juez_id}-${tipo}`;
             const voted = votedSet.has(key);
             const entry = { judgeName: aj.judgeName, sum: scoreMap.get(key) || 0, voted };
@@ -3894,12 +3894,12 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
         const cat = proj?.tipo_feria === "Feria Cientifica y Tecnologica"
             ? getNivelFromPronatecyt(proj?.categoria_pronatecyt)
             : (proj?.categoria_expotecnica ?? proj?.categoria_festival ?? null);
-        const manualEscrito = proj ? .puntaje_escrito_manual != null ? Number(proj.puntaje_escrito_manual) : null;
+        const manualEscrito = proj ?.puntaje_escrito_manual != null ? Number(proj.puntaje_escrito_manual) : null;
         const escritoAvgFinal = manualEscrito !== null ? manualEscrito : escritoAvg;
         const escritoVotedFinal = manualEscrito !== null ? 1 : escritoVoted;
         results.push({
             projectId,
-            projectName: proj ? .titulo ? ? "Proyecto",
+            projectName: proj ?.titulo ?? "Proyecto",
             categoria: cat,
             manualEscrito,
             expoJudges,
@@ -4057,29 +4057,29 @@ async function renderAdminReportsByFeria() {
         throw projectsResult.error;
     }
 
-    const allProjects = projectsResult.data ? ? [];
+    const allProjects = projectsResult.data ?? [];
     const filteredProjects = selectedFeria ?
         allProjects.filter((p) => p.tipo_feria === selectedFeria) :
         allProjects;
 
     const projectIdsInFeria = new Set(filteredProjects.map((p) => p.id));
 
-    const usersById = new Map((users ? ? []).map((item) => [item.id, item]));
+    const usersById = new Map((users ?? []).map((item) => [item.id, item]));
     const projectsById = new Map(filteredProjects.map((item) => [item.id, item]));
-    const filteredRows = (allEvals ? ? []).filter((r) =>
+    const filteredRows = (allEvals ?? []).filter((r) =>
         projectIdsInFeria.has(r.proyecto_id)
     );
 
     const assignmentsByProject = new Map();
-    (assignmentsResult.data ? ? []).forEach((a) => {
+    (assignmentsResult.data ?? []).forEach((a) => {
         if (projectIdsInFeria.has(a.proyecto_id)) {
             if (!assignmentsByProject.has(a.proyecto_id)) {
                 assignmentsByProject.set(a.proyecto_id, []);
             }
             assignmentsByProject.get(a.proyecto_id).push({
                 juez_id: a.juez_id,
-                tipo_evaluacion: a.tipo_evaluacion ? ? "Exposición",
-                judgeName: usersById ? .get(a.juez_id) ? .nombre ? ? `Juez #${a.juez_id}`
+                tipo_evaluacion: a.tipo_evaluacion ?? "Exposición",
+                judgeName: usersById ?.get(a.juez_id) ?.nombre ?? `Juez #${a.juez_id}`
             });
         }
     });
@@ -4122,19 +4122,19 @@ function renderJudgeAssignmentsTable(judges, projects, assignments) {
     const assignmentsByJudge = new Map();
 
     assignments.forEach((assignment) => {
-        const current = assignmentsByJudge.get(assignment.juez_id) ? ? [];
+        const current = assignmentsByJudge.get(assignment.juez_id) ?? [];
         const project = projectsById.get(assignment.proyecto_id);
         current.push({
             id: assignment.proyecto_id,
-            titulo: project ? .titulo ? ? "Proyecto",
-            tipo_evaluacion: assignment.tipo_evaluacion ? ? "Exposición"
+            titulo: project ?.titulo ?? "Proyecto",
+            tipo_evaluacion: assignment.tipo_evaluacion ?? "Exposición"
         });
         assignmentsByJudge.set(assignment.juez_id, current);
     });
 
     tbody.innerHTML = judges
         .map((judge) => {
-            const judgeAssignments = assignmentsByJudge.get(judge.id) ? ? [];
+            const judgeAssignments = assignmentsByJudge.get(judge.id) ?? [];
 
             const projectList = judgeAssignments.length ?
                 judgeAssignments.map((a) =>
@@ -4224,7 +4224,7 @@ function openAssignmentModal(judgeId, judgeName, allProjects, currentAssignments
                 const checked = assignedIds.has(project.id) ? "checked" : "";
                 const supportsDualEval = project.tipo_feria === "Feria Cientifica y Tecnologica" || project.tipo_feria === "Feria Expotecnica";
                 const tipoVal = supportsDualEval ?
-                    (selectedTipoMap.get(project.id) ? ? "Exposición") :
+                    (selectedTipoMap.get(project.id) ?? "Exposición") :
                     "Exposición";
 
                 return `
