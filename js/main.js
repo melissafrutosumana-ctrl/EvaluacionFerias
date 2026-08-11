@@ -4933,7 +4933,7 @@ async function bootstrapJudgePage() {
     });
 
     if (!proyectoId || evaluaciones.some((item) => Number.isNaN(item.nota))) {
-      setMessage(evaluationStatus, "Completa todos los campos de la evaluacion.", "error");
+      showToast("Completa todos los campos de la evaluacion.", "error");
       return;
     }
 
@@ -5077,7 +5077,7 @@ async function bootstrapAdminPage() {
       const roleId = Number(formData.get("role_id"));
 
       if (!nombre || !contrasena || !tipoFeria || !roleId) {
-        setMessage(userStatus, "Completa todos los campos del usuario.", "error");
+        showToast("Completa todos los campos del usuario.", "error");
         return;
       }
 
@@ -5132,33 +5132,33 @@ async function bootstrapAdminPage() {
       const isScientific = tipoFeria === "Feria Cientifica y Tecnologica";
 
       if (!titulo || !tipoFeria) {
-        setMessage(projectStatus, "Completa nombre y tipo de feria del proyecto.", "error");
+        showToast("Completa nombre y tipo de feria del proyecto.", "error");
         return;
       }
 
       if (!isFestival && (!integrante1 || !integrante2 || !integrante3)) {
-        setMessage(projectStatus, "Completa los 3 integrantes del proyecto.", "error");
+        showToast("Completa los 3 integrantes del proyecto.", "error");
         return;
       }
 
       if (!isFestival && new Set([integrante1.toLowerCase(), integrante2.toLowerCase(), integrante3.toLowerCase()]).size !== 3) {
-        setMessage(projectStatus, "Los nombres de integrantes deben ser diferentes.", "error");
+        showToast("Los nombres de integrantes deben ser diferentes.", "error");
         return;
       }
 
       if (isFestival) {
         if (!FESTIVAL_CATEGORIES.includes(categoriaFestival) || !(FESTIVAL_SUBCATEGORIES[categoriaFestival] ?? []).includes(subcategoriaFestival) || !participacion) {
-          setMessage(projectStatus, "Para Festival debes seleccionar categoria, subcategoria y escribir la participacion.", "error");
+          showToast("Para Festival debes seleccionar categoria, subcategoria y escribir la participacion.", "error");
           return;
         }
       } else if (isExpotecnica) {
         if (!EXPOTECNICA_CATEGORIES.includes(categoriaExpotecnica) || !EXPOTECNICA_EJES.includes(ejeTematico)) {
-          setMessage(projectStatus, "Para ExpoTECNICA debes seleccionar categoria y eje tematico.", "error");
+          showToast("Para ExpoTECNICA debes seleccionar categoria y eje tematico.", "error");
           return;
         }
       } else if (isScientific) {
         if (!PRONAFECYT_CATEGORIES.includes(categoriaPronatecyt)) {
-          setMessage(projectStatus, "Para Feria Cientifica debes seleccionar una categoria PRONAFECYT.", "error");
+          showToast("Para Feria Cientifica debes seleccionar una categoria PRONAFECYT.", "error");
           return;
         }
       }
@@ -5212,11 +5212,9 @@ async function bootstrapAdminPage() {
         const resetFeriaInput = projectForm.querySelector('input[name="tipo_feria"]');
         if (resetFeriaInput && user.tipo_feria) resetFeriaInput.value = user.tipo_feria;
         showToast("Proyecto guardado correctamente.", "success");
-        setMessage(projectStatus, "Proyecto guardado correctamente.", "success");
         await refreshAdminDataView();
       } catch (err) {
         showToast(err?.message || "No se pudo guardar el proyecto.", "error");
-        setMessage(projectStatus, err?.message || "No se pudo guardar el proyecto.", "error");
       }
 
       btn.disabled = false;
