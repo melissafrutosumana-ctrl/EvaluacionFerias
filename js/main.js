@@ -115,7 +115,7 @@ function getNivelFromPronatecyt(categoria) {
     const code = String(categoria).split(" ")[0];
     if (["F11B", "F11C"].includes(code)) return "Primaria (I y II Ciclos)";
     if (["F8B", "F8C"].includes(code)) return "Secundaria - III Ciclo";
-    if (["F9B", "F9C", "F10B", "F10C"].includes(code)) return "Secundaria";
+    if (["F9B", "F9C", "F10B", "F10C"].includes(code)) return "Secundaria - Ed. Diversificada";
     if (["F12B", "F12C", "F13B"].includes(code)) return "Educación Especial";
     return null;
 }
