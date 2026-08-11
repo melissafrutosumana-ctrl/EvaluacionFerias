@@ -3408,6 +3408,38 @@ body[data-page="judge"] .btn-sm:hover {
   margin-right: 0.2rem;
 }
 
+/* ===== MANUAL ESCRITO SCORE ===== */
+.btn-manual-escrito {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.3rem;
+  font-size: var(--text-xs);
+  color: var(--primary);
+  background: none;
+  border: 1px dashed var(--primary);
+  border-radius: var(--radius-sm);
+  padding: 0.2rem 0.5rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.btn-manual-escrito:hover {
+  background: var(--primary);
+  color: #fff;
+}
+.manual-score-display {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--primary);
+}
+.manual-escrito-input {
+  padding: 0.3rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  font-family: var(--font-body);
+}
+
 /* ===== EVALUATION TABS ===== */
 .eval-tab-bar {
   display: flex;
