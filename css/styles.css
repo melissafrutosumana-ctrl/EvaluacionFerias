@@ -1178,7 +1178,7 @@ body.nav-open[data-page="judge"] main {
     background: var(--surface-alt);
 }
 
-.results-table tbody tr:hover td {
+.results-table tbody tr:not(.category-group-row):hover td {
     background: rgba(199, 154, 46, 0.06);
 }
 
