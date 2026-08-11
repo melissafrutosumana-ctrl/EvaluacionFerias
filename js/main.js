@@ -3858,13 +3858,18 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
 
     const proj = projectsById.get(projectId);
     const cat = proj?.categoria_expotecnica ?? proj?.categoria_festival ?? null;
+    const manualEscrito = proj?.puntaje_escrito_manual != null ? Number(proj.puntaje_escrito_manual) : null;
+    const escritoAvgFinal = manualEscrito !== null ? manualEscrito : escritoAvg;
+    const escritoVotedFinal = manualEscrito !== null ? 1 : escritoVoted;
     results.push({
+      projectId,
       projectName: proj?.titulo ?? "Proyecto",
       categoria: cat,
+      manualEscrito,
       expoJudges, escritoJudges,
       expoTotal, expoVoted,
       escritoTotal, escritoVoted,
-      finalScore: calcFinalScore(expoVoted, expoAvg, escritoVoted, escritoAvg)
+      finalScore: calcFinalScore(expoVoted, expoAvg, escritoVotedFinal, escritoAvgFinal)
     });
   }
 
@@ -3880,7 +3885,17 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
     const totalAssigned = r.expoTotal + r.escritoTotal;
     const pct = totalAssigned > 0 ? Math.round(totalVoted / totalAssigned * 100) : 0;
     const barColor = pct === 100 ? "var(--secondary)" : pct > 50 ? "var(--secondary-light)" : "var(--ink-secondary)";
-    return `<tr>
+    const escritoCell = r.manualEscrito !== null
+      ? `<span class="manual-score-display">${r.manualEscrito.toFixed(0)} <span class="judge-status">(manual)</span></span>
+         <button class="btn-manual-escrito" data-project-id="${r.projectId}" data-current="${r.manualEscrito}" title="Editar puntaje manual">
+           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>
+         </button>`
+      : `${formatJudgeColumn(r.escritoJudges, r.escritoVoted, r.escritoTotal)}
+         <br><button class="btn-manual-escrito" data-project-id="${r.projectId}" data-current="" title="Ingresar puntaje escrito manual">
+           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>
+           Ingresar manual
+         </button>`;
+    return `<tr data-result-row="${r.projectId}">
       <td>
         <strong>${escapeHTML(r.projectName)}</strong>
         <div class="judge-progress-wrap">
@@ -3889,10 +3904,55 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
         <span class="judge-status">${totalVoted}/${totalAssigned} jueces (${pct}%)</span>
       </td>
       <td>${formatJudgeColumn(r.expoJudges, r.expoVoted, r.expoTotal)}</td>
-      <td>${formatJudgeColumn(r.escritoJudges, r.escritoVoted, r.escritoTotal)}</td>
+      <td class="escrito-cell">${escritoCell}</td>
       <td class="score-cell"><strong>${r.finalScore.toFixed(0)}</strong></td>
     </tr>`;
   }
+
+  // Event delegation para guardar puntaje escrito manual
+  tbody.addEventListener("click", async function handleManualClick(e) {
+    const btn = e.target.closest(".btn-manual-escrito");
+    if (!btn) return;
+    const projectId = btn.dataset.projectId;
+    const current = btn.dataset.current;
+    const cell = btn.closest(".escrito-cell");
+    if (!cell || cell.querySelector(".manual-escrito-form")) return;
+
+    const originalContent = cell.innerHTML;
+    cell.innerHTML = `
+      <form class="manual-escrito-form" style="display:flex;gap:0.4rem;align-items:center;flex-wrap:wrap;">
+        <input type="number" class="manual-escrito-input" min="0" max="100" step="0.1"
+          value="${escapeHTML(current)}" placeholder="Puntaje (0-100)" style="width:90px;">
+        <button type="submit" class="btn-primary btn-sm">Guardar</button>
+        <button type="button" class="btn-secondary btn-sm manual-escrito-cancel">Cancelar</button>
+      </form>`;
+
+    cell.querySelector(".manual-escrito-cancel").addEventListener("click", () => {
+      cell.innerHTML = originalContent;
+    });
+
+    cell.querySelector(".manual-escrito-form").addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      const val = cell.querySelector(".manual-escrito-input").value.trim();
+      const num = val === "" ? null : Number(val);
+      if (val !== "" && (isNaN(num) || num < 0 || num > 100)) {
+        alert("Ingrese un puntaje entre 0 y 100.");
+        return;
+      }
+      const { error } = await supabase
+        .from("proyectos_ferias")
+        .update({ puntaje_escrito_manual: num })
+        .eq("id", projectId);
+      if (error) {
+        alert("Error al guardar: " + error.message);
+        cell.innerHTML = originalContent;
+        return;
+      }
+      // Refrescar tabla
+      tbody.removeEventListener("click", handleManualClick);
+      await renderAdminReportsByFeria();
+    });
+  }, { once: false });
 
   const groupByCategory = selectedFeria === "Feria Expotecnica" || selectedFeria === "Festival Estudiantil de las Artes";
 
@@ -3949,7 +4009,7 @@ async function renderAdminReportsByFeria() {
 
   const [users, projectsResult, allEvals, assignmentsResult] = await Promise.all([
     loadUsers(),
-    supabase.from("proyectos_ferias").select("id, titulo, tipo_feria, categoria_expotecnica, categoria_festival"),
+    supabase.from("proyectos_ferias").select("id, titulo, tipo_feria, categoria_expotecnica, categoria_festival, puntaje_escrito_manual"),
     fetchAllEvaluations(),
     supabase.from("asignaciones_jueces").select("juez_id, proyecto_id, tipo_evaluacion")
   ]);
