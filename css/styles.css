@@ -1140,6 +1140,21 @@ body[data-page="admin"] main {
   line-height: 1.6;
 }
 
+.results-table .category-group-row td {
+  background: var(--primary);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: var(--text-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.55rem 0.85rem;
+  border-bottom: none;
+}
+
+.results-table tbody tr.category-group-row:nth-child(even) td {
+  background: var(--primary);
+}
+
 .empty-state-row td {
   text-align: center;
   color: var(--ink-secondary);

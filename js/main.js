@@ -3805,7 +3805,7 @@ function calcFinalScore(expoVoted, expoAvg, escritoVoted, escritoAvg) {
   return escritoAvg;
 }
 
-function renderAdminScoresTable(rows, projectsById, assignmentsByProject) {
+function renderAdminScoresTable(rows, projectsById, assignmentsByProject, selectedFeria) {
   const tbody = document.querySelector("[data-project-results]");
   if (!tbody) return;
 
@@ -3856,8 +3856,10 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject) {
     const expoAvg = calcAverage(expoJudges);
     const escritoAvg = calcAverage(escritoJudges);
 
+    const proj = projectsById.get(projectId);
     results.push({
-      projectName: projectsById.get(projectId)?.titulo ?? "Proyecto",
+      projectName: proj?.titulo ?? "Proyecto",
+      categoria: proj?.categoria_expotecnica ?? null,
       expoJudges, escritoJudges,
       expoTotal, expoVoted,
       escritoTotal, escritoVoted,
@@ -3872,26 +3874,42 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject) {
     highScoreEl.textContent = results[0].finalScore.toFixed(0);
   }
 
-  tbody.innerHTML = results
-    .map((r) => {
-      const totalVoted = r.expoVoted + r.escritoVoted;
-      const totalAssigned = r.expoTotal + r.escritoTotal;
-      const pct = totalAssigned > 0 ? Math.round(totalVoted / totalAssigned * 100) : 0;
-      const barColor = pct === 100 ? "var(--secondary)" : pct > 50 ? "var(--secondary-light)" : "var(--ink-secondary)";
-      return `<tr>
-        <td>
-          <strong>${escapeHTML(r.projectName)}</strong>
-          <div class="judge-progress-wrap">
-            <div class="judge-progress-bar" style="width:${pct}%;background:${barColor}"></div>
-          </div>
-          <span class="judge-status">${totalVoted}/${totalAssigned} jueces (${pct}%)</span>
-        </td>
-        <td>${formatJudgeColumn(r.expoJudges, r.expoVoted, r.expoTotal)}</td>
-        <td>${formatJudgeColumn(r.escritoJudges, r.escritoVoted, r.escritoTotal)}</td>
-        <td class="score-cell"><strong>${r.finalScore.toFixed(0)}</strong></td>
-      </tr>`;
-    })
-    .join("");
+  function buildProjectRow(r) {
+    const totalVoted = r.expoVoted + r.escritoVoted;
+    const totalAssigned = r.expoTotal + r.escritoTotal;
+    const pct = totalAssigned > 0 ? Math.round(totalVoted / totalAssigned * 100) : 0;
+    const barColor = pct === 100 ? "var(--secondary)" : pct > 50 ? "var(--secondary-light)" : "var(--ink-secondary)";
+    return `<tr>
+      <td>
+        <strong>${escapeHTML(r.projectName)}</strong>
+        <div class="judge-progress-wrap">
+          <div class="judge-progress-bar" style="width:${pct}%;background:${barColor}"></div>
+        </div>
+        <span class="judge-status">${totalVoted}/${totalAssigned} jueces (${pct}%)</span>
+      </td>
+      <td>${formatJudgeColumn(r.expoJudges, r.expoVoted, r.expoTotal)}</td>
+      <td>${formatJudgeColumn(r.escritoJudges, r.escritoVoted, r.escritoTotal)}</td>
+      <td class="score-cell"><strong>${r.finalScore.toFixed(0)}</strong></td>
+    </tr>`;
+  }
+
+  if (selectedFeria === "Feria Expotecnica") {
+    const grouped = new Map();
+    results.forEach((r) => {
+      const cat = r.categoria || "Sin categoría";
+      if (!grouped.has(cat)) grouped.set(cat, []);
+      grouped.get(cat).push(r);
+    });
+
+    const html = [];
+    for (const [cat, items] of grouped) {
+      html.push(`<tr class="category-group-row"><td colspan="4">${escapeHTML(cat)}</td></tr>`);
+      items.forEach((r) => html.push(buildProjectRow(r)));
+    }
+    tbody.innerHTML = html.join("");
+  } else {
+    tbody.innerHTML = results.map(buildProjectRow).join("");
+  }
 }
 
 async function fetchAllEvaluations() {
@@ -3928,7 +3946,7 @@ async function renderAdminReportsByFeria() {
 
   const [users, projectsResult, allEvals, assignmentsResult] = await Promise.all([
     loadUsers(),
-    supabase.from("proyectos_ferias").select("id, titulo, tipo_feria"),
+    supabase.from("proyectos_ferias").select("id, titulo, tipo_feria, categoria_expotecnica"),
     fetchAllEvaluations(),
     supabase.from("asignaciones_jueces").select("juez_id, proyecto_id, tipo_evaluacion")
   ]);
@@ -3966,7 +3984,7 @@ async function renderAdminReportsByFeria() {
 
   renderAdminEvaluationsTable(filteredRows, usersById, projectsById);
   renderAdminProjectsTable(filteredRows, projectsById);
-  renderAdminScoresTable(filteredRows, projectsById, assignmentsByProject);
+  renderAdminScoresTable(filteredRows, projectsById, assignmentsByProject, selectedFeria);
 
   // Update summary cards
   const uniqueProjects = new Set(filteredRows.map((r) => r.proyecto_id));
