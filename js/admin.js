@@ -942,6 +942,7 @@ export async function bootstrapAdminPage() {
       const categoriaExpotecnica = String(formData.get("categoria_expotecnica") ?? "").trim();
       const ejeTematico = String(formData.get("eje_tematico") ?? "").trim();
       const categoriaPronatecyt = String(formData.get("categoria_pronatecyt") ?? "").trim();
+      const nivelEducativo = String(formData.get("nivel_cientifico") ?? "").trim();
       const isFestival = tipoFeria === FESTIVAL_FERIA_NAME;
       const isExpotecnica = tipoFeria === "Feria Expotecnica";
       const isScientific = tipoFeria === "Feria Cientifica y Tecnologica";
@@ -986,6 +987,7 @@ export async function bootstrapAdminPage() {
           titulo,
           descripcion: descripcion || null,
           tipo_feria: tipoFeria,
+          nivel_educativo: isScientific ? nivelEducativo || null : null,
           integrante_1: isFestival ? null : integrante1 || null,
           integrante_2: isFestival ? null : integrante2 || null,
           integrante_3: isFestival ? null : integrante3 || null,
@@ -1597,7 +1599,7 @@ function showEditProjectModal(project) {
   const pronafecytCatWrap = form.querySelector('[data-pronafecyt-cat-wrap]');
   if (nivelCientificoSelect && selectedFeria === "Feria Cientifica y Tecnologica") {
     const stored = String(project.categoria_pronatecyt ?? "");
-    const nivel = getNivelFromPronatecyt(stored);
+    const nivel = project.nivel_educativo || getNivelFromPronatecyt(stored);
     if (nivel) {
       nivelCientificoSelect.value = nivel;
       const nivelForms = PRONAFECYT_BY_NIVEL[nivel] ?? [];
@@ -1660,6 +1662,7 @@ function showEditProjectModal(project) {
     const categoriaExpotecnica = String(formData.get("categoria_expotecnica") ?? "").trim();
     const ejeTematico = String(formData.get("eje_tematico") ?? "").trim();
     const categoriaPronatecyt = String(formData.get("categoria_pronatecyt") ?? "").trim();
+    const nivelEducativo = String(formData.get("nivel_cientifico") ?? "").trim();
     const isFestival = tipoFeria === FESTIVAL_FERIA_NAME;
     const isExpotecnica = tipoFeria === "Feria Expotecnica";
     const isScientific = tipoFeria === "Feria Cientifica y Tecnologica";
@@ -1668,6 +1671,7 @@ function showEditProjectModal(project) {
       titulo,
       descripcion: descripcion || null,
       tipo_feria: tipoFeria,
+      nivel_educativo: isScientific ? nivelEducativo || null : null,
       integrante_1: isFestival ? null : integrante1 || null,
       integrante_2: isFestival ? null : integrante2 || null,
       integrante_3: isFestival ? null : integrante3 || null,
