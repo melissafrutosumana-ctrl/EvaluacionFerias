@@ -1,5 +1,5 @@
 import { supabase } from "./supabase.js";
-import { escapeHTML, showToast, setMessage, normalizeRoleName, isMissingColumnError, fillSelect, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, buildFeriaOptions, FESTIVAL_FERIA_NAME, FESTIVAL_CATEGORIES, FESTIVAL_SUBCATEGORIES, EXPOTECNICA_CATEGORIES, EXPOTECNICA_EJES, PRONAFECYT_CATEGORIES, updateProjectFormFieldsByFeria, showSkeleton, PRONAFECYT_BY_NIVEL, getNivelFromPronatecyt, renderJudgeRubric } from "./utils.js";
+import { escapeHTML, showToast, setMessage, normalizeRoleName, isMissingColumnError, fillSelect, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, buildFeriaOptions, FESTIVAL_FERIA_NAME, FESTIVAL_CATEGORIES, FESTIVAL_SUBCATEGORIES, EXPOTECNICA_CATEGORIES, EXPOTECNICA_EJES, PRONAFECYT_CATEGORIES, updateProjectFormFieldsByFeria, showSkeleton, PRONAFECYT_BY_NIVEL, getNivelFromPronatecyt, renderJudgeRubric, PRONAFECYT_CODE_MAX } from "./utils.js";
 import { getSession, clearSession, restoreAppSession, enforceRole, hashPassword, bindLogout } from "./auth.js";
 import { loadProjects, loadJudges, loadJudgeAssignments, loadUsers, fetchAllEvaluations } from "./data.js";
 import { generateAdminPDF } from "./pdf.js";
@@ -378,10 +378,20 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
 
         let finalScore;
         const isScientific = proj ?.tipo_feria === "Feria Cientifica y Tecnologica";
-        if (manualEscrito !== null) {
+        if (isScientific) {
+            const bCode = String(proj ?.categoria_pronatecyt || "").split(" ")[0];
+            const bMax = PRONAFECYT_CODE_MAX[bCode] || 40;
+            const cCode = bCode ? bCode.replace("B", "C") : "";
+            const cMax = PRONAFECYT_CODE_MAX[cCode] || 0;
+            const expoPts = expoAvg;
+            const escritoPts = manualEscrito !== null ? manualEscrito : escritoAvg;
+            if (cMax > 0) {
+                finalScore = (expoPts / bMax) * 50 + (escritoPts / cMax) * 50;
+            } else {
+                finalScore = expoPts;
+            }
+        } else if (manualEscrito !== null) {
             finalScore = expoVoted > 0 ? expoAvg + manualEscrito : manualEscrito;
-        } else if (isScientific) {
-            finalScore = expoAvg + escritoAvg;
         } else {
             finalScore = calcFinalScore(expoVoted, expoAvg, escritoVotedFinal, escritoAvgFinal);
         }

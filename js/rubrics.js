@@ -341,54 +341,54 @@ export function getPronatecytRubricByCategory(category) {
         sections: [{
                 title: "A. Propósito principal de la demostración e importancia del tema",
                 indicators: [
-                    "El propósito es explicado con claridad y coherencia, así como la importancia de la investigación y sus posibles consecuencias.",
-                    "Las preguntas generales están relacionadas con la demostración.",
-                    "La demostración corresponde a un proceso o principio científico o tecnológico."
-                ]
+            { text: "El propósito es explicado con claridad y coherencia, así como la importancia de la investigación y sus posibles consecuencias.", max: 2 },
+            { text: "Las preguntas generales están relacionadas con la demostración.", max: 1 },
+            { text: "La demostración corresponde a un proceso o principio científico o tecnológico.", max: 1 }
+        ]
             },
             {
                 title: "B. Marco teórico y metodología",
                 indicators: [
-                    "Existe familiaridad y manejo de los contenidos de las fuentes consultadas.",
-                    "Existe claridad en los conceptos utilizados.",
-                    "La organización de la investigación demuestra una metodología de trabajo.",
-                    "Selecciona los instrumentos adecuados para su demostración (maquetas, modelos, equipo de laboratorio, etc.).",
-                    "Utiliza recursos materiales en forma ingeniosa y creativa.",
-                    "Los recursos y desechos generados son utilizados considerando la sostenibilidad ambiental."
-                ]
+            { text: "Existe familiaridad y manejo de los contenidos de las fuentes consultadas.", max: 1 },
+            { text: "Existe claridad en los conceptos utilizados.", max: 1 },
+            { text: "La organización de la investigación demuestra una metodología de trabajo.", max: 2 },
+            { text: "Selecciona los instrumentos adecuados para su demostración (maquetas, modelos, equipo de laboratorio, etc.).", max: 2 },
+            { text: "Utiliza recursos materiales en forma ingeniosa y creativa.", max: 2 },
+            { text: "Los recursos y desechos generados son utilizados considerando la sostenibilidad ambiental.", max: 2 }
+        ]
             },
             {
                 title: "C. Análisis y conclusiones (Logros obtenidos)",
                 indicators: [
-                    "Realiza la interpretación de los resultados obtenidos en la demostración.",
-                    "Explica cómo la demostración ilustra el concepto o principio científico, tecnológico o social seleccionado.",
-                    "Contrasta o compara los resultados obtenidos en la demostración, con la información consultada.",
-                    "Complementa la comparación con reflexiones personales."
-                ]
+            { text: "Realiza la interpretación de los resultados obtenidos en la demostración.", max: 2 },
+            { text: "Explica cómo la demostración ilustra el concepto o principio científico, tecnológico o social seleccionado.", max: 2 },
+            { text: "Contrasta o compara los resultados obtenidos en la demostración, con la información consultada.", max: 1 },
+            { text: "Complementa la comparación con reflexiones personales.", max: 1 }
+        ]
             },
             {
                 title: "D. Dominio del principio o proceso científico o tecnológico",
                 indicators: [
-                    "Explica el principio, proceso científico o tecnológico.",
-                    "Evidencia comprensión de los conceptos que fundamentan la demostración.",
-                    "Todas las personas estudiantes miembros del proyecto participan en la exposición y dominan el tema."
-                ]
+            { text: "Explica el principio, proceso científico o tecnológico.", max: 2 },
+            { text: "Evidencia comprensión de los conceptos que fundamentan la demostración.", max: 3 },
+            { text: "Todas las personas estudiantes miembros del proyecto participan en la exposición y dominan el tema.", max: 3 }
+        ]
             },
             {
                 title: "E. Presentación y comunicación científica o tecnológica",
                 indicators: [
-                    "El cartel presentado apoya la comunicación en forma fluida.",
-                    "El material expuesto tiene relación con el trabajo de investigación.",
-                    "Existe claridad en la comunicación y se utiliza lenguaje científico acorde al tema.",
-                    "Existe capacidad de síntesis para realizar la comunicación."
-                ]
+            { text: "El cartel presentado apoya la comunicación en forma fluida.", max: 2 },
+            { text: "El material expuesto tiene relación con el trabajo de investigación.", max: 2 },
+            { text: "Existe claridad en la comunicación y se utiliza lenguaje científico acorde al tema.", max: 2 },
+            { text: "Existe capacidad de síntesis para realizar la comunicación.", max: 2 }
+        ]
             },
             {
                 title: "F. Autenticidad del trabajo realizado",
                 indicators: [
-                    "El cartel y material expuesto/elaborado da muestras de que las personas estudiantes realizaron el trabajo.",
-                    "Existe originalidad en la elaboración del material."
-                ]
+            { text: "El cartel y material expuesto/elaborado da muestras de que las personas estudiantes realizaron el trabajo.", max: 2 },
+            { text: "Existe originalidad en la elaboración del material.", max: 2 }
+        ]
             }
         ]
     };
@@ -398,56 +398,56 @@ export function getPronatecytRubricByCategory(category) {
         sections: [{
                 title: "A. Planteamiento de los objetivos y justificación del problema",
                 indicators: [
-                    "La escogencia del problema demuestra creatividad y originalidad.",
-                    "Los objetivos tienen relación con el problema de investigación.",
-                    "Los objetivos son explicados con claridad y coherencia, así como la importancia de la investigación.",
-                    "La definición de la pregunta incluye las variables.",
-                    "Las personas estudiantes identifican las variables en la hipótesis."
-                ]
+            { text: "La escogencia del problema demuestra creatividad y originalidad.", max: 1 },
+            { text: "Los objetivos tienen relación con el problema de investigación.", max: 1 },
+            { text: "Los objetivos son explicados con claridad y coherencia, así como la importancia de la investigación.", max: 1 },
+            { text: "La definición de la pregunta incluye las variables.", max: 1 },
+            { text: "Las personas estudiantes identifican las variables en la hipótesis.", max: 1 }
+        ]
             },
             {
                 title: "B. Marco teórico",
                 indicators: [
-                    "Existe familiaridad y manejo de los contenidos de las fuentes.",
-                    "Es comprensible el manejo de los conceptos, variables o términos técnicos utilizados."
-                ]
+            { text: "Existe familiaridad y manejo de los contenidos de las fuentes.", max: 2 },
+            { text: "Es comprensible el manejo de los conceptos, variables o términos técnicos utilizados.", max: 3 }
+        ]
             },
             {
                 title: "C. Metodología aplicada",
                 indicators: [
-                    "Planificación y cumplimiento por etapas de la investigación.",
-                    "Selecciona recursos e instrumentos adecuados para utilizarlos.",
-                    "Describe los recursos tecnológicos (digitales o analógicos) y/o material concreto, preferiblemente reutilizable, requeridos en el desarrollo de la investigación.",
-                    "Describe de manera adecuada las metodologías utilizadas.",
-                    "Los recursos y desechos generados son utilizados considerando la sostenibilidad ambiental."
-                ]
+            { text: "Planificación y cumplimiento por etapas de la investigación.", max: 2 },
+            { text: "Selecciona recursos e instrumentos adecuados para utilizarlos.", max: 2 },
+            { text: "Describe los recursos tecnológicos (digitales o analógicos) y/o material concreto, preferiblemente reutilizable, requeridos en el desarrollo de la investigación.", max: 2 },
+            { text: "Describe de manera adecuada las metodologías utilizadas.", max: 2 },
+            { text: "Los recursos y desechos generados son utilizados considerando la sostenibilidad ambiental.", max: 2 }
+        ]
             },
             {
                 title: "D. Discusión, interpretación y aplicación de los resultados",
                 indicators: [
-                    "Existe coherencia entre los objetivos y las conclusiones.",
-                    "Análisis, discusión y correlación de variables es adecuado.",
-                    "Logra la comprobación o negación de las hipótesis según las variables.",
-                    "Congruencia de datos, tablas y gráficos presentados con el tema escogido.",
-                    "Sugiere posibles aplicaciones de los resultados obtenidos o mejoras a las actividades efectuadas."
-                ]
+            { text: "Existe coherencia entre los objetivos y las conclusiones.", max: 1 },
+            { text: "Análisis, discusión y correlación de variables es adecuado.", max: 2 },
+            { text: "Logra la comprobación o negación de las hipótesis según las variables.", max: 1 },
+            { text: "Congruencia de datos, tablas y gráficos presentados con el tema escogido.", max: 1 },
+            { text: "Sugiere posibles aplicaciones de los resultados obtenidos o mejoras a las actividades efectuadas.", max: 1 }
+        ]
             },
             {
                 title: "E. Presentación y comunicación científica",
                 indicators: [
-                    "El cartel presentado apoya la comunicación en forma fluida.",
-                    "El material expuesto tiene relación con el trabajo de investigación.",
-                    "Capacidad de síntesis para llevar a cabo la comunicación.",
-                    "Claridad y coherencia al explicar el propósito, el proceso de investigación y sus conclusiones.",
-                    "Todas las personas estudiantes miembros del proyecto participan en la exposición y dominan el tema."
-                ]
+            { text: "El cartel presentado apoya la comunicación en forma fluida.", max: 1 },
+            { text: "El material expuesto tiene relación con el trabajo de investigación.", max: 2 },
+            { text: "Capacidad de síntesis para llevar a cabo la comunicación.", max: 2 },
+            { text: "Claridad y coherencia al explicar el propósito, el proceso de investigación y sus conclusiones.", max: 3 },
+            { text: "Todas las personas estudiantes miembros del proyecto participan en la exposición y dominan el tema.", max: 2 }
+        ]
             },
             {
                 title: "F. Autenticidad del trabajo realizado",
                 indicators: [
-                    "El cartel y material expuesto/elaborado da muestras de que las personas estudiantes realizaron el trabajo.",
-                    "Existe originalidad en la elaboración del material."
-                ]
+            { text: "El cartel y material expuesto/elaborado da muestras de que las personas estudiantes realizaron el trabajo.", max: 2 },
+            { text: "Existe originalidad en la elaboración del material.", max: 2 }
+        ]
             }
         ]
     };
@@ -457,56 +457,56 @@ export function getPronatecytRubricByCategory(category) {
         sections: [{
                 title: "A. Planteamiento de los objetivos y justificación del problema",
                 indicators: [
-                    "La escogencia del problema/pregunta responde a una necesidad concreta.",
-                    "Justifica, de forma cualitativa o cuantitativa, la relevancia del problema y la necesidad a abordar con la investigación.",
-                    "Los objetivos tienen relación con el problema de investigación.",
-                    "Los objetivos son explicados con claridad y coherencia, así como la importancia de la investigación y sus posibles consecuencias."
-                ]
+            { text: "La escogencia del problema/pregunta responde a una necesidad concreta.", max: 1 },
+            { text: "Justifica, de forma cualitativa o cuantitativa, la relevancia del problema y la necesidad a abordar con la investigación.", max: 2 },
+            { text: "Los objetivos tienen relación con el problema de investigación.", max: 1 },
+            { text: "Los objetivos son explicados con claridad y coherencia, así como la importancia de la investigación y sus posibles consecuencias.", max: 1 }
+        ]
             },
             {
                 title: "B. Marco teórico",
                 indicators: [
-                    "Existe familiaridad y manejo de los contenidos de las fuentes.",
-                    "Existe claridad y precisión en los conceptos utilizados.",
-                    "Utiliza correctamente el lenguaje científico y tecnológico acorde a la investigación."
-                ]
+            { text: "Existe familiaridad y manejo de los contenidos de las fuentes.", max: 1 },
+            { text: "Existe claridad y precisión en los conceptos utilizados.", max: 1 },
+            { text: "Utiliza correctamente el lenguaje científico y tecnológico acorde a la investigación.", max: 3 }
+        ]
             },
             {
                 title: "C. Metodología aplicada",
                 indicators: [
-                    "Selección de instrumentos y métodos adecuados.",
-                    "Describe las metodologías utilizadas para la obtención de soluciones tecnológicas.",
-                    "Cumplimiento de las etapas planificadas en el diseño del desarrollo tecnológico.",
-                    "Utiliza recursos materiales de bajo costo.",
-                    "Los recursos están orientados hacia la sostenibilidad ambiental.",
-                    "Describe las metodologías de evaluación y perfeccionamiento."
-                ]
+            { text: "Selección de instrumentos y métodos adecuados.", max: 1 },
+            { text: "Describe las metodologías utilizadas para la obtención de soluciones tecnológicas.", max: 2 },
+            { text: "Cumplimiento de las etapas planificadas en el diseño del desarrollo tecnológico.", max: 2 },
+            { text: "Utiliza recursos materiales de bajo costo.", max: 1 },
+            { text: "Los recursos están orientados hacia la sostenibilidad ambiental.", max: 2 },
+            { text: "Describe las metodologías de evaluación y perfeccionamiento.", max: 2 }
+        ]
             },
             {
                 title: "D. Discusión, interpretación y aplicación de los resultados",
                 indicators: [
-                    "Coherencia de los objetivos con los resultados obtenidos.",
-                    "Explica cómo los resultados de la investigación tienen un impacto positivo sobre el problema a resolver.",
-                    "Presentación y congruencia de datos, tablas y gráficos con el tema investigado.",
-                    "Analiza posibles aplicaciones del desarrollo tecnológico obtenido en la sociedad."
-                ]
+            { text: "Coherencia de los objetivos con los resultados obtenidos.", max: 2 },
+            { text: "Explica cómo los resultados de la investigación tienen un impacto positivo sobre el problema a resolver.", max: 2 },
+            { text: "Presentación y congruencia de datos, tablas y gráficos con el tema investigado.", max: 2 },
+            { text: "Analiza posibles aplicaciones del desarrollo tecnológico obtenido en la sociedad.", max: 2 }
+        ]
             },
             {
                 title: "E. Presentación y comunicación científica",
                 indicators: [
-                    "El cartel presentado apoya la comunicación en forma fluida.",
-                    "El material expuesto tiene relación con el trabajo de investigación.",
-                    "Existe capacidad de síntesis para llevar a cabo la comunicación.",
-                    "Claridad al explicar el propósito, el proceso de investigación y la relevancia del trabajo a través de sus conclusiones.",
-                    "Todas las personas estudiantes miembros del proyecto participan en la exposición y dominan el tema."
-                ]
+            { text: "El cartel presentado apoya la comunicación en forma fluida.", max: 1 },
+            { text: "El material expuesto tiene relación con el trabajo de investigación.", max: 1 },
+            { text: "Existe capacidad de síntesis para llevar a cabo la comunicación.", max: 2 },
+            { text: "Claridad al explicar el propósito, el proceso de investigación y la relevancia del trabajo a través de sus conclusiones.", max: 2 },
+            { text: "Todas las personas estudiantes miembros del proyecto participan en la exposición y dominan el tema.", max: 2 }
+        ]
             },
             {
                 title: "F. Autenticidad del trabajo realizado",
                 indicators: [
-                    "El cartel y material expuesto/elaborado da muestras de que las personas estudiantes realizaron el trabajo.",
-                    "Existe originalidad en la elaboración del material."
-                ]
+            { text: "El cartel y material expuesto/elaborado da muestras de que las personas estudiantes realizaron el trabajo.", max: 2 },
+            { text: "Existe originalidad en la elaboración del material.", max: 2 }
+        ]
             }
         ]
     };
@@ -516,49 +516,49 @@ export function getPronatecytRubricByCategory(category) {
         sections: [{
                 title: "A. Aspectos iniciales",
                 indicators: [
-                    "Las ideas previas que motivan la investigación evidencian una toma de decisiones por parte de las personas estudiantes.",
-                    "Expresa sus ideas al presentar la(s) pregunta(s) que orienta su investigación y las suposiciones o predicciones."
-                ]
+            { text: "Las ideas previas que motivan la investigación evidencian una toma de decisiones por parte de las personas estudiantes.", max: 3 },
+            { text: "Expresa sus ideas al presentar la(s) pregunta(s) que orienta su investigación y las suposiciones o predicciones.", max: 2 }
+        ]
             },
             {
                 title: "B. Pasos por seguir",
                 indicators: [
-                    "Las acciones o pasos realizados en la investigación son comunicados con frases sencillas y coherentes.",
-                    "Evidencia familiaridad y comprensión de los pasos y acciones realizadas durante la investigación."
-                ]
+            { text: "Las acciones o pasos realizados en la investigación son comunicados con frases sencillas y coherentes.", max: 3 },
+            { text: "Evidencia familiaridad y comprensión de los pasos y acciones realizadas durante la investigación.", max: 3 }
+        ]
             },
             {
                 title: "C. Logros obtenidos",
                 indicators: [
-                    "Comunica los logros de la investigación.",
-                    "Comunica las fuentes de información consultadas.",
-                    "Expresa ideas propias relacionadas con la temática investigada.",
-                    "Evidencia el disfrute y apropiación de la investigación realizada."
-                ]
+            { text: "Comunica los logros de la investigación.", max: 3 },
+            { text: "Comunica las fuentes de información consultadas.", max: 2 },
+            { text: "Expresa ideas propias relacionadas con la temática investigada.", max: 3 },
+            { text: "Evidencia el disfrute y apropiación de la investigación realizada.", max: 2 }
+        ]
             },
             {
                 title: "D. Dominio de la temática",
                 indicators: [
-                    "Comunica el proceso de la investigación realizada de forma lógica y secuencial.",
-                    "Demuestra dominio al comunicar los logros obtenidos.",
-                    "Todas las personas estudiantes integrantes del proyecto participan en la comunicación de la información."
-                ]
+            { text: "Comunica el proceso de la investigación realizada de forma lógica y secuencial.", max: 3 },
+            { text: "Demuestra dominio al comunicar los logros obtenidos.", max: 3 },
+            { text: "Todas las personas estudiantes integrantes del proyecto participan en la comunicación de la información.", max: 2 }
+        ]
             },
             {
                 title: "E. Presentación y comunicación de la información",
                 indicators: [
-                    "El cartel presentado apoya la comunicación en forma fluida.",
-                    "El material expuesto tiene relación con el trabajo de investigación.",
-                    "Menciona todos los elementos que apoyan el trabajo de investigación.",
-                    "Todas las personas estudiantes miembros del proyecto participan en la exposición y dominan el tema."
-                ]
+            { text: "El cartel presentado apoya la comunicación en forma fluida.", max: 1 },
+            { text: "El material expuesto tiene relación con el trabajo de investigación.", max: 2 },
+            { text: "Menciona todos los elementos que apoyan el trabajo de investigación.", max: 2 },
+            { text: "Todas las personas estudiantes miembros del proyecto participan en la exposición y dominan el tema.", max: 2 }
+        ]
             },
             {
                 title: "F. Autenticidad del trabajo realizado",
                 indicators: [
-                    "El cartel y material expuesto/elaborado da muestras de que las personas estudiantes realizaron el trabajo.",
-                    "Existe originalidad en la elaboración del material."
-                ]
+            { text: "El cartel y material expuesto/elaborado da muestras de que las personas estudiantes realizaron el trabajo.", max: 2 },
+            { text: "Existe originalidad en la elaboración del material.", max: 2 }
+        ]
             }
         ]
     };
@@ -568,50 +568,50 @@ export function getPronatecytRubricByCategory(category) {
         sections: [{
                 title: "A. Aspectos iniciales",
                 indicators: [
-                    "Las ideas previas que motivan la investigación evidencian una toma de decisiones por parte de las personas estudiantes.",
-                    "Expresa sus ideas al presentar la(s) pregunta(s) que orienta su investigación y las suposiciones o predicciones."
-                ]
+            { text: "Las ideas previas que motivan la investigación evidencian una toma de decisiones por parte de las personas estudiantes.", max: 3 },
+            { text: "Expresa sus ideas al presentar la(s) pregunta(s) que orienta su investigación y las suposiciones o predicciones.", max: 2 }
+        ]
             },
             {
                 title: "B. Pasos por seguir",
                 indicators: [
-                    "Las acciones o pasos realizados en la investigación son comunicados con frases sencillas y coherentes.",
-                    "Evidencia familiaridad y comprensión de los pasos y acciones realizadas durante la investigación."
-                ]
+            { text: "Las acciones o pasos realizados en la investigación son comunicados con frases sencillas y coherentes.", max: 2 },
+            { text: "Evidencia familiaridad y comprensión de los pasos y acciones realizadas durante la investigación.", max: 3 }
+        ]
             },
             {
                 title: "C. Logros obtenidos",
                 indicators: [
-                    "Comunica los hallazgos con la información consultada.",
-                    "Comunica los logros de la investigación.",
-                    "Comunica las fuentes de información consultadas.",
-                    "Expresa ideas propias relacionadas con la temática investigada.",
-                    "Evidencia el disfrute y apropiación de la investigación realizada."
-                ]
+            { text: "Comunica los hallazgos con la información consultada.", max: 1 },
+            { text: "Comunica los logros de la investigación.", max: 2 },
+            { text: "Comunica las fuentes de información consultadas.", max: 2 },
+            { text: "Expresa ideas propias relacionadas con la temática investigada.", max: 3 },
+            { text: "Evidencia el disfrute y apropiación de la investigación realizada.", max: 2 }
+        ]
             },
             {
                 title: "D. Dominio de la temática",
                 indicators: [
-                    "Comunica el proceso de la investigación realizada de forma lógica y secuencial.",
-                    "Demuestra dominio al comunicar los logros obtenidos.",
-                    "Todas las personas estudiantes integrantes del proyecto participan en la comunicación de la información."
-                ]
+            { text: "Comunica el proceso de la investigación realizada de forma lógica y secuencial.", max: 3 },
+            { text: "Demuestra dominio al comunicar los logros obtenidos.", max: 3 },
+            { text: "Todas las personas estudiantes integrantes del proyecto participan en la comunicación de la información.", max: 2 }
+        ]
             },
             {
                 title: "E. Presentación y comunicación de la información",
                 indicators: [
-                    "El cartel presentado apoya la comunicación en forma fluida.",
-                    "El material expuesto tiene relación con el trabajo de investigación.",
-                    "Señala o menciona todos los elementos que apoyan el trabajo de investigación.",
-                    "Todas las personas estudiantes miembros del proyecto participan en la exposición y dominan el tema."
-                ]
+            { text: "El cartel presentado apoya la comunicación en forma fluida.", max: 2 },
+            { text: "El material expuesto tiene relación con el trabajo de investigación.", max: 2 },
+            { text: "Señala o menciona todos los elementos que apoyan el trabajo de investigación.", max: 2 },
+            { text: "Todas las personas estudiantes miembros del proyecto participan en la exposición y dominan el tema.", max: 2 }
+        ]
             },
             {
                 title: "F. Autenticidad del trabajo realizado",
                 indicators: [
-                    "El cartel y otros recursos visuales corresponden al desarrollo cognitivo de las personas estudiantes.",
-                    "Existe originalidad en la elaboración del material."
-                ]
+            { text: "El cartel y otros recursos visuales corresponden al desarrollo cognitivo de las personas estudiantes.", max: 2 },
+            { text: "Existe originalidad en la elaboración del material.", max: 2 }
+        ]
             }
         ]
     };
@@ -621,50 +621,50 @@ export function getPronatecytRubricByCategory(category) {
         sections: [{
                 title: "A. Aspectos iniciales",
                 indicators: [
-                    "Se evidencia el planteamiento de la hipótesis o problema.",
-                    "Se demuestra que fue un tema desarrollado en el aula.",
-                    "Es un tema que corresponde al currículo establecido al nivel de los estudiantes."
-                ]
+            { text: "Se evidencia el planteamiento de la hipótesis o problema.", max: 5 },
+            { text: "Se demuestra que fue un tema desarrollado en el aula.", max: 5 },
+            { text: "Es un tema que corresponde al currículo establecido al nivel de los estudiantes.", max: 5 }
+        ]
             },
             {
                 title: "B. Pasos por seguir",
                 indicators: [
-                    "Expresa de acuerdo a sus habilidades comunicativas las acciones o pasos realizados en la investigación (material concreto, fotos, pictograma, señas, oral).",
-                    "Evidencia familiaridad y comprensión de los pasos y acciones realizadas durante la investigación."
-                ]
+            { text: "Expresa de acuerdo a sus habilidades comunicativas las acciones o pasos realizados en la investigación (material concreto, fotos, pictograma, señas, oral).", max: 7 },
+            { text: "Evidencia familiaridad y comprensión de los pasos y acciones realizadas durante la investigación.", max: 8 }
+        ]
             },
             {
                 title: "C. Logros obtenidos",
                 indicators: [
-                    "Expresa de acuerdo a sus habilidades comunicativas los hallazgos con la información consultada (material concreto, fotos, pictograma, señas, oral).",
-                    "Expresa de acuerdo a sus habilidades comunicativas los logros de la investigación (material concreto, fotos, pictograma, señas, oral).",
-                    "Expresa de acuerdo a sus habilidades comunicativas las fuentes de información consultada (material concreto, fotos, pictograma, señas, oral).",
-                    "Evidencia el disfrute y la apropiación de la investigación realizada."
-                ]
+            { text: "Expresa de acuerdo a sus habilidades comunicativas los hallazgos con la información consultada (material concreto, fotos, pictograma, señas, oral).", max: 5 },
+            { text: "Expresa de acuerdo a sus habilidades comunicativas los logros de la investigación (material concreto, fotos, pictograma, señas, oral).", max: 10 },
+            { text: "Expresa de acuerdo a sus habilidades comunicativas las fuentes de información consultada (material concreto, fotos, pictograma, señas, oral).", max: 5 },
+            { text: "Evidencia el disfrute y la apropiación de la investigación realizada.", max: 5 }
+        ]
             },
             {
                 title: "D. Dominio de la temática",
                 indicators: [
-                    "Expresa de acuerdo a sus habilidades comunicativas el proceso de la investigación realizada de forma lógica y secuencial (material concreto, fotos, pictograma, señas, oral).",
-                    "Demuestra dominio al comunicar los logros obtenidos.",
-                    "Todas las personas integrantes del proyecto participan en la comunicación del proyecto."
-                ]
+            { text: "Expresa de acuerdo a sus habilidades comunicativas el proceso de la investigación realizada de forma lógica y secuencial (material concreto, fotos, pictograma, señas, oral).", max: 8 },
+            { text: "Demuestra dominio al comunicar los logros obtenidos.", max: 8 },
+            { text: "Todas las personas integrantes del proyecto participan en la comunicación del proyecto.", max: 7 }
+        ]
             },
             {
                 title: "E. Comunicación de la información",
                 indicators: [
-                    "El cartel presentado apoya la comunicación en forma fluida.",
-                    "El material expuesto tiene relación con el trabajo de investigación.",
-                    "Señala o menciona todos los elementos que apoyan el trabajo de investigación.",
-                    "Manifiesta normas de cortesía al comunicar lo investigado."
-                ]
+            { text: "El cartel presentado apoya la comunicación en forma fluida.", max: 4 },
+            { text: "El material expuesto tiene relación con el trabajo de investigación.", max: 4 },
+            { text: "Señala o menciona todos los elementos que apoyan el trabajo de investigación.", max: 4 },
+            { text: "Manifiesta normas de cortesía al comunicar lo investigado.", max: 3 }
+        ]
             },
             {
                 title: "F. Autenticidad del trabajo realizado",
                 indicators: [
-                    "El cartel y otros recursos (objetos concretos, imágenes, material audiovisual, recursos tecnológicos y otros) corresponden al desarrollo cognitivo de los estudiantes.",
-                    "Evidencia originalidad en la elaboración de material."
-                ]
+            { text: "El cartel y otros recursos (objetos concretos, imágenes, material audiovisual, recursos tecnológicos y otros) corresponden al desarrollo cognitivo de los estudiantes.", max: 4 },
+            { text: "Evidencia originalidad en la elaboración de material.", max: 3 }
+        ]
             }
         ]
     };
@@ -982,14 +982,21 @@ export function getPronatecytRubricByCategory(category) {
         "F12C - Sumando Experiencias Científicas": F12C
     };
 
+    const TOTAL_BY_FORM = {
+        F8B: 40, F9B: 40, F10B: 40, F11B: 40, F12B: 40, F13B: 100,
+        F8C: 64, F9C: 78, F10C: 98, F11C: 54, F12C: 54
+    };
+
     const rubric = rubrics[category];
     if (rubric) {
         const allIndicators = rubric.sections.flatMap((section) => [
             { section: `${rubric.title} - ${section.title}` },
             ...section.indicators
         ]);
+        const code = String(category).split(" ")[0];
         return {
             indicators: allIndicators,
+            total: TOTAL_BY_FORM[code] ?? null,
             scoreOptions: [
                 { value: 3, label: "3 Logrado" },
                 { value: 2, label: "2 Parcialmente logrado" },

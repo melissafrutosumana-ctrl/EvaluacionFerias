@@ -141,9 +141,10 @@ export async function bootstrapJudgePage() {
     if (error || !data || !data.length) return;
     const lookup = new Map(data.map((r) => [r.criterio.trim(), r.nota]));
     let inputIndex = 0;
-    currentRubricModel.indicators.forEach((criterio) => {
-      if (typeof criterio !== "string") return;
-      const saved = lookup.get(criterio.trim());
+    currentRubricModel.indicators.forEach((item) => {
+      if (item && typeof item === "object" && item.section) return;
+      const text = typeof item === "string" ? item : (item?.text ?? "");
+      const saved = lookup.get(text.trim());
       if (saved !== undefined) {
         const radios = document.querySelectorAll(`input[name="indicador_${inputIndex}"]`);
         radios.forEach((radio) => {
@@ -424,10 +425,11 @@ export async function bootstrapJudgePage() {
     const proyectoId = Number(formData.get("proyecto_id"));
     let inputIndex = 0;
     const evaluaciones = [];
-    currentRubricModel.indicators.forEach((criterio) => {
-      if (typeof criterio !== "string") return;
+    currentRubricModel.indicators.forEach((item) => {
+      if (item && typeof item === "object" && item.section) return;
+      const text = typeof item === "string" ? item : (item?.text ?? "");
       const nota = Number(formData.get(`indicador_${inputIndex}`));
-      evaluaciones.push({ criterio, nota });
+      evaluaciones.push({ criterio: text, nota });
       inputIndex++;
     });
 
