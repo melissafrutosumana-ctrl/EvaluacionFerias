@@ -810,72 +810,84 @@ export function getPronatecytRubricByCategory(category) {
     const F10C = {
         title: "PRONAFECYT F10C - Investigación y Desarrollo Tecnológico (Diario de Experiencias)",
         sections: [
-{
+            {
                 title: "I. Autenticidad del trabajo y respeto a la producción intelectual ajena",
                 indicators: [
                     "El estilo, estructura y vocabulario del trabajo sugieren que fue elaborado por las personas estudiantes.",
                     "No se cometió plagio: se da crédito a la producción intelectual de otras personas (cita ideas, conceptos, frases, métodos, técnicas e instrumentos de otras personas)."
                 ]
             },
-{
-                title: "Portada y Título",
+            {
+                title: "Portada, Título e Índice",
                 indicators: [
-                    "Contiene los elementos oficiales de la portada (Dirección Regional de Educación, Circuito Educativo, nombre del centro educativo, título del proyecto, categoría de participación y área temática del proyecto, nombre de las personas estudiantes, nivel/sección, nombre de la persona docente o tutora, año).",
-                    "El título informa el contenido de la investigación; es breve, conciso y específico."
+                    "Contiene los elementos oficiales de la portada (Dirección Regional de Educación, Circuito Educativo, nombre de la institución, nombre del proyecto, categoría y área temática del proyecto, nombre de las personas estudiantes, nivel/sección, nombre de la persona tutora, año).",
+                    "El título informa el contenido de la investigación; es breve, conciso y específico. Ubica la investigación en el tiempo y espacio.",
+                    "Indica las principales secciones del trabajo y las páginas en las que se encuentran."
                 ]
             },
             {
-                title: "Índice e Introducción",
+                title: "Aspectos iniciales del proyecto (Introducción)",
                 indicators: [
-                    "Indica las principales secciones del trabajo y las páginas en las que se encuentran.",
                     "Anota las ideas previas que motivan la realización del proyecto.",
-                    "Señala la importancia del problema o la necesidad que se desea resolver.",
-                    "Presenta la(s) pregunta(s) que orientan la investigación.",
-                    "Presenta el objetivo general y de uno a tres objetivos específicos de la investigación."
+                    "Destaca el problema o necesidad que se desea resolver.",
+                    "Presenta la(s) pregunta(s) o problema que orienta la investigación.",
+                    "Describe, de forma cualitativa o cuantitativa, las dimensiones o áreas del problema (social, ambiental, económico, técnico, otros).",
+                    "Presenta el objetivo general de la investigación y al menos 3 objetivos específicos, correspondientes al tipo de investigación propuesta.",
+                    "Claridad en la redacción de los objetivos.",
+                    "El objetivo y la pregunta general abarcan a los específicos.",
+                    "Existe concordancia entre los objetivos y la pregunta de investigación o problema planteado.",
+                    "Describe las razones y el propósito que motivan la investigación. El motivo es subjetivo y el propósito concuerda con los objetivos.",
+                    "Describe la conveniencia para la comunidad de realizar esta investigación (¿para quién podrán servir los resultados?).",
+                    "Presenta un análisis de la viabilidad de la investigación: menciona lo que necesita, declara que lo tiene y que es viable."
                 ]
             },
             {
-                title: "Justificación y Marco teórico",
+                title: "Explorando fuentes de información (Marco Teórico)",
                 indicators: [
-                    "Justifica la relevancia del problema y la necesidad a abordar en la investigación (de forma cualitativa o cuantitativa).",
-                    "Describe los conceptos o términos técnicos relevantes que se aplican en la investigación, indicando las fuentes de información consultadas.",
-                    "Registra información adicional de diferentes fuentes que complementan las ideas previas planteadas.",
+                    "Describe los conceptos, variables o términos técnicos relevantes que se aplican en la investigación, indicando las fuentes de información consultadas de carácter científico, empírico o cotidiano, sin que se torne un listado de definiciones.",
+                    "Registra información adicional de diferentes fuentes de carácter científico, empírico o cotidiano, que complementan las ideas previas planteadas acerca del tema seleccionado.",
                     "Cita o hace referencia a las fuentes de información utilizando un formato de referencias (APA u otro)."
                 ]
             },
             {
-                title: "Metodología aplicada",
+                title: "Pasos por seguir (Metodología)",
                 indicators: [
-                    "Explica los pasos, procedimientos, métodos o técnicas utilizados en el desarrollo tecnológico.",
-                    "Presenta la lista de recursos tecnológicos (digitales o analógicos) y/o material concreto preferiblemente reutilizable, requeridos en el desarrollo.",
-                    "Describe las metodologías de evaluación y perfeccionamiento del desarrollo tecnológico.",
-                    "Describe los recursos utilizados y el manejo de los residuos que pueden generarse, considerando la sostenibilidad ambiental.",
-                    "Incluye diagramas, esquemas, modelos o planos que evidencian el diseño del desarrollo tecnológico (previo y final)."
+                    "Explica los pasos, procedimientos, métodos o técnicas utilizados en la investigación (método experimental, estudio de caso, estudio estadístico, entre otros).",
+                    "Presenta la lista de recursos tecnológicos (digitales o analógicos) y/o el material concreto preferiblemente reutilizable, requeridos en el desarrollo de la investigación.",
+                    "Selecciona y describe los instrumentos adecuados de investigación (encuestas, entrevistas, hojas de observación, experimentos, grupo control, otros).",
+                    "Describe el método para el análisis de datos.",
+                    "Describe los recursos utilizados y el manejo de los residuos que pueden generarse, considerando la sostenibilidad ambiental."
                 ]
             },
             {
                 title: "Logros obtenidos (Interpretación de los resultados)",
                 indicators: [
+                    "Analiza de forma estadística los datos obtenidos por medio de tablas, gráficos, promedio, distribución chi-cuadrado, entre otros.",
                     "Explica cómo los resultados de la investigación tienen un impacto positivo sobre el problema a resolver.",
-                    "Analiza posibles aplicaciones del desarrollo tecnológico obtenido en la sociedad.",
-                    "Contrasta o compara los resultados obtenidos con la información consultada, complementándola con reflexiones personales.",
-                    "Cita o hace referencia a las fuentes de información utilizando un formato de referencias (APA u otro).",
-                    "Establece conclusiones y recomendaciones derivadas del trabajo realizado.",
-                    "Aporta evidencias (fotografías, manuales, listas de asistencia) acerca de la comunicación de los resultados a la comunidad educativa."
+                    "Contrasta o compara los resultados obtenidos con la información teórica consultada, complementándola con reflexiones personales.",
+                    "Las conclusiones se desprenden del análisis de resultados y están asociadas a los objetivos. Se realiza al menos una conclusión por cada objetivo específico.",
+                    "Las conclusiones demuestran comprensión del tema investigado y son una síntesis de lo propuesto en la presentación y análisis de datos.",
+                    "Brinda sugerencias para mejorar las actividades efectuadas, tomando en cuenta la(s) pregunta(s) de la investigación. También propone futuras investigaciones o aplicaciones a favor de la sociedad.",
+                    "Indica cuáles evidencias (fotografías, listas de asistencia, afiches, entre otros) respaldan la comunicación de la información obtenida a la comunidad."
                 ]
             },
             {
-                title: "Referencias consultadas, Resumen y Bitácora",
+                title: "Referencias consultadas",
                 indicators: [
-                    "Presenta suficientes referencias que sustentan el trabajo.",
-                    "Aporta referencias de no más de 10 años y de fuentes confiables.",
-                    "Utiliza un formato de referencia bibliográfica consistente sea APA u otro.",
-                    "Contiene una síntesis de los aspectos más relevantes (máximo 250 palabras).",
-                    "Se presenta completa la bitácora, dando cuenta de las diferentes actividades realizadas (fecha, hora, actividad, resumen)."
+                    "Presenta suficientes referencias que sustentan el trabajo (mínimo siete fuentes para III Ciclo y Educación Diversificada).",
+                    "La calidad de las referencias es razonable: referencias de no más de 10 años y de fuentes confiables.",
+                    "Utiliza un formato de referencia bibliográfica consistente (APA u otro). Cita todas las fuentes mencionadas y viceversa."
+                ]
+            },
+            {
+                title: "Resumen y Bitácora",
+                indicators: [
+                    "Contiene una síntesis de los aspectos más relevantes de la investigación (problema, metodología, resultados y conclusiones). Extensión máxima 250 palabras.",
+                    "Se presenta completa la bitácora, dando cuenta de las actividades de investigación: fecha, hora, actividad, resumen e información recopilada."
                 ]
             }
         ]
-    };
+    }
 
     const F11C = {
         title: "PRONAFECYT F11C - Quehacer Científico y Tecnológico I y II Ciclos (Diario de Experiencias)",
