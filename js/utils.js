@@ -127,14 +127,14 @@ export const PRONAFECYT_CATEGORIES = [
     "F13B - Mi Experiencia Científica"
 ];
 
-// ponytail: max code = indicadores × 3, normalizado a 40/50 del PDF
+// Máximos oficiales del PDF: B (Jueces/Exposición) y C (Comité/Escrito)
 export const PRONAFECYT_CODE_MAX = {
-    F8B: 66, F8C: 72,
-    F9B: 72, F9C: 81,
-    F10B: 72, F10C: 81,
-    F11B: 51, F11C: 69,
-    F12B: 54, F12C: 69,
-    F13B: 54
+    F8B: 40, F8C: 64,
+    F9B: 40, F9C: 78,
+    F10B: 40, F10C: 98,
+    F11B: 40, F11C: 54,
+    F12B: 40, F12C: 54,
+    F13B: 100
 };
 
 export const EXPOTECNICA_EJES = [
@@ -487,27 +487,33 @@ export function buildFeriaOptions(selectedValue = "") {
 export function renderJudgeRubric(indicators, scoreOptions = null) {
     const tbody = document.querySelector("[data-rubric-body]");
     const headRow = document.querySelector(".rubric-table thead tr");
-    const options = scoreOptions && scoreOptions.length ?
-        scoreOptions : [
-            { value: 3, label: "3" },
-            { value: 2, label: "2" },
-            { value: 1, label: "1" },
-            { value: 0, label: "0" }
-        ];
 
     if (!tbody) {
         return;
     }
 
+    const hasPerIndicatorMax = indicators.some((item) => typeof item === "object" && item.text && typeof item.max === "number");
+
     if (headRow) {
-        headRow.innerHTML = [
-            "<th>Indicadores a evaluar</th>",
-            ...options.map((item) => `<th>${escapeHTML(item.label)}</th>`)
-        ].join("");
+        if (hasPerIndicatorMax) {
+            headRow.innerHTML = "<th>Indicadores a evaluar</th><th>Puntaje</th>";
+        } else {
+            const options = scoreOptions && scoreOptions.length ?
+                scoreOptions : [
+                    { value: 3, label: "3" },
+                    { value: 2, label: "2" },
+                    { value: 1, label: "1" },
+                    { value: 0, label: "0" }
+                ];
+            headRow.innerHTML = [
+                "<th>Indicadores a evaluar</th>",
+                ...options.map((item) => `<th>${escapeHTML(item.label)}</th>`)
+            ].join("");
+        }
     }
 
     if (!indicators.length) {
-        tbody.innerHTML = `<tr><td colspan="${options.length + 1}">No hay indicadores configurados para esta feria.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6">No hay indicadores configurados para esta feria.</td></tr>`;
         return;
     }
 
@@ -515,18 +521,38 @@ export function renderJudgeRubric(indicators, scoreOptions = null) {
     let globalIndex = 0;
 
     indicators.forEach((item) => {
-        if (typeof item === "string") {
-            const fieldName = `indicador_${globalIndex}`;
+        if (item && typeof item === "object" && item.section) {
+            rows.push(`<tr class="rubric-section"><td colspan="6"><strong>${escapeHTML(item.section)}</strong></td></tr>`);
+            return;
+        }
+
+        const text = typeof item === "string" ? item : (item?.text ?? "");
+        const max = typeof item === "string" ? 3 : (item?.max ?? 3);
+        const fieldName = `indicador_${globalIndex}`;
+
+        if (hasPerIndicatorMax) {
+            const radios = [];
+            for (let v = max; v >= 0; v--) {
+                radios.push(`<label class="rubric-radio-label rubric-radio-inline"><input type="radio" name="${fieldName}" value="${v}" ${v === max ? "required" : ""}><span>${v}</span></label>`);
+            }
+            rows.push(`<tr><td>${escapeHTML(text)}</td><td><div class="rubric-radios">${radios.join("")}</div></td></tr>`);
+        } else {
+            const options = scoreOptions && scoreOptions.length ?
+                scoreOptions : [
+                    { value: 3, label: "3" },
+                    { value: 2, label: "2" },
+                    { value: 1, label: "1" },
+                    { value: 0, label: "0" }
+                ];
             const cells = options
                 .map(
-                    (opt, oi) => `<td><label class="rubric-radio-label"><input type="radio" name="${fieldName}" value="${opt.value}" ${oi === 0 ? "required" : ""} aria-label="${escapeHTML(item)} - ${escapeHTML(opt.label)}"></label></td>`
+                    (opt, oi) => `<td><label class="rubric-radio-label"><input type="radio" name="${fieldName}" value="${opt.value}" ${oi === 0 ? "required" : ""} aria-label="${escapeHTML(text)} - ${escapeHTML(opt.label)}"></label></td>`
                 )
                 .join("");
-            rows.push(`<tr><td>${escapeHTML(item)}</td>${cells}</tr>`);
-            globalIndex++;
-        } else if (item.section) {
-            rows.push(`<tr class="rubric-section"><td colspan="${options.length + 1}"><strong>${escapeHTML(item.section)}</strong></td></tr>`);
+            rows.push(`<tr><td>${escapeHTML(text)}</td>${cells}</tr>`);
         }
+
+        globalIndex++;
     });
 
     tbody.innerHTML = rows.join("");

@@ -440,7 +440,15 @@ export async function generateAdminPDF() {
       if (evalComplete) {
         const projData = projectsById.get(projectId);
         if (projData?.tipo_feria === "Feria Cientifica y Tecnologica") {
-          pdfFinalScore = expoAvg + escritoAvg;
+          const bCode = String(projData?.categoria_pronatecyt || "").split(" ")[0];
+          const bMax = PRONAFECYT_CODE_MAX[bCode] || 40;
+          const cCode = bCode ? bCode.replace("B", "C") : "";
+          const cMax = PRONAFECYT_CODE_MAX[cCode] || 0;
+          if (cMax > 0) {
+            pdfFinalScore = (expoAvg / bMax) * 50 + (escritoAvg / cMax) * 50;
+          } else {
+            pdfFinalScore = expoAvg;
+          }
         } else {
           pdfFinalScore = calcFinalScore(expoVoted, expoAvg, escritoVoted, escritoAvg);
         }
@@ -474,9 +482,9 @@ export async function generateAdminPDF() {
         }
       }
       if (feria === "Feria Cientifica y Tecnologica") {
-        const bCode = String(p.categoria_pronatecyt || "").split(" ")[0];
-        const bMax = PRONAFECYT_CODE_MAX[bCode] || 72;
-        return bMax;
+        let code = String(p.categoria_pronatecyt || "").split(" ")[0];
+        if (tipo === "Escrito") code = code.replace("B", "C");
+        return PRONAFECYT_CODE_MAX[code] || (tipo === "Escrito" ? 78 : 40);
       }
       if (feria === FESTIVAL_FERIA_NAME) {
         return tipo === "Escrito" ? 0 : 12;
