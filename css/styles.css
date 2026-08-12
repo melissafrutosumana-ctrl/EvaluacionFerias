@@ -4191,4 +4191,86 @@ body[data-page="judge"] .btn-sm:hover {
         -webkit-overflow-scrolling: touch;
         border-radius: var(--radius-sm);
     }
+
+    /* --- Tablas de admin en tarjetas --- */
+    body[data-page="admin"] .results-table thead,
+    body[data-page="admin"] .eval-table thead {
+        display: none;
+    }
+    body[data-page="admin"] .results-table,
+    body[data-page="admin"] .results-table tbody,
+    body[data-page="admin"] .eval-table,
+    body[data-page="admin"] .eval-table tbody {
+        display: block;
+        width: 100%;
+    }
+    body[data-page="admin"] .results-table tbody tr,
+    body[data-page="admin"] .eval-table tbody tr {
+        display: block;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        margin-bottom: 0.6rem;
+        padding: 0.65rem 0.75rem;
+        background: var(--surface);
+        box-shadow: var(--shadow-sm);
+    }
+    body[data-page="admin"] .results-table tbody td,
+    body[data-page="admin"] .eval-table tbody td {
+        display: block;
+        border: none !important;
+        padding: 0.18rem 0 !important;
+        text-align: left !important;
+        white-space: normal;
+    }
+    body[data-page="admin"] .results-table tbody td::before,
+    body[data-page="admin"] .eval-table tbody td::before {
+        font-weight: 600;
+        color: var(--ink-secondary);
+        margin-right: 0.4rem;
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+    body[data-page="admin"] .results-table tbody td[colspan] {
+        text-align: center !important;
+        padding: 1rem !important;
+    }
+    body[data-page="admin"] .results-table tbody td[colspan]::before {
+        content: "" !important;
+        margin: 0 !important;
+    }
+    /* Etiquetas por tabla */
+    [data-users-table] td:nth-child(1)::before { content: "Nombre"; }
+    [data-users-table] td:nth-child(2)::before { content: "Rol"; }
+    [data-users-table] td:nth-child(3)::before { content: "Feria"; }
+    [data-projects-table] td:nth-child(1)::before { content: "Título"; }
+    [data-projects-table] td:nth-child(2)::before { content: "Feria"; }
+    [data-projects-table] td:nth-child(3)::before { content: "Detalle"; }
+    [data-projects-table] td:nth-child(4)::before { content: "ID"; }
+    [data-judge-assignments] td:nth-child(1)::before { content: "Juez"; }
+    [data-judge-assignments] td:nth-child(2)::before { content: "Proyectos"; }
+    .eval-table td:nth-child(1)::before { content: "Juez"; }
+    .eval-table td:nth-child(2)::before { content: "Criterio"; }
+    .eval-table td:nth-child(3)::before { content: "Nota"; }
+    [data-admin-projects] td:nth-child(1)::before { content: "Proyecto"; }
+    [data-admin-projects] td:nth-child(2)::before { content: "ID"; }
+    [data-project-results] td:nth-child(1)::before { content: "Proyecto"; }
+    [data-project-results] td:nth-child(2)::before { content: "Exposición"; }
+    [data-project-results] td:nth-child(3)::before { content: "Escrito"; }
+    [data-project-results] td:nth-child(4)::before { content: "Puntaje final"; }
+    /* Celdas de acciones: botones en fila */
+    [data-users-table] td:last-child,
+    [data-projects-table] td:last-child,
+    [data-judge-assignments] td:last-child {
+        display: flex;
+        gap: 0.4rem;
+        flex-wrap: wrap;
+        padding-top: 0.5rem !important;
+    }
+    [data-users-table] td:last-child::before,
+    [data-projects-table] td:last-child::before,
+    [data-judge-assignments] td:last-child::before {
+        content: "" !important;
+        margin: 0 !important;
+    }
 }
