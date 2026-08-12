@@ -3,7 +3,7 @@ import { escapeHTML, showToast, setMessage, normalizeRoleName, fillSelectGrouped
 import { getSession, clearSession, restoreAppSession, enforceRole, hashPassword, bindLogout } from "./auth.js";
 import { loadAssignedProjectsForJudge } from "./data.js";
 import { getRubricIndicatorsByFeria, getExpotecnicaRubricByCategory, getPronatecytRubricByCategory, getFestivalRubricBySubcategory, getFestivalRubricByCategory, getFestivalAdvancedScoreOptions } from "./rubrics.js";
-import { loadJSPDF, loadMEPLogo, generateJudgePDF, PDF, pdfHeader, pdfFooter, pdfCheckPage, pdfInfoBox, pdfProjectHeader, pdfColHeader } from "./pdf.js";
+import { generateJudgePDF } from "./pdf.js";
 
 export async function bootstrapJudgePage() {
   bindLogout();

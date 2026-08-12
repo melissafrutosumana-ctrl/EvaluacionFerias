@@ -1,5 +1,5 @@
 import { supabase } from "./supabase.js";
-import { showToast, FESTIVAL_FERIA_NAME, PRONAFECYT_CODE_MAX, PRONAFECYT_C_RAW_MAX } from "./utils.js";
+import { showToast, FESTIVAL_FERIA_NAME, PRONAFECYT_CODE_MAX, PRONAFECYT_C_RAW_MAX, calcAverage, calcFinalScore } from "./utils.js";
 import { getExpotecnicaRubricByCategory } from "./rubrics.js";
 
 let jspdfPromise = null;

@@ -1,5 +1,3 @@
-import { supabase } from "./supabase.js";
-import { showToast } from "./utils.js";
 import { bootstrapLoginPage } from "./auth.js";
 import { bootstrapJudgePage } from "./judge.js";
 import { bootstrapAdminPage } from "./admin.js";

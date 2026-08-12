@@ -1,5 +1,5 @@
 import { supabase } from "./supabase.js";
-import { escapeHTML, showToast, setMessage, normalizeRoleName, isMissingColumnError, fillSelect, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, buildFeriaOptions, FESTIVAL_FERIA_NAME, FESTIVAL_CATEGORIES, FESTIVAL_SUBCATEGORIES, EXPOTECNICA_CATEGORIES, EXPOTECNICA_EJES, PRONAFECYT_CATEGORIES, updateProjectFormFieldsByFeria, showSkeleton, PRONAFECYT_BY_NIVEL, getNivelFromPronatecyt, renderJudgeRubric, PRONAFECYT_CODE_MAX, PRONAFECYT_C_RAW_MAX } from "./utils.js";
+import { escapeHTML, showToast, setMessage, normalizeRoleName, isMissingColumnError, fillSelect, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, buildFeriaOptions, FESTIVAL_FERIA_NAME, FESTIVAL_CATEGORIES, FESTIVAL_SUBCATEGORIES, EXPOTECNICA_CATEGORIES, EXPOTECNICA_EJES, PRONAFECYT_CATEGORIES, updateProjectFormFieldsByFeria, showSkeleton, PRONAFECYT_BY_NIVEL, getNivelFromPronatecyt, renderJudgeRubric, PRONAFECYT_CODE_MAX, PRONAFECYT_C_RAW_MAX, calcAverage, calcFinalScore } from "./utils.js";
 import { getSession, clearSession, restoreAppSession, enforceRole, hashPassword, bindLogout } from "./auth.js";
 import { loadProjects, loadJudges, loadJudgeAssignments, loadUsers, fetchAllEvaluations } from "./data.js";
 import { generateAdminPDF } from "./pdf.js";
@@ -303,17 +303,6 @@ function formatJudgeColumn(judges, votedCount, totalCount) {
         return `${list} <span class="judge-status">${votedCount}/${totalCount}</span>`;
     }
     return list;
-}
-
-function calcAverage(judges) {
-    const voted = judges.filter(j => j.voted);
-    return voted.length ? voted.reduce((a, b) => a + b.sum, 0) / voted.length : 0;
-}
-
-function calcFinalScore(expoVoted, expoAvg, escritoVoted, escritoAvg) {
-    if (expoVoted > 0 && escritoVoted > 0) return expoAvg * 0.5 + escritoAvg * 0.5;
-    if (expoVoted > 0) return expoAvg;
-    return escritoAvg;
 }
 
 function renderAdminScoresTable(rows, projectsById, assignmentsByProject, selectedFeria) {

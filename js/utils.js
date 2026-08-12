@@ -563,3 +563,14 @@ export function renderJudgeRubric(indicators, scoreOptions = null) {
 
     tbody.innerHTML = rows.join("");
 }
+
+export function calcAverage(judges) {
+    const voted = judges.filter(j => j.voted);
+    return voted.length ? voted.reduce((a, b) => a + b.sum, 0) / voted.length : 0;
+}
+
+export function calcFinalScore(expoVoted, expoAvg, escritoVoted, escritoAvg) {
+    if (expoVoted > 0 && escritoVoted > 0) return expoAvg * 0.5 + escritoAvg * 0.5;
+    if (expoVoted > 0) return expoAvg;
+    return escritoAvg;
+}
