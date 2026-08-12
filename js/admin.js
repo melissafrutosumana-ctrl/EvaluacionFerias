@@ -1482,8 +1482,9 @@ function showEditProjectModal(project) {
               <span>Nivel educativo</span>
               <select name="nivel_cientifico" data-nivel-cientifico-select>
                 <option value="">Selecciona un nivel</option>
-                <option value="Primaria">Primaria (I y II Ciclos)</option>
-                <option value="Secundaria">Secundaria (III Ciclo y Ed. Diversificada)</option>
+                <option value="Primaria (I y II Ciclos)">Primaria (I y II Ciclos)</option>
+                <option value="Secundaria - III Ciclo">Secundaria - III Ciclo</option>
+                <option value="Secundaria - Ed. Diversificada">Secundaria - Ed. Diversificada</option>
                 <option value="Educaci\u00f3n Especial">Educaci\u00f3n Especial</option>
               </select>
             </label>
