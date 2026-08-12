@@ -4052,3 +4052,143 @@ body[data-page="judge"] .btn-sm:hover {
     padding: 0.45rem 0.8rem;
     font-size: var(--text-sm);
 }
+
+
+/* ===== TABLAS RESPONSIVE (MÓVIL) ===== */
+
+@media (max-width: 640px) {
+    /* --- Rúbrica del juez: layout de tarjetas para votar fácil --- */
+    .rubric-table thead {
+        display: none;
+    }
+    .rubric-table,
+    .rubric-table tbody {
+        display: block;
+        width: 100%;
+    }
+    .rubric-table tbody tr {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.3rem;
+    }
+    .rubric-table tbody tr.rubric-section {
+        display: block;
+        margin: 0.7rem 0 0.3rem;
+    }
+    .rubric-table tbody tr:not(.rubric-section) {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        margin-bottom: 0.6rem;
+        padding: 0.7rem;
+        background: var(--surface);
+        box-shadow: var(--shadow-sm);
+    }
+    .rubric-table tbody tr:not(.rubric-section) td {
+        border: none !important;
+        padding: 0.15rem 0.2rem !important;
+        min-width: 0 !important;
+        text-align: left !important;
+    }
+    .rubric-table tbody tr:not(.rubric-section) td:first-child {
+        flex: 1 0 100%;
+        font-weight: 500;
+        font-size: 0.9rem;
+        line-height: 1.45;
+        margin-bottom: 0.45rem;
+        color: var(--ink);
+    }
+    .rubric-table tbody tr:not(.rubric-section) td:not(:first-child) {
+        flex: 0 0 auto;
+        width: auto;
+    }
+    .rubric-table tr.rubric-section td {
+        display: block;
+        width: 100% !important;
+        padding: 0.55rem 0.7rem !important;
+        border-radius: 8px;
+    }
+
+    /* Touch targets grandes para votar */
+    .rubric-radio-inline {
+        min-height: 48px;
+        min-width: 56px;
+        padding: 0.45rem 0.75rem;
+        font-size: 1rem;
+    }
+    .rubric-radio-inline input[type="radio"] {
+        width: 20px;
+        height: 20px;
+    }
+    body[data-page="judge"] .rubric-radio-label {
+        min-height: 52px;
+        min-width: 56px;
+    }
+    body[data-page="judge"] .rubric-table input[type="radio"] {
+        width: 20px;
+        height: 20px;
+    }
+
+    /* Botón guardar fijo para acceso rápido */
+    body[data-page="judge"] .form-actions {
+        position: sticky;
+        bottom: 0.5rem;
+        z-index: 10;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 0.6rem;
+        box-shadow: 0 -4px 16px rgba(10, 22, 50, 0.12);
+    }
+    body[data-page="judge"] .form-actions .btn-primary {
+        width: 100%;
+        justify-content: center;
+        min-height: 48px;
+        font-size: 0.95rem;
+    }
+
+    /* --- Tabla "Mis evaluaciones" (juez) en tarjetas --- */
+    table:has(tbody[data-my-evaluations]),
+    table:has(tbody[data-my-evaluations]) tbody {
+        display: block;
+        width: 100%;
+    }
+    table:has(tbody[data-my-evaluations]) thead {
+        display: none;
+    }
+    [data-my-evaluations] tr {
+        display: block;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        margin-bottom: 0.6rem;
+        padding: 0.6rem;
+        background: var(--surface);
+    }
+    [data-my-evaluations] td {
+        display: block;
+        border: none !important;
+        padding: 0.15rem 0 !important;
+        text-align: left !important;
+    }
+    [data-my-evaluations] td:first-child {
+        font-weight: 600;
+        color: var(--primary);
+    }
+    [data-my-evaluations] td:last-child {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--primary);
+    }
+
+    /* --- Proyecto y tipo de feria (selects) en pantalla completa --- */
+    body[data-page="judge"] .project-form select {
+        font-size: 16px;
+        min-height: 48px;
+    }
+
+    /* --- Tablas de resultados/admin: scroll horizontal suave --- */
+    .table-wrap {
+        -webkit-overflow-scrolling: touch;
+        border-radius: var(--radius-sm);
+    }
+}
