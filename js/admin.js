@@ -757,7 +757,7 @@ function openAssignmentModal(judgeId, judgeName, allProjects, currentAssignments
       }));
 
       const { error } = await supabase.rpc("admin_save_assignments", {
-        p_session_token: user.session_token,
+        p_session_token: getSession().session_token,
         p_juez_id: judgeId,
         p_assignments: assignmentsPayload
       });
