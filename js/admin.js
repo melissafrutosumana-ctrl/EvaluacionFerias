@@ -1147,6 +1147,7 @@ export async function bootstrapAdminPage() {
   }
 
   document.addEventListener("users-changed", () => refreshAdminDataView());
+  document.addEventListener("projects-changed", () => refreshAdminDataView());
 
 }
 
@@ -1682,7 +1683,7 @@ function showEditProjectModal(project) {
       await updateProject(projectId, data);
       showToast("Proyecto actualizado correctamente.", "success");
       overlay.remove();
-      await refreshAdminDataView();
+      document.dispatchEvent(new CustomEvent("projects-changed"));
     } catch (err) {
       showToast(err?.message || "No se pudo actualizar el proyecto.", "error");
     }
