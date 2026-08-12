@@ -440,8 +440,44 @@ function saveSession(user) {
     sessionStorage.setItem(SESSION_KEY, JSON.stringify(user));
 }
 
-function clearSession() {
+async function clearSession() {
+    const user = getSession();
+    if (user?.session_token) {
+        try {
+            await supabase.rpc("logout_session", { p_session_token: user.session_token });
+        } catch { /* ignore */ }
+    }
     sessionStorage.removeItem(SESSION_KEY);
+}
+
+async function restoreAppSession() {
+    const user = getSession();
+    if (!user?.session_token) return false;
+
+    try {
+        const { data, error } = await supabase.rpc("restore_session", {
+            p_session_token: user.session_token
+        });
+
+        if (error) return false;
+
+        const result = Array.isArray(data) ? data[0] : data;
+        if (!result?.user_id) {
+            sessionStorage.removeItem(SESSION_KEY);
+            return false;
+        }
+
+        saveSession({
+            id: result.user_id,
+            nombre: result.user_name,
+            role: normalizeRoleName(result.user_role),
+            tipo_feria: result.user_feria ?? null,
+            session_token: user.session_token
+        });
+        return true;
+    } catch {
+        return false;
+    }
 }
 
 function setupHamburgerMenu() {
@@ -4290,18 +4326,17 @@ function openAssignmentModal(judgeId, judgeName, allProjects, currentAssignments
     saveBtn.textContent = "Guardando...";
 
     try {
-      const { error: deleteError } = await supabase.from("asignaciones_jueces").delete().eq("juez_id", judgeId);
-      if (deleteError) throw deleteError;
+      const assignmentsPayload = assignments.map((a) => ({
+        proyecto_id: a.proyecto_id,
+        tipo_evaluacion: a.tipo_evaluacion
+      }));
 
-      if (assignments.length > 0) {
-        const payload = assignments.map((a) => ({
-          juez_id: judgeId,
-          proyecto_id: a.proyecto_id,
-          tipo_evaluacion: a.tipo_evaluacion
-        }));
-        const { error: insertError } = await supabase.from("asignaciones_jueces").insert(payload);
-        if (insertError) throw insertError;
-      }
+      const { error } = await supabase.rpc("admin_save_assignments", {
+        p_session_token: user.session_token,
+        p_juez_id: judgeId,
+        p_assignments: assignmentsPayload
+      });
+      if (error) throw error;
 
       showToast("Asignacion guardada correctamente.", "success");
       closeAssignmentModal();
@@ -4329,7 +4364,8 @@ function closeAssignmentModal() {
   if (overlay) overlay.hidden = true;
 }
 
-function enforceRole(requiredRole) {
+async function enforceRole(requiredRole) {
+  const restored = await restoreAppSession();
   const user = getSession();
   const normalizedRequiredRole = normalizeRoleName(requiredRole);
 
@@ -4353,6 +4389,7 @@ function enforceRole(requiredRole) {
 async function bootstrapLoginPage() {
   await supabase.auth.signOut().catch(() => {});
   setupHideOnScroll();
+  await restoreAppSession();
   const user = getSession();
   const sessionRole = normalizeRoleName(user?.role);
 
@@ -4383,7 +4420,7 @@ async function bootstrapLoginPage() {
     const password = String(formData.get("password") ?? "");
 
     if (!usuario || !password) {
-      setMessage(status, "Completa usuario y contrase�a.", "error");
+      setMessage(status, "Completa usuario y contrasena.", "error");
       return;
     }
 
@@ -4391,7 +4428,12 @@ async function bootstrapLoginPage() {
     btn.textContent = "Ingresando...";
 
     try {
-      const { data, error } = await loadUserForLogin(usuario);
+      const passwordHash = await hashPassword(password);
+
+      const { data, error } = await supabase.rpc("authenticate_user", {
+        p_username: usuario,
+        p_password_hash: passwordHash
+      });
 
       if (error) {
         setMessage(status, "Error de conexion. Recarga la pagina e intenta de nuevo.", "error");
@@ -4400,52 +4442,34 @@ async function bootstrapLoginPage() {
         return;
       }
 
-      if (!data) {
-        setMessage(status, "Usuario no encontrado.", "error");
+      const result = Array.isArray(data) ? data[0] : data;
+
+      if (!result?.user_id) {
+        setMessage(status, "Usuario o contrasena incorrectos.", "error");
         btn.disabled = false;
         btn.textContent = originalText;
         return;
       }
 
-      if (!(await passwordMatches(password, data.contrasena_hash))) {
-        setMessage(status, "Contrasena incorrecta.", "error");
-        btn.disabled = false;
-        btn.textContent = originalText;
-        return;
-      }
+      saveSession({
+        id: result.user_id,
+        nombre: result.user_name,
+        role: normalizeRoleName(result.user_role),
+        tipo_feria: result.user_feria ?? null,
+        session_token: result.session_token
+      });
 
-      const { data: roleData, error: roleError } = await supabase
-        .from("roles")
-        .select("nombre")
-        .eq("id", data.role_id)
-        .maybeSingle();
-
-      if (roleError) {
-        throw roleError;
-      }
-
-      const roleName = normalizeRoleName(roleData?.nombre);
-
-      if (!roleName) {
-        setMessage(status, "El usuario no tiene rol asignado.", "error");
-        btn.disabled = false;
-        btn.textContent = originalText;
-        return;
-      }
-
-      saveSession({ id: data.id, nombre: data.nombre, role: roleName, tipo_feria: data.tipo_feria ?? null });
-
-      if (roleName === "Juez") {
+      if (normalizeRoleName(result.user_role) === "Juez") {
         window.location.href = "evaluaciones.html";
         return;
       }
 
-      if (roleName === "administrador") {
+      if (normalizeRoleName(result.user_role) === "administrador") {
         window.location.href = "Proyectos.html";
         return;
       }
 
-      setMessage(status, `Rol no soportado para redireccion: ${roleName}.`, "error");
+      setMessage(status, `Rol no soportado para redireccion: ${result.user_role}.`, "error");
     } catch {
       setMessage(status, "No se pudo iniciar sesion.", "error");
     }
@@ -4461,7 +4485,7 @@ async function bootstrapJudgePage() {
   setupHideOnScroll();
   setupHamburgerMenu();
 
-  const user = enforceRole("Juez");
+  const user = await enforceRole("Juez");
 
   if (!user) {
     return;
@@ -4632,32 +4656,12 @@ async function bootstrapJudgePage() {
     if (!projectId || !judgeId) return;
 
     try {
-      const { data: existing } = await supabase
-        .from("observaciones_proyectos")
-        .select("id")
-        .eq("proyecto_id", projectId)
-        .eq("juez_id", judgeId)
-        .eq("tipo_evaluacion", tipoEval)
-        .maybeSingle();
-
-      if (!trimmed) {
-        if (existing?.id) {
-          await supabase.from("observaciones_proyectos").delete().eq("id", existing.id);
-        }
-        return;
-      }
-
-      if (existing?.id) {
-        await supabase
-          .from("observaciones_proyectos")
-          .update({ texto: trimmed, updated_at: new Date().toISOString() })
-          .eq("id", existing.id);
-        return;
-      }
-
-      await supabase
-        .from("observaciones_proyectos")
-        .insert({ proyecto_id: projectId, juez_id: judgeId, tipo_evaluacion: tipoEval, texto: trimmed });
+      await supabase.rpc("save_observation", {
+        p_session_token: user.session_token,
+        p_proyecto_id: projectId,
+        p_tipo_evaluacion: tipoEval,
+        p_texto: trimmed
+      });
     } catch {}
   }
 
@@ -4921,12 +4925,15 @@ async function bootstrapJudgePage() {
           nota: item.nota
         }));
 
-        let { error } = await supabase.from("evaluaciones_proyectos").upsert(payload, { onConflict: "proyecto_id, juez_id, tipo_evaluacion, criterio", ignoreDuplicates: false });
-
-        if (error) {
-          await supabase.from("evaluaciones_proyectos").delete().eq("proyecto_id", proyectoId).eq("juez_id", user.id).eq("tipo_evaluacion", tipoEval);
-          const { error: insertError } = await supabase.from("evaluaciones_proyectos").insert(payload);
-          if (insertError) throw insertError;
+        for (const item of payload) {
+          const { error } = await supabase.rpc("save_evaluation", {
+            p_session_token: user.session_token,
+            p_proyecto_id: item.proyecto_id,
+            p_criterio: item.criterio,
+            p_nota: item.nota,
+            p_tipo_evaluacion: item.tipo_evaluacion
+          });
+          if (error) throw error;
         }
 
         const observacionTexto = String(formData.get("observacion") ?? "");
@@ -4949,7 +4956,7 @@ async function bootstrapAdminPage() {
   highlightActiveNavLink();
   setupHideOnScroll();
   setupHamburgerMenu();
-  const user = enforceRole("administrador");
+  const user = await enforceRole("administrador");
 
   if (!user) {
     return;
@@ -5055,11 +5062,12 @@ async function bootstrapAdminPage() {
 
       try {
         const contrasenaHash = await hashPassword(contrasena);
-        const { error } = await supabase.from("usuarios").insert({
-          nombre,
-          contrasena_hash: contrasenaHash,
-          tipo_feria: tipoFeria,
-          role_id: roleId
+        const { error } = await supabase.rpc("admin_insert_user", {
+          p_session_token: user.session_token,
+          p_nombre: nombre,
+          p_role_id: roleId,
+          p_contrasena_hash: contrasenaHash,
+          p_tipo_feria: tipoFeria
         });
 
         if (error) {
@@ -5139,7 +5147,6 @@ async function bootstrapAdminPage() {
         const payload = {
           titulo,
           descripcion: descripcion || null,
-          creador_id: user.id,
           tipo_feria: tipoFeria,
           integrante_1: isFestival ? null : integrante1 || null,
           integrante_2: isFestival ? null : integrante2 || null,
@@ -5152,30 +5159,12 @@ async function bootstrapAdminPage() {
           categoria_pronatecyt: isScientific ? categoriaPronatecyt : null
         };
 
-        let insertResult = await supabase.from("proyectos_ferias").insert(payload);
+        const { data: newId, error } = await supabase.rpc("admin_save_project", {
+          p_session_token: user.session_token,
+          p_data: payload
+        });
 
-        if (insertResult.error) {
-          if (!isMissingColumnError(insertResult.error, "integrante_") &&
-              !isMissingColumnError(insertResult.error, "categoria_festival") &&
-              !isMissingColumnError(insertResult.error, "subcategoria_festival") &&
-              !isMissingColumnError(insertResult.error, "participacion") &&
-              !isMissingColumnError(insertResult.error, "categoria_expotecnica") &&
-              !isMissingColumnError(insertResult.error, "eje_tematico") &&
-              !isMissingColumnError(insertResult.error, "categoria_pronatecyt")) {
-            throw insertResult.error;
-          }
-
-          insertResult = await supabase.from("proyectos_ferias").insert({
-            titulo,
-            descripcion: descripcion || null,
-            creador_id: user.id,
-            tipo_feria: tipoFeria
-          });
-        }
-
-        if (insertResult.error) {
-          throw insertResult.error;
-        }
+        if (error) throw error;
 
         projectForm.reset();
         const resetFeriaInput = projectForm.querySelector('input[name="tipo_feria"]');
@@ -5273,7 +5262,10 @@ async function bootstrapAdminPage() {
 
       if (confirm("¿Estas seguro de eliminar este proyecto? Tambien se eliminaran sus asignaciones y evaluaciones.")) {
         try {
-          const { error } = await supabase.from("proyectos_ferias").delete().eq("id", projectId);
+          const { error } = await supabase.rpc("admin_delete_project", {
+            p_session_token: getSession()?.session_token,
+            p_project_id: projectId
+          });
 
           if (error) {
             throw error;
@@ -5993,13 +5985,16 @@ function showEditUserModal(user, roles) {
 }
 
 async function updateUser(userId, nombre, contrasena, tipoFeria, roleId) {
-  const updates = { nombre, tipo_feria: tipoFeria, role_id: roleId };
+  const contrasenaHash = contrasena ? await hashPassword(contrasena) : null;
 
-  if (contrasena) {
-    updates.contrasena_hash = await hashPassword(contrasena);
-  }
-
-  const { error } = await supabase.from("usuarios").update(updates).eq("id", userId);
+  const { error } = await supabase.rpc("admin_update_user", {
+    p_session_token: getSession()?.session_token,
+    p_user_id: userId,
+    p_nombre: nombre,
+    p_role_id: roleId,
+    p_tipo_feria: tipoFeria,
+    p_contrasena_hash: contrasenaHash
+  });
   if (error) throw error;
 }
 
@@ -6299,18 +6294,18 @@ function showEditProjectModal(project) {
 }
 
 async function updateProject(projectId, data) {
-  const { error } = await supabase.from("proyectos_ferias").update(data).eq("id", projectId);
+  const { error } = await supabase.rpc("admin_save_project", {
+    p_session_token: getSession()?.session_token,
+    p_data: { id: projectId, ...data }
+  });
   if (error) throw error;
 }
 
 async function deleteUser(userId) {
-  const { error: assignmentsError } = await supabase.from("asignaciones_jueces").delete().eq("juez_id", userId);
-  if (assignmentsError) throw assignmentsError;
-
-  const { error: evaluationsError } = await supabase.from("evaluaciones_proyectos").delete().eq("juez_id", userId);
-  if (evaluationsError) throw evaluationsError;
-
-  const { error } = await supabase.from("usuarios").delete().eq("id", userId);
+  const { error } = await supabase.rpc("admin_delete_user", {
+    p_session_token: getSession()?.session_token,
+    p_user_id: userId
+  });
   if (error) throw error;
 }
 
@@ -6318,7 +6313,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const page = document.body.dataset.page;
 
   if (page === "login") {
-    bootstrapLoginPage();
+    await bootstrapLoginPage();
   } else if (page === "judge") {
     await bootstrapJudgePage();
   } else if (page === "admin") {
