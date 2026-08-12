@@ -1551,6 +1551,8 @@ function showEditProjectModal(project) {
     integrantesBlock.hidden = selectedFeria === FESTIVAL_FERIA_NAME;
   }
 
+  updateProjectFormFieldsByFeria(form);
+
   const festivalCategorySelect = form.querySelector('select[name="categoria_festival"]');
   const festivalSubcategorySelect = form.querySelector('select[name="subcategoria_festival"]');
   const subcategoryWrap = form.querySelector("[data-festival-subcategory-wrap]");
@@ -1640,8 +1642,6 @@ function showEditProjectModal(project) {
       expoEjeWrap.hidden = !hasCat;
     }
   });
-
-  updateProjectFormFieldsByFeria(form);
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
