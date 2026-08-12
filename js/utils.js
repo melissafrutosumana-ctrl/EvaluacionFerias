@@ -552,7 +552,7 @@ export function renderJudgeRubric(indicators, scoreOptions = null) {
                 ];
             const cells = options
                 .map(
-                    (opt, oi) => `<td><label class="rubric-radio-label"><input type="radio" name="${fieldName}" value="${opt.value}" ${oi === 0 ? "required" : ""} aria-label="${escapeHTML(text)} - ${escapeHTML(opt.label)}"></label></td>`
+                    (opt, oi) => `<td><label class="rubric-radio-label rubric-radio-inline"><input type="radio" name="${fieldName}" value="${opt.value}" ${oi === 0 ? "required" : ""}><span>${escapeHTML(opt.label)}</span></label></td>`
                 )
                 .join("");
             rows.push(`<tr><td>${escapeHTML(text)}</td>${cells}</tr>`);
