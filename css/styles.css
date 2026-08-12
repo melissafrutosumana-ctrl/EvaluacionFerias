@@ -852,7 +852,7 @@ body.nav-open[data-page="judge"] main {
 .field-label input:hover,
 .field-label select:hover,
 .field-label textarea:hover {
-    border-color: var(--secondary);
+    border-color: var(--primary-light);
 }
 
 .field-label input:focus,
@@ -1160,7 +1160,7 @@ body.nav-open[data-page="judge"] main {
 }
 
 .results-table tbody tr:not(.category-group-row):hover td {
-    background: rgba(199, 154, 46, 0.06);
+    background: rgba(13, 42, 91, 0.05);
 }
 
 .results-table td[colspan] {
@@ -1377,7 +1377,7 @@ body.nav-open[data-page="judge"] main {
 }
 
 .rubric-radio-label:hover {
-    background: rgba(199, 154, 46, 0.1);
+    background: rgba(13, 42, 91, 0.08);
 }
 
 .rubric-radio-label:has(input:checked) {
@@ -1411,7 +1411,7 @@ body.nav-open[data-page="judge"] main {
 }
 
 .rubric-table tbody tr:not(.rubric-section) td:not(:first-child):hover {
-    background: rgba(199, 154, 46, 0.08);
+    background: rgba(13, 42, 91, 0.07);
     cursor: pointer;
 }
 
@@ -1925,7 +1925,7 @@ body[data-page="judge"] .rubric-radio-label {
 }
 
 body[data-page="judge"] .rubric-radio-label:hover {
-    background: rgba(199, 154, 46, 0.1);
+    background: rgba(13, 42, 91, 0.08);
 }
 
 body[data-page="judge"] .rubric-radio-label:has(input:checked) {
@@ -1954,8 +1954,8 @@ body[data-page="judge"] .rubric-radio-label:has(input:checked) {
 }
 
 .rubric-radio-inline:hover {
-    background: rgba(199, 154, 46, 0.1);
-    border-color: var(--secondary);
+    background: rgba(13, 42, 91, 0.08);
+    border-color: var(--primary-light);
 }
 
 .rubric-radio-inline:has(input:checked) {
@@ -1996,7 +1996,7 @@ body[data-page="judge"] .rubric-table td:not(:first-child):not(.rubric-section) 
 }
 
 body[data-page="judge"] .rubric-table td:not(:first-child):not(.rubric-section):hover {
-    background: rgba(199, 154, 46, 0.06);
+    background: rgba(13, 42, 91, 0.05);
 }
 
 body[data-page="judge"] .rubric-table td:not(:first-child):has(input:checked) {
@@ -3535,8 +3535,8 @@ body[data-page="judge"] .btn-sm:hover {
 }
 
 .assignment-tipo-select:hover {
-    border-color: var(--secondary);
-    background-color: rgba(199, 154, 46, 0.06);
+    border-color: var(--primary-light);
+    background-color: rgba(13, 42, 91, 0.05);
 }
 
 .assignment-tipo-select:focus {
@@ -3614,7 +3614,7 @@ body[data-page="judge"] .btn-sm:hover {
 }
 
 .feria-filter-bar select:hover {
-    border-color: var(--secondary);
+    border-color: var(--primary-light);
 }
 
 .feria-filter-bar select:focus {
@@ -3912,7 +3912,7 @@ body[data-page="judge"] .btn-sm:hover {
 
 #edit-user-modal .edit-modal-field input:hover,
 #edit-user-modal .edit-modal-field select:hover {
-    border-color: var(--secondary);
+    border-color: var(--primary-light);
 }
 
 #edit-user-modal .edit-modal-actions {
@@ -4025,7 +4025,7 @@ body[data-page="judge"] .btn-sm:hover {
 .edit-project-modal .field-label input:hover,
 .edit-project-modal .field-label textarea:hover,
 .edit-project-modal .field-label select:hover {
-    border-color: var(--secondary);
+    border-color: var(--primary-light);
 }
 
 .edit-project-modal .form-actions {
