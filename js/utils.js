@@ -137,6 +137,12 @@ export const PRONAFECYT_CODE_MAX = {
     F13B: 100
 };
 
+// Máximo real (indicadores × 3) de cada formulario C del escrito.
+// Se usa para normalizar: un escrito "lleno" siempre vale 50% del total.
+export const PRONAFECYT_C_RAW_MAX = {
+    F8C: 78, F9C: 90, F10C: 87, F11C: 75, F12C: 72
+};
+
 export const EXPOTECNICA_EJES = [
     "PRODUCCION AGRICOLA Y PECUARIA",
     "INDUSTRIA ALIMENTARIA",

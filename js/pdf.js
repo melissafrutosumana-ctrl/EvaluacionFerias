@@ -1,5 +1,5 @@
 import { supabase } from "./supabase.js";
-import { showToast, FESTIVAL_FERIA_NAME, PRONAFECYT_CODE_MAX } from "./utils.js";
+import { showToast, FESTIVAL_FERIA_NAME, PRONAFECYT_CODE_MAX, PRONAFECYT_C_RAW_MAX } from "./utils.js";
 import { getExpotecnicaRubricByCategory } from "./rubrics.js";
 
 let jspdfPromise = null;
@@ -443,9 +443,9 @@ export async function generateAdminPDF() {
           const bCode = String(projData?.categoria_pronatecyt || "").split(" ")[0];
           const bMax = PRONAFECYT_CODE_MAX[bCode] || 40;
           const cCode = bCode ? bCode.replace("B", "C") : "";
-          const cMax = PRONAFECYT_CODE_MAX[cCode] || 0;
-          if (cMax > 0) {
-            pdfFinalScore = (expoAvg / bMax) * 50 + (escritoAvg / cMax) * 50;
+          const cRawMax = PRONAFECYT_C_RAW_MAX[cCode] || 0;
+          if (cRawMax > 0) {
+            pdfFinalScore = (expoAvg / bMax) * 50 + (escritoAvg / cRawMax) * 50;
           } else {
             pdfFinalScore = expoAvg;
           }

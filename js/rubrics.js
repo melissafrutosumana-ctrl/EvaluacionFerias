@@ -671,7 +671,15 @@ export function getPronatecytRubricByCategory(category) {
 
     const F8C = {
         title: "PRONAFECYT F8C - Demostraciones Científicas y Tecnológicas (Diario de Experiencias)",
-        sections: [{
+        sections: [
+{
+                title: "I. Autenticidad del trabajo y respeto a la producción intelectual ajena",
+                indicators: [
+                    "El estilo, estructura y vocabulario del trabajo sugieren que fue elaborado por las personas estudiantes.",
+                    "No se cometió plagio: se da crédito a la producción intelectual de otras personas (cita ideas, conceptos, frases, métodos, técnicas e instrumentos de otras personas)."
+                ]
+            },
+{
                 title: "Portada e Índice",
                 indicators: [
                     "Contiene los elementos oficiales de la portada (Dirección Regional de Educación, Circuito Educativo, nombre del centro educativo, título del proyecto, categoría de participación y área temática del proyecto, nombre de las personas estudiantes, nivel/sección, nombre de la persona docente o tutora, año).",
@@ -730,7 +738,15 @@ export function getPronatecytRubricByCategory(category) {
 
     const F9C = {
         title: "PRONAFECYT F9C - Investigación Científica (Diario de Experiencias)",
-        sections: [{
+        sections: [
+{
+                title: "I. Autenticidad del trabajo y respeto a la producción intelectual ajena",
+                indicators: [
+                    "El estilo, estructura y vocabulario del trabajo sugieren que fue elaborado por las personas estudiantes.",
+                    "No se cometió plagio: se da crédito a la producción intelectual de otras personas (cita ideas, conceptos, frases, métodos, técnicas e instrumentos de otras personas)."
+                ]
+            },
+{
                 title: "Portada e Índice",
                 indicators: [
                     "Contiene los elementos oficiales de la portada (Dirección Regional de Educación, Circuito Educativo, nombre del centro educativo, título del proyecto, categoría de participación y área temática del proyecto, nombre de las personas estudiantes, nivel/sección, nombre de la persona docente o tutora, año).",
@@ -793,7 +809,15 @@ export function getPronatecytRubricByCategory(category) {
 
     const F10C = {
         title: "PRONAFECYT F10C - Investigación y Desarrollo Tecnológico (Diario de Experiencias)",
-        sections: [{
+        sections: [
+{
+                title: "I. Autenticidad del trabajo y respeto a la producción intelectual ajena",
+                indicators: [
+                    "El estilo, estructura y vocabulario del trabajo sugieren que fue elaborado por las personas estudiantes.",
+                    "No se cometió plagio: se da crédito a la producción intelectual de otras personas (cita ideas, conceptos, frases, métodos, técnicas e instrumentos de otras personas)."
+                ]
+            },
+{
                 title: "Portada y Título",
                 indicators: [
                     "Contiene los elementos oficiales de la portada (Dirección Regional de Educación, Circuito Educativo, nombre del centro educativo, título del proyecto, categoría de participación y área temática del proyecto, nombre de las personas estudiantes, nivel/sección, nombre de la persona docente o tutora, año).",
@@ -855,7 +879,15 @@ export function getPronatecytRubricByCategory(category) {
 
     const F11C = {
         title: "PRONAFECYT F11C - Quehacer Científico y Tecnológico I y II Ciclos (Diario de Experiencias)",
-        sections: [{
+        sections: [
+{
+                title: "I. Autenticidad del trabajo y respeto a la producción intelectual ajena",
+                indicators: [
+                    "El estilo, estructura y vocabulario del trabajo sugieren que fue elaborado por las personas estudiantes.",
+                    "No se cometió plagio: se da crédito a la producción intelectual de otras personas (cita ideas, conceptos, frases, métodos, técnicas e instrumentos de otras personas)."
+                ]
+            },
+{
                 title: "Portada e Índice",
                 indicators: [
                     "Contiene los elementos oficiales de la portada.",
@@ -913,7 +945,15 @@ export function getPronatecytRubricByCategory(category) {
 
     const F12C = {
         title: "PRONAFECYT F12C - Sumando Experiencias Científicas (Diario de Experiencias)",
-        sections: [{
+        sections: [
+{
+                title: "I. Autenticidad del trabajo y respeto a la producción intelectual ajena",
+                indicators: [
+                    "El estilo, estructura y vocabulario del trabajo sugieren que fue elaborado por las personas estudiantes.",
+                    "No se cometió plagio: se da crédito a la producción intelectual de otras personas (cita ideas, conceptos, frases, métodos, técnicas e instrumentos de otras personas)."
+                ]
+            },
+{
                 title: "Portada e Índice",
                 indicators: [
                     "Contiene los elementos oficiales de la portada.",

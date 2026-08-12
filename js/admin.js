@@ -1,5 +1,5 @@
 import { supabase } from "./supabase.js";
-import { escapeHTML, showToast, setMessage, normalizeRoleName, isMissingColumnError, fillSelect, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, buildFeriaOptions, FESTIVAL_FERIA_NAME, FESTIVAL_CATEGORIES, FESTIVAL_SUBCATEGORIES, EXPOTECNICA_CATEGORIES, EXPOTECNICA_EJES, PRONAFECYT_CATEGORIES, updateProjectFormFieldsByFeria, showSkeleton, PRONAFECYT_BY_NIVEL, getNivelFromPronatecyt, renderJudgeRubric, PRONAFECYT_CODE_MAX } from "./utils.js";
+import { escapeHTML, showToast, setMessage, normalizeRoleName, isMissingColumnError, fillSelect, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, buildFeriaOptions, FESTIVAL_FERIA_NAME, FESTIVAL_CATEGORIES, FESTIVAL_SUBCATEGORIES, EXPOTECNICA_CATEGORIES, EXPOTECNICA_EJES, PRONAFECYT_CATEGORIES, updateProjectFormFieldsByFeria, showSkeleton, PRONAFECYT_BY_NIVEL, getNivelFromPronatecyt, renderJudgeRubric, PRONAFECYT_CODE_MAX, PRONAFECYT_C_RAW_MAX } from "./utils.js";
 import { getSession, clearSession, restoreAppSession, enforceRole, hashPassword, bindLogout } from "./auth.js";
 import { loadProjects, loadJudges, loadJudgeAssignments, loadUsers, fetchAllEvaluations } from "./data.js";
 import { generateAdminPDF } from "./pdf.js";
@@ -382,11 +382,11 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
             const bCode = String(proj ?.categoria_pronatecyt || "").split(" ")[0];
             const bMax = PRONAFECYT_CODE_MAX[bCode] || 40;
             const cCode = bCode ? bCode.replace("B", "C") : "";
-            const cMax = PRONAFECYT_CODE_MAX[cCode] || 0;
+            const cRawMax = PRONAFECYT_C_RAW_MAX[cCode] || 0;
             const expoPts = expoAvg;
             const escritoPts = manualEscrito !== null ? manualEscrito : escritoAvg;
-            if (cMax > 0) {
-                finalScore = (expoPts / bMax) * 50 + (escritoPts / cMax) * 50;
+            if (cRawMax > 0) {
+                finalScore = (expoPts / bMax) * 50 + (escritoPts / cRawMax) * 50;
             } else {
                 finalScore = expoPts;
             }
