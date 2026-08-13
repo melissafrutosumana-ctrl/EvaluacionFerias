@@ -4053,6 +4053,42 @@ body[data-page="judge"] .btn-sm:hover {
 }
 
 
+/* ===== MODAL SCROLLBARS ===== */
+
+.edit-modal-box,
+.edit-project-modal,
+.modal-body {
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-light) transparent;
+    overscroll-behavior: contain;
+}
+
+.edit-modal-box::-webkit-scrollbar,
+.edit-project-modal::-webkit-scrollbar,
+.modal-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.edit-modal-box::-webkit-scrollbar-track,
+.edit-project-modal::-webkit-scrollbar-track,
+.modal-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.edit-modal-box::-webkit-scrollbar-thumb,
+.edit-project-modal::-webkit-scrollbar-thumb,
+.modal-body::-webkit-scrollbar-thumb {
+    background: var(--primary-light);
+    border-radius: 999px;
+}
+
+.edit-modal-box::-webkit-scrollbar-thumb:hover,
+.edit-project-modal::-webkit-scrollbar-thumb:hover,
+.modal-body::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
+}
+
+
 /* ===== BTN SMALL VARIANTS ===== */
 
 .btn-primary.btn-sm,
