@@ -159,6 +159,14 @@ export const EXPOTECNICA_EJES = [
     "SEGURIDAD Y PROTECCION LABORAL"
 ];
 
+// Total máximo (indicadores × 3) de cada formulario ExpoTECNICA por categoría.
+// expo = Exposición, escrito = Documento escrito/bitácora. Se usa para normalizar
+// la nota final al porcentaje oficial de cada formulario (50-50).
+export const EXPOTECNICA_MAX = {
+    "DESAFIO STEAM": { expo: 111, escrito: 105 },
+    "EMPRENDIMIENTO E INNOVACION": { expo: 51, escrito: 72 }
+};
+
 export function showToast(message, type = "info") {
     const existing = document.querySelector(".toast-container");
     if (!existing) {
@@ -581,4 +589,14 @@ export function calcPronatecytFinalScore(bCode, expoPts, escritoPts) {
         return (expoPts / bMax) * 50 + (escritoPts / cRawMax) * 50;
     }
     return expoPts;
+}
+
+export function calcExpotecnicaFinalScore(category, expoPts, escritoPts) {
+    const max = EXPOTECNICA_MAX[category];
+    if (!max) {
+        return expoPts;
+    }
+    const expoPct = max.expo > 0 ? (expoPts / max.expo) * 50 : 0;
+    const escritoPct = max.escrito > 0 ? (escritoPts / max.escrito) * 50 : 0;
+    return expoPct + escritoPct;
 }

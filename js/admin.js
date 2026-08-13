@@ -1,5 +1,5 @@
 import { supabase } from "./supabase.js";
-import { escapeHTML, showToast, setMessage, normalizeRoleName, fillSelect, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, buildFeriaOptions, FESTIVAL_FERIA_NAME, FESTIVAL_CATEGORIES, FESTIVAL_SUBCATEGORIES, EXPOTECNICA_CATEGORIES, EXPOTECNICA_EJES, PRONAFECYT_CATEGORIES, updateProjectFormFieldsByFeria, showSkeleton, PRONAFECYT_BY_NIVEL, getNivelFromPronatecyt, calcAverage, calcFinalScore, calcPronatecytFinalScore } from "./utils.js";
+import { escapeHTML, showToast, setMessage, normalizeRoleName, fillSelect, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, buildFeriaOptions, FESTIVAL_FERIA_NAME, FESTIVAL_CATEGORIES, FESTIVAL_SUBCATEGORIES, EXPOTECNICA_CATEGORIES, EXPOTECNICA_EJES, PRONAFECYT_CATEGORIES, updateProjectFormFieldsByFeria, showSkeleton, PRONAFECYT_BY_NIVEL, getNivelFromPronatecyt, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore } from "./utils.js";
 import { getSession, enforceRole, hashPassword, bindLogout } from "./auth.js";
 import { loadProjects, loadJudges, loadJudgeAssignments, loadUsers, fetchAllEvaluations } from "./data.js";
 import { generateAdminPDF } from "./pdf.js";
@@ -367,11 +367,16 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
 
         let finalScore;
         const isScientific = proj ?.tipo_feria === "Feria Cientifica y Tecnologica";
+        const isExpotecnica = proj ?.tipo_feria === "Feria Expotecnica";
         if (isScientific) {
             const bCode = String(proj ?.categoria_pronatecyt || "").split(" ")[0];
             const expoPts = expoAvg;
             const escritoPts = manualEscrito !== null ? manualEscrito : escritoAvg;
             finalScore = calcPronatecytFinalScore(bCode, expoPts, escritoPts);
+        } else if (isExpotecnica) {
+            const expoPts = expoAvg;
+            const escritoPts = manualEscrito !== null ? manualEscrito : escritoAvg;
+            finalScore = calcExpotecnicaFinalScore(proj ?.categoria_expotecnica, expoPts, escritoPts);
         } else if (manualEscrito !== null) {
             finalScore = expoVoted > 0 ? expoAvg + manualEscrito : manualEscrito;
         } else {

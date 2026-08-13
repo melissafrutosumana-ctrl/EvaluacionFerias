@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert";
-import { calcAverage, calcFinalScore, calcPronatecytFinalScore } from "../js/utils.js";
+import { calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore } from "../js/utils.js";
 
 test("calcAverage promedia solo los jueces que votaron", () => {
   const judges = [
@@ -51,4 +51,18 @@ test("calcPronatecytFinalScore con expo parcial y escrito cero", () => {
 test("calcPronatecytFinalScore con código desconocido trata como 100% exposición", () => {
   // Código desconocido → cRawMax=0 → devuelve expoPts (sin escrito)
   assert.strictEqual(calcPronatecytFinalScore("XXX", 40, 0), 40);
+});
+
+test("calcExpotecnicaFinalScore STEAM: 50% expo (111) + 50% escrito (105)", () => {
+  const expected = (111 / 111) * 50 + (105 / 105) * 50;
+  assert.strictEqual(calcExpotecnicaFinalScore("DESAFIO STEAM", 111, 105), expected);
+});
+
+test("calcExpotecnicaFinalScore Modelo: expo (51) + escrito (72) normalizado", () => {
+  const expected = (51 / 51) * 50 + (36 / 72) * 50;
+  assert.strictEqual(calcExpotecnicaFinalScore("EMPRENDIMIENTO E INNOVACION", 51, 36), expected);
+});
+
+test("calcExpotecnicaFinalScore categoría desconocida devuelve expo crudo", () => {
+  assert.strictEqual(calcExpotecnicaFinalScore("OTRA", 50, 0), 50);
 });

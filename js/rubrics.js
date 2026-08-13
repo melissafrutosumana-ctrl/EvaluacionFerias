@@ -135,7 +135,9 @@ export function getExpotecnicaRubricByCategory(category, tipo) {
                         "Se evidencia congruencia entre lo expuesto por el estudiante o equipo y el informe escrito.",
                         "Evidencia el uso de lenguaje tecnico afin al tema del proyecto.",
                         "Estipula los procedimientos tecnicos utilizados.",
-                        "La bitacora detalla en forma cronologica los procesos de investigacion, implementacion y experimentacion.",
+                        "La bitacora detalla en forma cronologica el proceso de investigacion.",
+                        "La bitacora detalla en forma cronologica el proceso de implementacion.",
+                        "La bitacora detalla en forma cronologica el proceso de experimentacion.",
                         "El cartel contiene informacion relevante para la exposicion del proyecto.",
                         "Utiliza el cartel como recurso y apoyo para el desarrollo de la exposicion."
                     ]
