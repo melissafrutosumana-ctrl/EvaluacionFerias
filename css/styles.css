@@ -769,6 +769,14 @@ body.nav-open[data-page="judge"] main {
     flex-shrink: 0;
 }
 
+/* Móvil: la navegación admin se acomoda en varias filas para no cortar items */
+@media (max-width: 768px) {
+    .quick-nav {
+        flex-wrap: wrap;
+        overflow-x: visible;
+    }
+}
+
 
 /* ===== CARD HEADER ===== */
 
