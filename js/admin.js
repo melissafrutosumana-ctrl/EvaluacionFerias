@@ -1,5 +1,5 @@
 import { supabase } from "./supabase.js";
-import { escapeHTML, showToast, setMessage, normalizeRoleName, fillSelect, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, buildFeriaOptions, FESTIVAL_FERIA_NAME, FESTIVAL_CATEGORIES, FESTIVAL_SUBCATEGORIES, EXPOTECNICA_CATEGORIES, EXPOTECNICA_EJES, PRONAFECYT_CATEGORIES, updateProjectFormFieldsByFeria, showSkeleton, PRONAFECYT_BY_NIVEL, getNivelFromPronatecyt, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore } from "./utils.js";
+import { escapeHTML, showToast, setMessage, normalizeRoleName, fillSelect, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, buildFeriaOptions, FESTIVAL_FERIA_NAME, FESTIVAL_CATEGORIES, FESTIVAL_SUBCATEGORIES, EXPOTECNICA_CATEGORIES, EXPOTECNICA_EJES, PRONAFECYT_CATEGORIES, updateProjectFormFieldsByFeria, showSkeleton, confirmDialog, PRONAFECYT_BY_NIVEL, getNivelFromPronatecyt, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore } from "./utils.js";
 import { getSession, enforceRole, hashPassword, bindLogout } from "./auth.js";
 import { loadProjects, loadJudges, loadJudgeAssignments, loadUsers, fetchAllEvaluations } from "./data.js";
 import { generateAdminPDF } from "./pdf.js";
@@ -465,7 +465,7 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
                 p_score: num
             });
             if (error) {
-                alert("Error al guardar: " + error.message);
+                showToast("Error al guardar: " + (error.message ?? "desconocido"), "error");
                 cell.innerHTML = originalContent;
                 return;
             }
@@ -477,7 +477,7 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
             const val = cell.querySelector(".manual-escrito-input").value.trim();
             const num = val === "" ? null : Number(val);
             if (val !== "" && (isNaN(num) || num < 0)) {
-                alert("Ingrese un puntaje válido (0 o más).");
+                showToast("Ingrese un puntaje válido (0 o más).", "error");
                 return;
             }
             await saveScore(num);
@@ -1073,7 +1073,11 @@ export async function bootstrapAdminPage() {
 
       if (deleteBtn) {
         const userId = Number(deleteBtn.dataset.deleteUserId);
-        if (confirm("¿Estas seguro de eliminar este usuario? Esta accion no se puede deshacer.")) {
+        const ok = await confirmDialog({
+          title: "Eliminar usuario",
+          message: "Esta accion no se puede deshacer."
+        });
+        if (ok) {
           await deleteUser(userId);
           await refreshAdminDataView();
         }
@@ -1107,22 +1111,29 @@ export async function bootstrapAdminPage() {
         return;
       }
 
-      if (confirm("¿Estas seguro de eliminar este proyecto? Tambien se eliminaran sus asignaciones y evaluaciones.")) {
-        try {
-          const { error } = await supabase.rpc("admin_delete_project", {
-            p_session_token: getSession()?.session_token,
-            p_project_id: projectId
-          });
+      const ok = await confirmDialog({
+        title: "Eliminar proyecto",
+        message: "Tambien se eliminaran sus asignaciones y evaluaciones. Esta accion no se puede deshacer."
+      });
 
-          if (error) {
-            throw error;
-          }
+      if (!ok) {
+        return;
+      }
 
-          showToast("Proyecto eliminado correctamente.", "success");
-          await refreshAdminDataView();
-        } catch (err) {
-          showToast(err?.message || "No se pudo eliminar el proyecto.", "error");
+      try {
+        const { error } = await supabase.rpc("admin_delete_project", {
+          p_session_token: getSession()?.session_token,
+          p_project_id: projectId
+        });
+
+        if (error) {
+          throw error;
         }
+
+        showToast("Proyecto eliminado correctamente.", "success");
+        await refreshAdminDataView();
+      } catch (err) {
+        showToast(err?.message || "No se pudo eliminar el proyecto.", "error");
       }
     });
   }
