@@ -437,7 +437,7 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
     }
 
     // Event delegation para guardar puntaje escrito manual
-    tbody.addEventListener("click", async function handleManualClick(e) {
+    tbody.addEventListener("click", function handleManualClick(e) {
         const btn = e.target.closest(".btn-manual-escrito");
         if (!btn) return;
         const projectId = btn.dataset.projectId;
@@ -446,11 +446,13 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
         if (!cell || cell.querySelector(".manual-escrito-form")) return;
 
         const originalContent = cell.innerHTML;
+        const hasCurrent = current !== "";
         cell.innerHTML = `
       <form class="manual-escrito-form" style="display:flex;gap:0.4rem;align-items:center;flex-wrap:wrap;">
-        <input type="number" class="manual-escrito-input" min="0" max="100" step="0.1"
-          value="${escapeHTML(current)}" placeholder="Puntaje (0-100)" style="width:90px;">
+        <input type="number" class="manual-escrito-input" min="0" step="0.1"
+          value="${escapeHTML(current)}" placeholder="Puntaje" style="width:90px;">
         <button type="submit" class="btn-primary btn-sm">Guardar</button>
+        ${hasCurrent ? '<button type="button" class="btn-secondary btn-sm manual-escrito-delete">Borrar</button>' : ''}
         <button type="button" class="btn-secondary btn-sm manual-escrito-cancel">Cancelar</button>
       </form>`;
 
@@ -458,28 +460,38 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
             cell.innerHTML = originalContent;
         });
 
-        cell.querySelector(".manual-escrito-form").addEventListener("submit", async(ev) => {
-            ev.preventDefault();
-            const val = cell.querySelector(".manual-escrito-input").value.trim();
-            const num = val === "" ? null : Number(val);
-            if (val !== "" && (isNaN(num) || num < 0 || num > 100)) {
-                alert("Ingrese un puntaje entre 0 y 100.");
-                return;
-            }
-            const { error } = await supabase
-                .from("proyectos_ferias")
-                .update({ puntaje_escrito_manual: num })
-                .eq("id", projectId);
+        async function saveScore(num) {
+            const { error } = await supabase.rpc("admin_set_manual_escrito", {
+                p_session_token: getSession()?.session_token,
+                p_project_id: Number(projectId),
+                p_score: num
+            });
             if (error) {
                 alert("Error al guardar: " + error.message);
                 cell.innerHTML = originalContent;
                 return;
             }
-            // Refrescar tabla
-            tbody.removeEventListener("click", handleManualClick);
             await renderAdminReportsByFeria();
+        }
+
+        cell.querySelector(".manual-escrito-form").addEventListener("submit", async (ev) => {
+            ev.preventDefault();
+            const val = cell.querySelector(".manual-escrito-input").value.trim();
+            const num = val === "" ? null : Number(val);
+            if (val !== "" && (isNaN(num) || num < 0)) {
+                alert("Ingrese un puntaje válido (0 o más).");
+                return;
+            }
+            await saveScore(num);
         });
-    }, { once: false });
+
+        const deleteBtn = cell.querySelector(".manual-escrito-delete");
+        if (deleteBtn) {
+            deleteBtn.addEventListener("click", async () => {
+                await saveScore(null);
+            });
+        }
+    });
 
     const groupByCategory = selectedFeria === "Feria Expotecnica" || selectedFeria === "Festival Estudiantil de las Artes" || selectedFeria === "Feria Cientifica y Tecnologica";
 
