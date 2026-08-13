@@ -1,4 +1,4 @@
-import { supabase } from "./supabase.js";
+﻿import { supabase } from "./supabase.js";
 import { normalizeRoleName, showToast, setMessage, setupHideOnScroll } from "./utils.js";
 import { generateJudgePDF } from "./pdf.js";
 
@@ -213,7 +213,7 @@ export async function bootstrapLoginPage() {
   }
 
   if (sessionRole === "administrador") {
-    window.location.href = "Proyectos.html";
+    window.location.href = "usuarios.html";
     return;
   }
 
@@ -279,7 +279,7 @@ export async function bootstrapLoginPage() {
       }
 
       if (normalizeRoleName(result.user_role) === "administrador") {
-        window.location.href = "Proyectos.html";
+        window.location.href = "usuarios.html";
         return;
       }
 
