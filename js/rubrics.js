@@ -1813,7 +1813,7 @@ export function getFestivalRubricBySubcategory(subcategory) {
             "Las fotografias se colocan de manera creativa y coherente.",
             "Participacion individual o maximo 2 estudiantes.",
             "Respeta la extension maxima de 15 paginas.",
-            "Utiliza material adecuado y mantiene tama�o carta.",
+            "Utiliza material adecuado y mantiene tamaño carta.",
             "Presenta calidad fotografica.",
             "Las fotografias son originales y alusivas al tema.",
             "Presenta una historia y trama coherente.",
@@ -1862,7 +1862,7 @@ export function getFestivalRubricBySubcategory(subcategory) {
             "Presenta multiples personajes.",
             "Tiene narrador.",
             "Presenta hilo conductor.",
-            "Utiliza vi�etas.",
+            "Utiliza viñetas.",
             "Presenta textos narrativos, dialogos y onomatopeyas.",
             "Utiliza diferentes globos de texto.",
             "Incluye prologo como guia inicial de la historia."
@@ -1909,7 +1909,7 @@ export function getFestivalRubricBySubcategory(subcategory) {
             "Es evidente la mediacion pedagogica de las personas docentes y del centro educativo.",
             "La obra es original y no constituye una copia o imitacion.",
             "Se presenta sin marco.",
-            "Respeta las dimensiones establecidas (minimo tama�o carta y maximo 30 x 40 cm).",
+            "Respeta las dimensiones establecidas (minimo tamaño carta y maximo 30 x 40 cm).",
             "Utiliza materiales permitidos para la tecnica de collage.",
             "Participacion estrictamente individual.",
             "Organiza los elementos con distribucion espacial equilibrada y coherente.",
@@ -2117,7 +2117,7 @@ export function getFestivalRubricBySubcategory(subcategory) {
             "Emplea adecuadamente punto, linea, color y textura.",
             "Utiliza materiales y pigmentos apropiados.",
             "Integra la postura corporal a la propuesta artistica.",
-            "Dise�a composiciones acordes con la anatomia del cuerpo.",
+            "Diseña composiciones acordes con la anatomia del cuerpo.",
             "Relaciona los elementos visuales con el mensaje de la obra."
         ],
         "PRODUCCION AUDIOVISUAL": [
