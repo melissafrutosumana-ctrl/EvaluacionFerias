@@ -892,133 +892,116 @@ export function getPronatecytRubricByCategory(category) {
     const F11C = {
         title: "PRONAFECYT F11C - Quehacer Científico y Tecnológico I y II Ciclos (Diario de Experiencias)",
         sections: [
-{
+            {
                 title: "I. Autenticidad del trabajo y respeto a la producción intelectual ajena",
                 indicators: [
                     "El estilo, estructura y vocabulario del trabajo sugieren que fue elaborado por las personas estudiantes.",
                     "No se cometió plagio: se da crédito a la producción intelectual de otras personas (cita ideas, conceptos, frases, métodos, técnicas e instrumentos de otras personas)."
                 ]
             },
-{
+            {
                 title: "Portada e Índice",
                 indicators: [
-                    "Contiene los elementos oficiales de la portada.",
-                    "El título del proyecto establece una idea general del trabajo realizado.",
-                    "Indica las principales secciones del trabajo y las páginas en las que se encuentran."
+                    "Contiene los elementos básicos (Dirección Regional de Educación, circuito educativo, nombre de la institución, título de la investigación y área temática, nombre de las personas estudiantes, nombre de la persona docente o tutora, nivel, grupo o sección, año).",
+                    "Establece una idea general del trabajo por medio del nombre de la investigación.",
+                    "Indica las secciones del trabajo y las páginas en las que se encuentran."
                 ]
             },
             {
-                title: "Aspectos iniciales (Introducción y pregunta)",
+                title: "Aspectos iniciales (Introducción)",
                 indicators: [
-                    "Anota las ideas previas que motivan la realización del proyecto.",
-                    "Señala la importancia del tema relacionado con el proyecto.",
-                    "Indica la(s) pregunta(s) que orientan el proyecto y las suposiciones o predicciones.",
-                    "Explica el propósito principal del proyecto."
-                ]
-            },
-            {
-                title: "Explorando fuentes de información (Marco teórico)",
-                indicators: [
-                    "Describe palabras claves, conceptos o términos relevantes, indicando las fuentes de información consultadas.",
-                    "Registra información adicional de diferentes fuentes que complementan las ideas previas.",
-                    "Cita o hace referencia a las fuentes de información utilizando un formato de referencias (APA u otro)."
+                    "Establece las ideas previas que motivan la investigación, por medio de ilustraciones, textos narrativos o descriptivos, entre otros.",
+                    "Presenta la(s) pregunta(s) que orienta la investigación, mediante oraciones o ilustraciones.",
+                    "Señala o dibuja las suposiciones o predicciones, acerca de lo que piensa que ocurrirá al finalizar su investigación."
                 ]
             },
             {
                 title: "Pasos por seguir (Metodología)",
                 indicators: [
-                    "Explica los pasos, procedimientos o acciones realizadas en el proyecto.",
-                    "Anota la lista de recursos tecnológicos (digitales o analógicos) y/o material concreto requeridos.",
-                    "Describe los recursos utilizados y el manejo de residuos considerando la sostenibilidad ambiental."
+                    "Narra o describe las acciones o pasos necesarios, en la búsqueda de la solución para la pregunta o desafío planteado.",
+                    "Hace referencia a los recursos tecnológicos (digitales o analógicos) y/o el material concreto preferiblemente reutilizable, requeridos en el desarrollo de la investigación.",
+                    "Describe los recursos utilizados y el manejo de los residuos que pueden generarse, considerando la sostenibilidad ambiental."
                 ]
             },
             {
-                title: "Logros y hallazgos",
+                title: "Logros obtenidos (Conclusiones)",
                 indicators: [
-                    "Comunica los hallazgos con la información consultada.",
-                    "Comunica los logros del proyecto.",
-                    "Comunica las fuentes de información consultadas.",
-                    "Expresa ideas propias relacionadas con la temática investigada.",
-                    "Evidencia el disfrute y apropiación del proyecto realizado.",
-                    "Aporta evidencias (fotografías, listas de asistencia, afiches) acerca de la comunicación de los resultados a la comunidad educativa."
+                    "Narra o describe los hallazgos encontrados durante la experimentación realizada, la consulta bibliográfica, las encuestas aplicadas, la construcción del modelo o dispositivo, entre otros.",
+                    "Cita o hace referencia a las fuentes de información utilizadas, mediante enunciados básicos, imágenes u otros.",
+                    "Compara los hallazgos obtenidos con la información consultada, anotando reflexiones propias acordes a su edad.",
+                    "Narra, describe o explica si las suposiciones o predicciones señaladas se cumplieron, basándose en los hallazgos obtenidos.",
+                    "Establece los logros obtenidos en la investigación realizada, utilizando textos narrativos, descriptivos o explicativos, ilustraciones, entre otros. Sugiere ideas para futuras investigaciones.",
+                    "Aporta evidencias (fotografías, listas de asistencia, entre otras) acerca de la comunicación de los logros obtenidos a los miembros de la comunidad educativa.",
+                    "Demuestra una apropiación del proceso de investigación, mediante los registros realizados, desde las ideas previas, pregunta o desafío, suposiciones hasta los logros obtenidos."
                 ]
             },
             {
-                title: "Referencias consultadas y Resumen",
+                title: "Referencias consultadas",
                 indicators: [
-                    "Utiliza mínimo cuatro fuentes de información para realizar el proyecto.",
-                    "Aporta referencias de no más de 10 años y de fuentes confiables.",
-                    "Utiliza un formato de referencia bibliográfica consistente (APA u otro).",
-                    "Presenta una síntesis de los aspectos más relevantes (máximo 250 palabras)."
+                    "Utiliza mínimo tres referencias. Pueden ser presentadas como enunciados sencillos o ilustraciones (libro, periódico, sitio web, persona entrevistada, entre otras).",
+                    "Presentan una calidad razonable: referencias de no más de 10 años y de fuentes confiables.",
+                    "Utiliza un formato de referencia bibliográfica consistente (APA u otro). Cita todas las fuentes mencionadas y viceversa."
                 ]
             }
         ]
-    };
+    }
 
     const F12C = {
         title: "PRONAFECYT F12C - Sumando Experiencias Científicas (Diario de Experiencias)",
         sections: [
-{
+            {
                 title: "I. Autenticidad del trabajo y respeto a la producción intelectual ajena",
                 indicators: [
                     "El estilo, estructura y vocabulario del trabajo sugieren que fue elaborado por las personas estudiantes.",
                     "No se cometió plagio: se da crédito a la producción intelectual de otras personas (cita ideas, conceptos, frases, métodos, técnicas e instrumentos de otras personas)."
                 ]
             },
-{
+            {
                 title: "Portada e Índice",
                 indicators: [
-                    "Contiene los elementos oficiales de la portada.",
-                    "El título del proyecto establece una idea general del trabajo realizado.",
-                    "Indica las principales secciones del trabajo y las páginas en las que se encuentran."
+                    "Contiene los elementos básicos (Dirección Regional de Educación, circuito educativo, nombre de la institución, nombre de la investigación y área temática, nombre de las personas estudiantes, nombre de la persona docente o tutora, nivel, grupo o sección, año).",
+                    "El título de la investigación establece una idea general del trabajo.",
+                    "Indica las secciones del trabajo y las páginas en las que se encuentran."
                 ]
             },
             {
-                title: "Aspectos iniciales (Introducción y pregunta)",
+                title: "Aspectos iniciales (Introducción)",
                 indicators: [
-                    "Anota las ideas previas que motivan la realización del proyecto.",
-                    "Señala la importancia del tema relacionado con el proyecto.",
-                    "Indica la(s) pregunta(s) que orientan el proyecto y las suposiciones o predicciones."
+                    "Establece las ideas previas que motivan la investigación, por medio de ilustraciones, textos narrativos o descriptivos, entre otros.",
+                    "Presenta la(s) pregunta(s) que orienta la investigación, mediante oraciones o ilustraciones.",
+                    "Señala las suposiciones o predicciones, acerca de lo que piensa que ocurrirá al finalizar su investigación, mediante oraciones o ilustraciones."
                 ]
             },
             {
-                title: "Explorando fuentes de información (Marco teórico)",
+                title: "Pasos por seguir (Metodología)",
                 indicators: [
-                    "Describe palabras claves, conceptos o términos relevantes, indicando las fuentes de información consultadas.",
-                    "Registra información adicional de diferentes fuentes que complementan las ideas previas.",
-                    "Cita o hace referencia a las fuentes de información utilizando un formato de referencias (APA u otro)."
+                    "Narra o describe las acciones o pasos necesarios, en la búsqueda de la solución para la pregunta o desafío planteado.",
+                    "Hace referencia a los recursos tecnológicos (digitales o analógicos) y/o el material concreto preferiblemente reutilizable, requeridos en el desarrollo de la investigación.",
+                    "Describe los recursos utilizados y el manejo de los residuos que pueden generarse, considerando la sostenibilidad ambiental."
                 ]
             },
             {
-                title: "Plan de investigación (Metodología)",
+                title: "Logros obtenidos (Conclusiones)",
                 indicators: [
-                    "Explica las acciones o pasos realizados en el proyecto.",
-                    "Anota la lista de recursos tecnológicos (digitales o analógicos) y/o material concreto requeridos.",
-                    "Describe los recursos utilizados y el manejo de residuos considerando la sostenibilidad ambiental."
+                    "Registra los hallazgos encontrados, por medio de imágenes, datos numéricos o textos básicos.",
+                    "Contrasta los hallazgos obtenidos con la información consultada, anotando reflexiones propias acordes a su edad.",
+                    "Cita o hace referencia a las fuentes de información utilizadas, mediante enunciados básicos, imágenes u otros.",
+                    "Narra, describe o explica si las suposiciones o predicciones señaladas se cumplieron, basándose en los hallazgos obtenidos.",
+                    "Establece los logros obtenidos en la investigación realizada, utilizando textos narrativos, descriptivos o explicativos, ilustraciones, entre otros.",
+                    "Aporta evidencias (fotografías, listas de asistencia, entre otras) acerca de la comunicación de los logros obtenidos a los miembros de la comunidad educativa.",
+                    "Demuestra una apropiación del proceso de investigación, mediante los registros realizados, desde las ideas previas, pregunta o desafío, suposiciones hasta los logros obtenidos."
                 ]
             },
             {
-                title: "Logros y hallazgos",
+                title: "Referencias consultadas",
                 indicators: [
-                    "Comunica los hallazgos con la información consultada.",
-                    "Comunica los logros del proyecto.",
-                    "Comunica las fuentes de información consultadas.",
-                    "Expresa ideas propias relacionadas con la temática investigada.",
-                    "Evidencia el disfrute y apropiación del proyecto realizado.",
-                    "Aporta evidencias (fotografías, listas de asistencia, afiches) acerca de la comunicación de los resultados a la comunidad educativa."
-                ]
-            },
-            {
-                title: "Referencias consultadas y Resumen",
-                indicators: [
-                    "Utiliza mínimo cuatro fuentes de información para realizar el proyecto.",
-                    "Aporta referencias de no más de 10 años y de fuentes confiables.",
-                    "Utiliza un formato de referencia bibliográfica consistente (APA u otro).",
-                    "Presenta una síntesis de los aspectos más relevantes (máximo 250 palabras)."
+                    "Utiliza mínimo tres referencias. Pueden ser presentadas como enunciados sencillos o ilustraciones (libro, periódico, sitio web, persona entrevistada, entre otras).",
+                    "Presentan una calidad razonable: referencias de no más de 10 años y de fuentes confiables.",
+                    "Utiliza un formato de referencia bibliográfica consistente (APA u otro). Cita todas las fuentes mencionadas y viceversa."
                 ]
             }
         ]
-    };
+    }
 
     const rubrics = {
         "F8B - Demostraciones Científicas y Tecnológicas": F8B,

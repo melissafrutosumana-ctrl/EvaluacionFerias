@@ -138,7 +138,7 @@ export const PRONAFECYT_CODE_MAX = {
 // Máximo real (indicadores × 3) de cada formulario C del escrito.
 // Se usa para normalizar: un escrito "lleno" siempre vale 50% del total.
 export const PRONAFECYT_C_RAW_MAX = {
-    F8C: 78, F9C: 90, F10C: 108, F11C: 75, F12C: 72
+    F8C: 78, F9C: 90, F10C: 108, F11C: 63, F12C: 63
 };
 
 export const EXPOTECNICA_EJES = [
