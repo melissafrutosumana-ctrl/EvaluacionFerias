@@ -3573,6 +3573,10 @@ body[data-page="judge"] .btn-sm:hover {
 /* ===== FERIA FILTER BAR ===== */
 
 .feria-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.5rem;
     padding: 0.875rem 1.25rem;
     margin-bottom: 1.25rem;
     border-left: 4px solid var(--secondary);
@@ -3636,6 +3640,16 @@ body[data-page="judge"] .btn-sm:hover {
     outline: none;
     border-color: var(--primary);
     box-shadow: 0 0 0 3px rgba(13, 42, 91, 0.1);
+}
+
+@media (max-width: 640px) {
+    .feria-filter-bar label {
+        flex: 1 1 100%;
+    }
+    .feria-filter-bar select {
+        min-width: 0;
+        flex: 1;
+    }
 }
 
 
