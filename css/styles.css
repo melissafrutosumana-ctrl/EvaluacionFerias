@@ -2634,7 +2634,7 @@ body[data-page="judge"] .btn-sm:hover {
         padding: 1.5rem 1rem;
         border-radius: 14px;
     }
-    #edit-user-modal h3 {
+    #edit-user-modal .modal-header h2 {
         font-size: 1.05rem;
     }
     #edit-user-modal .edit-modal-field input,
@@ -3899,12 +3899,34 @@ body[data-page="judge"] .btn-sm:hover {
     animation: modal-pop 0.25s var(--ease-out);
 }
 
-#edit-user-modal h3 {
-    margin: 0 0 1rem;
-    color: var(--primary);
-    font-size: 1.2rem;
-    font-weight: 700;
+#edit-user-modal .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+#edit-user-modal .modal-header h2 {
+    margin: 0;
+    font-size: 1.25rem;
     font-family: var(--font-heading);
+    color: var(--primary);
+}
+
+#edit-user-modal .modal-close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #64748b;
+    line-height: 1;
+    padding: 0.25rem;
+}
+
+#edit-user-modal .modal-close-btn:hover {
+    color: #1e293b;
 }
 
 #edit-user-modal .edit-modal-form {

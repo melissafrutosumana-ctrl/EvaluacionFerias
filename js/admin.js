@@ -971,7 +971,7 @@ export async function bootstrapAdminPage() {
 
       if (isFestival) {
         if (!FESTIVAL_CATEGORIES.includes(categoriaFestival) || !(FESTIVAL_SUBCATEGORIES[categoriaFestival] ?? []).includes(subcategoriaFestival) || !participacion) {
-          showToast("Para Festival debes seleccionar categoria, subcategoria y escribir la participacion.", "error");
+          showToast("Para Festival debes seleccionar categoria, subcategoria y participacion.", "error");
           return;
         }
       } else if (isExpotecnica) {
@@ -1318,7 +1318,10 @@ function showEditUserModal(user, roles) {
   modal.className = "edit-modal-box";
 
   modal.innerHTML = `
-    <h3>Editar usuario</h3>
+    <div class="modal-header">
+      <h2>Editar usuario</h2>
+      <button type="button" class="modal-close-btn" id="edit-user-close">&times;</button>
+    </div>
     <form id="edit-user-form" class="edit-modal-form">
       <input type="hidden" name="user_id" value="${user.id}">
       <label class="edit-modal-field">
@@ -1353,6 +1356,7 @@ function showEditUserModal(user, roles) {
   });
 
   document.getElementById("edit-user-cancel").addEventListener("click", () => overlay.remove());
+  document.getElementById("edit-user-close").addEventListener("click", () => overlay.remove());
 
   document.getElementById("edit-user-form").addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -1457,7 +1461,11 @@ function showEditProjectModal(project) {
         <div class="field-group">
           <label class="field-label">
             <span>Participacion</span>
-            <input name="participacion" type="text" value="${escapeHTML(String(project.participacion ?? ""))}">
+            <select name="participacion">
+              <option value="">Selecciona la participacion</option>
+              <option value="Individual" ${String(project.participacion ?? "") === "Individual" ? "selected" : ""}>Individual</option>
+              <option value="Grupal" ${String(project.participacion ?? "") === "Grupal" ? "selected" : ""}>Grupal</option>
+            </select>
           </label>
         </div>
 
