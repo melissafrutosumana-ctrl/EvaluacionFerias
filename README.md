@@ -1,6 +1,6 @@
 # Evaluación de Ferias — CTPM
 
-Sistema de evaluación de ferias institucionales del MEP (CTP Mario Quirós). Frontend vanilla HTML/CSS/JS + Supabase, desplegado en Vercel.
+Sistema de evaluación de ferias institucionales del MEP (Colegio Técnico Profesional de Matapalo). Frontend vanilla HTML/CSS/JS + Supabase, desplegado en Vercel.
 
 ## Stack
 
@@ -25,7 +25,7 @@ Las credenciales de Supabase viven en `js/supabase.js` (publishable key, hardcod
 
 ## Relación con CTPQ
 
-Este proyecto es gemelo de `evaluaciones-CTPQ` (colegio CTP de Quepos). Comparten todo el código salvo:
+Este proyecto es gemelo de `evaluaciones-CTPQ` (Colegio Técnico Profesional de Quepos). Comparten todo el código salvo:
 
 - `js/supabase.js` (URL y key de Supabase propias de cada colegio)
 - Logo e imágenes institucionales
