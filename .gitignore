@@ -18,3 +18,12 @@ _legacy/
 
 # Supabase CLI local
 supabase/
+
+# Variables de entorno (Vercel/Supabase)
+.env
+.env.local
+.env.*
+!.env.example
+
+# Vercel
+.vercel/
