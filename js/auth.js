@@ -179,7 +179,7 @@ export async function passwordMatches(inputPassword, storedPassword) {
 }
 
 export async function enforceRole(requiredRole) {
-  const restored = await restoreAppSession();
+  await restoreAppSession();
   const user = getSession();
   const normalizedRequiredRole = normalizeRoleName(requiredRole);
 

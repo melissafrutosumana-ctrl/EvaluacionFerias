@@ -1,8 +1,8 @@
 import { supabase } from "./supabase.js";
-import { escapeHTML, showToast, setMessage, normalizeRoleName, fillSelectGroupedByTipo, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, FESTIVAL_FERIA_NAME, renderJudgeRubric } from "./utils.js";
-import { getSession, clearSession, restoreAppSession, enforceRole, hashPassword, bindLogout } from "./auth.js";
+import { escapeHTML, showToast, setMessage, fillSelectGroupedByTipo, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, FESTIVAL_FERIA_NAME, renderJudgeRubric } from "./utils.js";
+import { enforceRole, bindLogout } from "./auth.js";
 import { loadAssignedProjectsForJudge } from "./data.js";
-import { getRubricIndicatorsByFeria, getExpotecnicaRubricByCategory, getPronatecytRubricByCategory, getFestivalRubricBySubcategory, getFestivalRubricByCategory, getFestivalAdvancedScoreOptions } from "./rubrics.js";
+import { getRubricIndicatorsByFeria, getExpotecnicaRubricByCategory, getPronatecytRubricByCategory, getFestivalRubricBySubcategory, getFestivalRubricByCategory } from "./rubrics.js";
 import { generateJudgePDF } from "./pdf.js";
 
 export async function bootstrapJudgePage() {
@@ -189,7 +189,7 @@ export async function bootstrapJudgePage() {
         p_tipo_evaluacion: tipoEval,
         p_texto: trimmed
       });
-    } catch {}
+    } catch { /* ignorar: fallo silencioso de carga */ }
   }
 
   function populateCategoryFilter(projects) {
@@ -465,7 +465,7 @@ export async function bootstrapJudgePage() {
         }
 
         const observacionTexto = String(formData.get("observacion") ?? "");
-        try { await saveObservacion(proyectoId, user.id, tipoEval, observacionTexto); } catch {} // ponytail: fallo silencioso si tabla no existe
+        try { await saveObservacion(proyectoId, user.id, tipoEval, observacionTexto); } catch { /* ignorar */ } // ponytail: fallo silencioso si tabla no existe
 
       evaluationForm.reset();
       showToast("Evaluacion guardada correctamente.", "success");
