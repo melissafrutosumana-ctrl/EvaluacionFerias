@@ -1,5 +1,5 @@
 import { supabase } from "./supabase.js";
-import { showToast, FESTIVAL_FERIA_NAME, PRONAFECYT_CODE_MAX, calcAverage, calcFinalScore, calcPronatecytFinalScore } from "./utils.js";
+import { showToast, FESTIVAL_FERIA_NAME, PRONAFECYT_CODE_MAX, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore } from "./utils.js";
 import { getExpotecnicaRubricByCategory } from "./rubrics.js";
 import { loadUsers, fetchAllEvaluations } from "./data.js";
 
@@ -443,6 +443,8 @@ export async function generateAdminPDF() {
         if (projData?.tipo_feria === "Feria Cientifica y Tecnologica") {
           const bCode = String(projData?.categoria_pronatecyt || "").split(" ")[0];
           pdfFinalScore = calcPronatecytFinalScore(bCode, expoAvg, escritoAvg);
+        } else if (projData?.tipo_feria === "Feria Expotecnica") {
+          pdfFinalScore = calcExpotecnicaFinalScore(projData?.categoria_expotecnica, expoAvg, escritoAvg);
         } else {
           pdfFinalScore = calcFinalScore(expoVoted, expoAvg, escritoVoted, escritoAvg);
         }
