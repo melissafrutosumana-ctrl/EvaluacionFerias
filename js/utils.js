@@ -572,3 +572,13 @@ export function calcFinalScore(expoVoted, expoAvg, escritoVoted, escritoAvg) {
     if (expoVoted > 0) return expoAvg;
     return escritoAvg;
 }
+
+export function calcPronatecytFinalScore(bCode, expoPts, escritoPts) {
+    const bMax = PRONAFECYT_CODE_MAX[bCode] || 40;
+    const cCode = bCode ? bCode.replace("B", "C") : "";
+    const cRawMax = PRONAFECYT_C_RAW_MAX[cCode] || 0;
+    if (cRawMax > 0) {
+        return (expoPts / bMax) * 50 + (escritoPts / cRawMax) * 50;
+    }
+    return expoPts;
+}
