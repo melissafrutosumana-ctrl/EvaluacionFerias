@@ -1,6 +1,6 @@
 import { supabase } from "./supabase.js";
-import { escapeHTML, showToast, setMessage, normalizeRoleName, isMissingColumnError, fillSelect, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, buildFeriaOptions, FESTIVAL_FERIA_NAME, FESTIVAL_CATEGORIES, FESTIVAL_SUBCATEGORIES, EXPOTECNICA_CATEGORIES, EXPOTECNICA_EJES, PRONAFECYT_CATEGORIES, updateProjectFormFieldsByFeria, showSkeleton, PRONAFECYT_BY_NIVEL, getNivelFromPronatecyt, renderJudgeRubric, PRONAFECYT_CODE_MAX, PRONAFECYT_C_RAW_MAX, calcAverage, calcFinalScore } from "./utils.js";
-import { getSession, clearSession, restoreAppSession, enforceRole, hashPassword, bindLogout } from "./auth.js";
+import { escapeHTML, showToast, setMessage, normalizeRoleName, fillSelect, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, buildFeriaOptions, FESTIVAL_FERIA_NAME, FESTIVAL_CATEGORIES, FESTIVAL_SUBCATEGORIES, EXPOTECNICA_CATEGORIES, EXPOTECNICA_EJES, PRONAFECYT_CATEGORIES, updateProjectFormFieldsByFeria, showSkeleton, PRONAFECYT_BY_NIVEL, getNivelFromPronatecyt, PRONAFECYT_CODE_MAX, PRONAFECYT_C_RAW_MAX, calcAverage, calcFinalScore } from "./utils.js";
+import { getSession, enforceRole, hashPassword, bindLogout } from "./auth.js";
 import { loadProjects, loadJudges, loadJudgeAssignments, loadUsers, fetchAllEvaluations } from "./data.js";
 import { generateAdminPDF } from "./pdf.js";
 
@@ -678,7 +678,6 @@ function openAssignmentModal(judgeId, judgeName, allProjects, currentAssignments
         counterEl.textContent = `${checkedCount}/${allProjects.length} seleccionados`;
 
         listEl.querySelectorAll("[data-project-checkbox]").forEach((cb) => {
-            const tipoSelect = cb.closest("[data-project-row]").querySelector("[data-tipo-select]");
             const parent = cb.closest("[data-project-row]");
             if (cb.checked) {
                 parent.removeAttribute("data-disabled");
@@ -824,7 +823,6 @@ export async function bootstrapAdminPage() {
   const userForm = document.querySelector("[data-user-form]");
   const userStatus = document.querySelector("[data-user-form-status]");
   const projectForm = document.querySelector("[data-project-form]");
-  const projectStatus = document.querySelector("[data-project-form-status]");
 
   if (projectForm) {
     const feriaSelect = projectForm.querySelector('select[name="tipo_feria"]');
@@ -1010,7 +1008,7 @@ export async function bootstrapAdminPage() {
           categoria_pronatecyt: isScientific ? categoriaPronatecyt : null
         };
 
-        const { data: newId, error } = await supabase.rpc("admin_save_project", {
+        const { error } = await supabase.rpc("admin_save_project", {
           p_session_token: user.session_token,
           p_data: payload
         });
@@ -1254,7 +1252,7 @@ async function renderAdminObservaciones(feriaType = "", proyectoFilter, juezFilt
   });
 
   container.innerHTML = "";
-  for (const [pid, data] of grouped) {
+  for (const [, data] of grouped) {
     const block = document.createElement("div");
     block.className = "observacion-group";
 

@@ -1,5 +1,3 @@
-import { supabase } from "./supabase.js";
-
 export const FERIA_TYPES = ["Feria Cientifica y Tecnologica", "Feria Expotecnica", "Festival Estudiantil de las Artes"];
 export const FESTIVAL_FERIA_NAME = "Festival Estudiantil de las Artes";
 export const FESTIVAL_CATEGORIES = ["Artes Visuales", "Artes Literarias", "Artes Digitales", "Artes Musicales", "Artes Escenicas"];
