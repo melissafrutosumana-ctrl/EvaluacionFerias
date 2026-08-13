@@ -186,6 +186,43 @@ export function showToast(message, type = "info") {
     }, 3500);
 }
 
+export function confirmDialog({ title = "Confirmar accion", message = "", confirmLabel = "Eliminar", cancelLabel = "Cancelar" } = {}) {
+    return new Promise((resolve) => {
+        const overlay = document.createElement("div");
+        overlay.className = "modal-overlay";
+        overlay.style.display = "flex";
+
+        overlay.innerHTML = `
+            <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="confirm-dialog-title">
+                <div class="modal-icon-wrap">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+                </div>
+                <h3 class="modal-title" id="confirm-dialog-title">${escapeHTML(title)}</h3>
+                <p class="modal-desc">${escapeHTML(message)}</p>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" data-confirm-cancel>${escapeHTML(cancelLabel)}</button>
+                    <button type="button" class="btn-modal btn-modal-danger" data-confirm-ok>${escapeHTML(confirmLabel)}</button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(overlay);
+
+        function close(result) {
+            overlay.remove();
+            resolve(result);
+        }
+
+        overlay.addEventListener("click", (e) => {
+            if (e.target === overlay) close(false);
+        });
+        overlay.querySelector("[data-confirm-ok]").addEventListener("click", () => close(true));
+        overlay.querySelector("[data-confirm-cancel]").addEventListener("click", () => close(false));
+
+        overlay.querySelector("[data-confirm-ok]").focus();
+    });
+}
+
 export function showSkeleton(container, rows = 4) {
     if (!container) return;
     container.innerHTML = "";
