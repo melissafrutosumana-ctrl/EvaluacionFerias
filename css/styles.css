@@ -20,7 +20,9 @@
     --radius: 12px;
     --radius-sm: 8px;
     --radius-full: 9999px;
-    --transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    --transition: color 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
     --font-body: 'Outfit', system-ui, -apple-system, sans-serif;
     --font-heading: 'DM Serif Display', Georgia, serif;
     --text-xs: 0.72rem;
@@ -447,7 +449,7 @@ a[data-logout-link] {
     font-weight: 500;
     color: #fff;
     text-decoration: none;
-    transition: all 0.25s ease;
+    transition: color 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease;
     white-space: nowrap;
 }
 
@@ -565,7 +567,7 @@ body.nav-open[data-page="judge"] main {
     margin-bottom: 1.25rem;
     border: 1px solid var(--border);
     transition: box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    animation: fade-up 0.4s ease both;
+    animation: fade-up 0.3s var(--ease-out) both;
 }
 
 .card:nth-child(2) {
@@ -621,7 +623,7 @@ body.nav-open[data-page="judge"] main {
     padding: 0.85rem 1.25rem;
     margin-bottom: 0.75rem;
     box-shadow: var(--shadow-sm);
-    animation: fade-up 0.4s ease both;
+    animation: fade-up 0.3s var(--ease-out) both;
     border-left: 4px solid var(--secondary);
 }
 
@@ -725,7 +727,7 @@ body.nav-open[data-page="judge"] main {
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     padding-bottom: 0.25rem;
-    animation: fade-up 0.4s ease both;
+    animation: fade-up 0.3s var(--ease-out) both;
     animation-delay: 0.03s;
 }
 
@@ -939,7 +941,7 @@ body.nav-open[data-page="judge"] main {
     cursor: pointer;
     font-weight: 600;
     font-size: var(--text-xs);
-    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: color 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     border: 1.5px solid var(--border);
     background: var(--surface);
     margin: 0 0.2rem;
@@ -2967,7 +2969,7 @@ body[data-page="judge"] .btn-sm:hover {
     width: 90%;
     box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
     text-align: center;
-    animation: modal-pop 0.3s ease;
+    animation: modal-pop 0.25s var(--ease-out);
 }
 
 .modal-icon-wrap {
@@ -3008,7 +3010,7 @@ body[data-page="judge"] .btn-sm:hover {
     font-weight: 600;
     font-size: 0.88rem;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
     font-family: inherit;
     color: #fff;
 }
@@ -3079,13 +3081,13 @@ body[data-page="judge"] .btn-sm:hover {
     font-weight: 500;
     color: #fff;
     box-shadow: var(--shadow-lg);
-    animation: toast-in 0.3s ease;
+    animation: toast-in 0.3s var(--ease-out);
     max-width: 360px;
     line-height: 1.5;
 }
 
 .toast-hide {
-    animation: toast-out 0.3s ease forwards;
+    animation: toast-out 0.25s var(--ease-in-out) forwards;
 }
 
 .toast-success {
@@ -3283,7 +3285,7 @@ body[data-page="judge"] .btn-sm:hover {
     padding: 0.5rem 0.75rem;
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
-    transition: all 0.15s ease;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .modal-project-row:hover {
@@ -3538,7 +3540,7 @@ body[data-page="judge"] .btn-sm:hover {
     font-family: inherit;
     color: var(--primary);
     letter-spacing: 0.02em;
-    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: color 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     appearance: none;
     -webkit-appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%230d2a5b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
@@ -3880,7 +3882,7 @@ body[data-page="judge"] .btn-sm:hover {
     max-width: 420px;
     width: 90%;
     box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
-    animation: modal-pop 0.3s ease;
+    animation: modal-pop 0.25s var(--ease-out);
 }
 
 #edit-user-modal h3 {
@@ -3960,7 +3962,7 @@ body[data-page="judge"] .btn-sm:hover {
     max-height: 85vh;
     overflow-y: auto;
     box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
-    animation: modal-pop 0.3s ease;
+    animation: modal-pop 0.25s var(--ease-out);
 }
 
 .edit-project-modal .modal-header {
