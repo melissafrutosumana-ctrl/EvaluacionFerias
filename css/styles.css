@@ -1969,6 +1969,11 @@ body[data-page="judge"] .rubric-radio-label:has(input:checked) {
     accent-color: var(--primary);
 }
 
+/* PC: solo el radio (el encabezado de la tabla ya identifica la escala) */
+body[data-page="judge"] .rubric-table td > .rubric-radio-inline > span {
+    display: none;
+}
+
 body[data-page="judge"] .rubric-table input[type="radio"] {
     width: 18px;
     height: 18px;
@@ -4119,6 +4124,10 @@ body[data-page="judge"] .btn-sm:hover {
     .rubric-radio-inline input[type="radio"] {
         width: 20px;
         height: 20px;
+    }
+    /* En móvil el encabezado está oculto, se muestra la etiqueta junto al radio */
+    body[data-page="judge"] .rubric-table td > .rubric-radio-inline > span {
+        display: inline;
     }
     body[data-page="judge"] .rubric-radio-label {
         min-height: 52px;
