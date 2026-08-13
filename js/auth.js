@@ -208,7 +208,7 @@ export async function bootstrapLoginPage() {
   const sessionRole = normalizeRoleName(user?.role);
 
   if (sessionRole === "Juez") {
-    window.location.href = "evaluaciones.html";
+    window.location.href = "juez.html";
     return;
   }
 
@@ -274,7 +274,7 @@ export async function bootstrapLoginPage() {
       });
 
       if (normalizeRoleName(result.user_role) === "Juez") {
-        window.location.href = "evaluaciones.html";
+        window.location.href = "juez.html";
         return;
       }
 
