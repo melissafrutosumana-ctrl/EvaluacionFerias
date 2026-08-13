@@ -1073,7 +1073,7 @@ export async function bootstrapAdminPage() {
 
       if (deleteBtn) {
         const userId = Number(deleteBtn.dataset.deleteUserId);
-        if (confirm("�Estas seguro de eliminar este usuario? Esta accion no se puede deshacer.")) {
+        if (confirm("¿Estas seguro de eliminar este usuario? Esta accion no se puede deshacer.")) {
           await deleteUser(userId);
           await refreshAdminDataView();
         }
