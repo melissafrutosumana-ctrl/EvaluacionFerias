@@ -206,14 +206,13 @@ function renderAdminEvaluationsTable(rows, usersById, projectsById) {
         const tableWrap = document.createElement("div");
         tableWrap.className = "table-wrap";
 
-        // Assign color per judge
-        const judgeColors = [
-            "#2563eb", "#dc2626", "#16a34a", "#ca8a04", "#9333ea",
-            "#0891b2", "#e11d48", "#65a30d", "#7c3aed", "#d97706"
+        const JUDGE_CSS_VARS = [
+            "var(--judge-1)", "var(--judge-2)", "var(--judge-3)", "var(--judge-4)", "var(--judge-5)",
+            "var(--judge-6)", "var(--judge-7)", "var(--judge-8)", "var(--judge-9)", "var(--judge-10)"
         ];
         const colorMap = new Map();
         const judgeIds = [...new Set(data.rows.map((r) => r.juez_id))].sort();
-        judgeIds.forEach((jid, i) => colorMap.set(jid, judgeColors[i % judgeColors.length]));
+        judgeIds.forEach((jid, i) => colorMap.set(jid, JUDGE_CSS_VARS[i % JUDGE_CSS_VARS.length]));
 
         // Sort rows by judge so each judge's criteria appear together
         const sortedRows = [...data.rows].sort((a, b) => {
