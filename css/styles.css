@@ -10,6 +10,9 @@
     --surface-alt: #f7f9fc;
     --ink: #1a2332;
     --ink-secondary: #5b677d;
+    --gold-strong: #7a5d12;
+    --focus-ring: #1a3f7a;
+    --focus-ring-offset: 2px;
     --border: #e4e8ee;
     --shadow-sm: 0 1px 2px rgba(10, 22, 50, 0.06), 0 1px 3px rgba(10, 22, 50, 0.04);
     --shadow-md: 0 4px 8px rgba(10, 22, 50, 0.06), 0 2px 4px rgba(10, 22, 50, 0.04);
@@ -46,6 +49,11 @@
 
 * {
     box-sizing: border-box;
+}
+
+:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: var(--focus-ring-offset);
 }
 
 body {
@@ -539,6 +547,47 @@ select:disabled {
 }
 
 
+/* ===== SKIP LINK ===== */
+
+.skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    z-index: 100;
+    background: var(--primary);
+    color: #ffffff;
+    font-weight: 600;
+    font-size: var(--text-sm);
+    padding: 0.75rem 1.25rem;
+    border-radius: 0 0 var(--radius-sm) 0;
+    text-decoration: none;
+}
+
+.skip-link:focus-visible {
+    left: 0;
+}
+
+
+/* ===== TOUCH TARGETS ===== */
+
+@media (pointer: coarse) {
+    .table-action-btn {
+        min-height: 44px;
+        min-width: 44px;
+        padding: 0.5rem 0.9rem;
+    }
+
+    .modal-close,
+    .modal-close-btn {
+        min-width: 44px;
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+
 /* ===== MAIN CONTENT ===== */
 
 main {
@@ -663,7 +712,7 @@ body.nav-open[data-page="judge"] main {
     padding: 0.2rem 0.65rem;
     border-radius: var(--radius-sm);
     background: rgba(199, 154, 46, 0.1);
-    color: #936e1e;
+    color: var(--gold-strong);
     border: 1px solid rgba(199, 154, 46, 0.3);
     line-height: 1.4;
 }
@@ -690,7 +739,6 @@ body.nav-open[data-page="judge"] main {
 }
 
 .filter-label select:focus {
-    outline: none;
     border-color: var(--secondary);
     box-shadow: 0 0 0 3px rgba(199, 154, 46, 0.15);
 }
@@ -868,7 +916,6 @@ body.nav-open[data-page="judge"] main {
 .field-label input:focus,
 .field-label select:focus,
 .field-label textarea:focus {
-    outline: none;
     border-color: var(--primary);
     box-shadow: 0 0 0 3px rgba(13, 42, 91, 0.1);
 }
@@ -1212,7 +1259,7 @@ body.nav-open[data-page="judge"] main {
 }
 
 .judge-pending {
-    color: #a07d20;
+    color: var(--gold-strong);
 }
 
 .judge-empty {
@@ -1229,7 +1276,7 @@ body.nav-open[data-page="judge"] main {
 }
 
 .pending-icon {
-    color: #c79a2e;
+    color: var(--gold-strong);
 }
 
 .judge-progress-wrap {
@@ -1482,7 +1529,7 @@ body.nav-open[data-page="judge"] main {
 
 .role-admin {
     background: rgba(199, 154, 46, 0.15);
-    color: #a07d20;
+    color: var(--gold-strong);
     border: 1px solid rgba(199, 154, 46, 0.3);
 }
 
@@ -3263,7 +3310,6 @@ body[data-page="judge"] .btn-sm:hover {
     background: var(--bg);
     color: var(--text);
     box-sizing: border-box;
-    outline: none;
     transition: border-color 0.15s;
 }
 
