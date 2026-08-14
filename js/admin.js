@@ -528,9 +528,9 @@ async function renderAdminReportsByFeria() {
 
     const [users, projectsResult, allEvals, assignmentsResult] = await Promise.all([
         loadUsers(),
-        supabase.from("proyectos_ferias").select("id, titulo, tipo_feria, categoria_expotecnica, categoria_festival, categoria_pronatecyt, puntaje_escrito_manual"),
+        supabase.rpc("get_projects", { p_session_token: getSession()?.session_token }),
         fetchAllEvaluations(),
-        supabase.from("asignaciones_jueces").select("juez_id, proyecto_id, tipo_evaluacion")
+        supabase.rpc("get_assignments", { p_session_token: getSession()?.session_token })
     ]);
 
     if (projectsResult.error) {
@@ -851,12 +851,12 @@ export async function bootstrapAdminPage() {
     if (assignmentsTbody) showSkeleton(assignmentsTbody, 3);
 
     const [rolesResult, judgesResult, projectsResult, assignmentsResult, usersResult, allProjectsResult] = await Promise.all([
-      supabase.from("roles").select("id, nombre").order("nombre", { ascending: true }),
+      supabase.rpc("get_roles", { p_session_token: getSession()?.session_token }),
       loadJudges(""),
       loadProjects(""),
       loadJudgeAssignments(),
       loadUsers(),
-      supabase.from("proyectos_ferias").select("id, titulo, tipo_feria, categoria_pronatecyt").order("titulo", { ascending: true })
+      supabase.rpc("get_projects", { p_session_token: getSession()?.session_token })
     ]);
 
     const roles = rolesResult.data ?? [];
@@ -1064,7 +1064,7 @@ export async function bootstrapAdminPage() {
       if (editBtn) {
         try {
           const userData = JSON.parse(editBtn.dataset.editUser);
-          const rolesResult = await supabase.from("roles").select("id, nombre").order("nombre", { ascending: true });
+          const rolesResult = await supabase.rpc("get_roles", { p_session_token: getSession()?.session_token });
           showEditUserModal(userData, rolesResult.data ?? []);
         } catch {
           showEditUserModal({ id: 0, nombre: "", role_id: 0, tipo_feria: "" }, []);
@@ -1092,12 +1092,13 @@ export async function bootstrapAdminPage() {
 
       if (editBtn) {
         const projectId = Number(editBtn.dataset.projectId);
-        const { data, error } = await supabase.from("proyectos_ferias").select("*").eq("id", projectId).maybeSingle();
-        if (error || !data) {
+        const { data, error } = await supabase.rpc("get_project", { p_session_token: getSession()?.session_token, p_project_id: projectId });
+        const projectData = Array.isArray(data) ? data[0] : data;
+        if (error || !projectData) {
           showToast("Error al leer datos del proyecto.", "error");
           return;
         }
-        showEditProjectModal(data);
+        showEditProjectModal(projectData);
         return;
       }
 
@@ -1147,7 +1148,7 @@ export async function bootstrapAdminPage() {
 
   const exportBtn = document.getElementById("export-pdf-btn");
   if (exportBtn) {
-    exportBtn.addEventListener("click", generateAdminPDF);
+    exportBtn.addEventListener("click", () => generateAdminPDF(getSession()?.session_token));
   }
 
   if (document.querySelector("[data-observaciones-groups]")) {
@@ -1199,8 +1200,8 @@ async function renderAdminObservaciones(feriaType = "", proyectoFilter, juezFilt
 
   const [usersResult, projectsResult, observacionesResult] = await Promise.all([
     loadUsers(),
-    supabase.from("proyectos_ferias").select("id, titulo, tipo_feria"),
-    supabase.from("observaciones_proyectos").select("proyecto_id, juez_id, tipo_evaluacion, texto, created_at").order("created_at", { ascending: false })
+    supabase.rpc("get_projects", { p_session_token: getSession()?.session_token }),
+    supabase.rpc("get_observations", { p_session_token: getSession()?.session_token })
   ]);
 
   if (observacionesResult.error) {

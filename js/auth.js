@@ -118,11 +118,9 @@ export function showLogoutModal(user) {
         btn.disabled = true;
         btn.textContent = "Verificando...";
 
-        const { data: evalCheck } = await supabase
-            .from("evaluaciones_proyectos")
-            .select("id")
-            .eq("juez_id", user.id)
-            .limit(1);
+        const { data: evalCheck } = await supabase.rpc("get_judge_evaluations_with_titles", {
+            p_session_token: user.session_token
+        });
 
         if (!evalCheck || evalCheck.length === 0) {
             showToast("No tienes evaluaciones guardadas para exportar. Cierra sesion sin descargar.", "info");
@@ -161,21 +159,6 @@ export async function hashPassword(password) {
     });
 
     return btoa(binary);
-}
-
-export async function passwordMatches(inputPassword, storedPassword) {
-    const normalizedStoredPassword = String(storedPassword ?? "").trim();
-
-    if (inputPassword === normalizedStoredPassword || inputPassword.trim() === normalizedStoredPassword) {
-        return true;
-    }
-
-    try {
-        const hashedInputPassword = await hashPassword(inputPassword);
-        return hashedInputPassword === normalizedStoredPassword;
-    } catch {
-        return false;
-    }
 }
 
 export async function enforceRole(requiredRole) {
