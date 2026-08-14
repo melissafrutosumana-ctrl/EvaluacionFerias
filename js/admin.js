@@ -1,5 +1,5 @@
 import { supabase } from "./supabase.js";
-import { escapeHTML, showToast, setMessage, normalizeRoleName, fillSelect, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, buildFeriaOptions, FESTIVAL_FERIA_NAME, FESTIVAL_CATEGORIES, FESTIVAL_SUBCATEGORIES, EXPOTECNICA_CATEGORIES, EXPOTECNICA_EJES, PRONAFECYT_CATEGORIES, updateProjectFormFieldsByFeria, showSkeleton, confirmDialog, PRONAFECYT_BY_NIVEL, getNivelFromPronatecyt, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore } from "./utils.js";
+import { escapeHTML, showToast, setMessage, normalizeRoleName, fillSelect, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, buildFeriaOptions, FESTIVAL_FERIA_NAME, FESTIVAL_CATEGORIES, FESTIVAL_SUBCATEGORIES, EXPOTECNICA_CATEGORIES, EXPOTECNICA_EJES, PRONAFECYT_CATEGORIES, updateProjectFormFieldsByFeria, showSkeleton, confirmDialog, PRONAFECYT_BY_NIVEL, getNivelFromPronatecyt, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore, openModalAccesible, closeModalAccesible } from "./utils.js";
 import { getSession, enforceRole, hashPassword, bindLogout } from "./auth.js";
 import { loadProjects, loadJudges, loadJudgeAssignments, loadUsers, fetchAllEvaluations } from "./data.js";
 import { generateAdminPDF } from "./pdf.js";
@@ -412,11 +412,11 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
         const barColor = pct === 100 ? "var(--secondary)" : pct > 50 ? "var(--secondary-light)" : "var(--ink-secondary)";
         const escritoCell = r.manualEscrito !== null ?
             `<span class="manual-score-display">${r.manualEscrito.toFixed(0)} <span class="judge-status">(manual)</span></span>
-         <button class="btn-manual-escrito" data-project-id="${r.projectId}" data-current="${r.manualEscrito}" title="Editar puntaje manual">
+         <button class="btn-manual-escrito" data-project-id="${r.projectId}" data-current="${r.manualEscrito}" title="Editar puntaje manual" aria-label="Editar puntaje manual">
            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>
          </button>` :
             `${formatJudgeColumn(r.escritoJudges, r.escritoVoted, r.escritoTotal)}
-         <br><button class="btn-manual-escrito" data-project-id="${r.projectId}" data-current="" title="Ingresar puntaje escrito manual">
+         <br><button class="btn-manual-escrito" data-project-id="${r.projectId}" data-current="" title="Ingresar puntaje escrito manual" aria-label="Ingresar puntaje escrito manual">
            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>
            Ingresar manual
          </button>`;
@@ -652,9 +652,8 @@ function openAssignmentModal(judgeId, judgeName, allProjects, currentAssignments
 
     const searchEl = document.querySelector("[data-modal-search]");
     nameEl.textContent = `Juez: ${judgeName}`;
-    overlay.hidden = false;
     searchEl.value = "";
-    searchEl.focus();
+    openModalAccesible(overlay, { initialFocus: searchEl });
 
     const assignedIds = new Set(currentAssignments.map((a) => a.id));
     const selectedTipoMap = new Map(currentAssignments.map((a) => [a.id, a.tipo_evaluacion]));
@@ -794,7 +793,7 @@ function openAssignmentModal(judgeId, judgeName, allProjects, currentAssignments
 
 function closeAssignmentModal() {
   const overlay = document.querySelector("[data-assignment-modal]");
-  if (overlay) overlay.hidden = true;
+  closeModalAccesible(overlay);
 }
 
 export async function bootstrapAdminPage() {
@@ -1332,7 +1331,7 @@ function showEditUserModal(user, roles) {
   modal.innerHTML = `
     <div class="modal-header">
       <h2>Editar usuario</h2>
-      <button type="button" class="modal-close-btn" id="edit-user-close">&times;</button>
+      <button type="button" class="modal-close-btn" id="edit-user-close" aria-label="Cerrar">&times;</button>
     </div>
     <form id="edit-user-form" class="edit-modal-form">
       <input type="hidden" name="user_id" value="${user.id}">
@@ -1356,19 +1355,29 @@ function showEditUserModal(user, roles) {
         <button type="submit" class="btn-primary">Guardar</button>
         <button type="button" id="edit-user-cancel" class="btn-secondary">Cancelar</button>
       </div>
-      <p id="edit-user-status" class="edit-modal-status"></p>
+      <p id="edit-user-status" class="edit-modal-status" role="status" aria-live="polite"></p>
     </form>
   `;
 
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
+  openModalAccesible(overlay);
 
   overlay.addEventListener("click", (e) => {
-    if (e.target === overlay) overlay.remove();
+    if (e.target === overlay) {
+      closeModalAccesible(overlay);
+      overlay.remove();
+    }
   });
 
-  document.getElementById("edit-user-cancel").addEventListener("click", () => overlay.remove());
-  document.getElementById("edit-user-close").addEventListener("click", () => overlay.remove());
+  document.getElementById("edit-user-cancel").addEventListener("click", () => {
+    closeModalAccesible(overlay);
+    overlay.remove();
+  });
+  document.getElementById("edit-user-close").addEventListener("click", () => {
+    closeModalAccesible(overlay);
+    overlay.remove();
+  });
 
   document.getElementById("edit-user-form").addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -1398,6 +1407,7 @@ function showEditUserModal(user, roles) {
       status.textContent = "Usuario actualizado correctamente.";
       status.style.color = "#16a34a";
       setTimeout(() => {
+        closeModalAccesible(overlay);
         overlay.remove();
         document.dispatchEvent(new CustomEvent("users-changed"));
       }, 800);
@@ -1433,7 +1443,7 @@ function showEditProjectModal(project) {
     <div class="modal-content edit-project-modal">
       <div class="modal-header">
         <h2>Editar Proyecto</h2>
-        <button class="modal-close-btn" data-close-modal>&times;</button>
+        <button class="modal-close-btn" data-close-modal aria-label="Cerrar">&times;</button>
       </div>
       <form data-edit-project-form>
         <input type="hidden" name="project_id" value="${escapeHTML(String(project.id))}">
@@ -1567,6 +1577,7 @@ function showEditProjectModal(project) {
   `;
 
   document.body.appendChild(overlay);
+  openModalAccesible(overlay);
 
   const form = overlay.querySelector("[data-edit-project-form]");
   const selectedFeria = String(project.tipo_feria ?? "");
@@ -1714,6 +1725,7 @@ function showEditProjectModal(project) {
     try {
       await updateProject(projectId, data);
       showToast("Proyecto actualizado correctamente.", "success");
+      closeModalAccesible(overlay);
       overlay.remove();
       document.dispatchEvent(new CustomEvent("projects-changed"));
     } catch (err) {
@@ -1721,10 +1733,17 @@ function showEditProjectModal(project) {
     }
   });
 
-  overlay.querySelector("[data-cancel-edit]")?.addEventListener("click", () => overlay.remove());
-  overlay.querySelector("[data-close-modal]")?.addEventListener("click", () => overlay.remove());
+  overlay.querySelector("[data-cancel-edit]")?.addEventListener("click", () => {
+    closeModalAccesible(overlay);
+    overlay.remove();
+  });
+  overlay.querySelector("[data-close-modal]")?.addEventListener("click", () => {
+    closeModalAccesible(overlay);
+    overlay.remove();
+  });
   overlay.addEventListener("click", (e) => {
     if (e.target === overlay) {
+      closeModalAccesible(overlay);
       overlay.remove();
     }
   });

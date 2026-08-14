@@ -1,5 +1,5 @@
 ﻿import { supabase } from "./supabase.js";
-import { normalizeRoleName, showToast, setMessage, setupHideOnScroll } from "./utils.js";
+import { normalizeRoleName, showToast, setMessage, setupHideOnScroll, openModalAccesible, closeModalAccesible } from "./utils.js";
 import { generateJudgePDF } from "./pdf.js";
 
 export const SESSION_KEY = "ef_user_session";
@@ -102,12 +102,17 @@ export function showLogoutModal(user) {
   `;
 
     document.body.appendChild(overlay);
+    openModalAccesible(overlay);
 
     overlay.addEventListener("click", (e) => {
-        if (e.target === overlay) overlay.remove();
+        if (e.target === overlay) {
+            closeModalAccesible(overlay);
+            overlay.remove();
+        }
     });
 
     document.getElementById("modal-logout-btn").addEventListener("click", () => {
+        closeModalAccesible(overlay);
         overlay.remove();
         clearSession();
         window.location.href = "index.html";
@@ -139,6 +144,7 @@ export function showLogoutModal(user) {
             btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg> Descargar PDF';
             return;
         }
+        closeModalAccesible(overlay);
         overlay.remove();
         clearSession();
         window.location.href = "index.html";

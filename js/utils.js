@@ -186,11 +186,57 @@ export function showToast(message, type = "info") {
     }, 3500);
 }
 
+export function openModalAccesible(overlay, { initialFocus = null } = {}) {
+    if (!overlay) return;
+
+    overlay._restoreFocus = document.activeElement;
+    overlay.hidden = false;
+
+    const target = initialFocus || overlay.querySelector("[autofocus], input, select, textarea, button, [tabindex]:not([tabindex='-1'])");
+    (target || overlay).focus();
+
+    const focusables = () =>
+        [...overlay.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')]
+            .filter((el) => !el.disabled && el.offsetParent !== null);
+
+    overlay._onTab = (e) => {
+        if (e.key !== "Tab") return;
+        const els = focusables();
+        if (!els.length) return;
+        const first = els[0];
+        const last = els[els.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+        }
+    };
+    overlay.addEventListener("keydown", overlay._onTab);
+
+    overlay._onEscape = (e) => {
+        if (e.key === "Escape") {
+            e.preventDefault();
+            closeModalAccesible(overlay);
+        }
+    };
+    document.addEventListener("keydown", overlay._onEscape, true);
+}
+
+export function closeModalAccesible(overlay) {
+    if (!overlay) return;
+    overlay.hidden = true;
+    overlay.removeEventListener("keydown", overlay._onTab);
+    document.removeEventListener("keydown", overlay._onEscape, true);
+    overlay._restoreFocus?.focus?.();
+}
+
 export function confirmDialog({ title = "Confirmar accion", message = "", confirmLabel = "Eliminar", cancelLabel = "Cancelar" } = {}) {
     return new Promise((resolve) => {
         const overlay = document.createElement("div");
         overlay.className = "modal-overlay";
-        overlay.style.display = "flex";
+        overlay.hidden = false;
 
         overlay.innerHTML = `
             <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="confirm-dialog-title">
@@ -207,8 +253,10 @@ export function confirmDialog({ title = "Confirmar accion", message = "", confir
         `;
 
         document.body.appendChild(overlay);
+        openModalAccesible(overlay, { initialFocus: overlay.querySelector("[data-confirm-ok]") });
 
         function close(result) {
+            closeModalAccesible(overlay);
             overlay.remove();
             resolve(result);
         }
@@ -218,8 +266,6 @@ export function confirmDialog({ title = "Confirmar accion", message = "", confir
         });
         overlay.querySelector("[data-confirm-ok]").addEventListener("click", () => close(true));
         overlay.querySelector("[data-confirm-cancel]").addEventListener("click", () => close(false));
-
-        overlay.querySelector("[data-confirm-ok]").focus();
     });
 }
 
