@@ -29,7 +29,7 @@ function renderUsersTable(users, roles) {
         <td><span class="${roleClass}">${escapeHTML(roleName)}</span></td>
         <td>${escapeHTML(item.tipo_feria ?? "-")}</td>
         <td>
-          <button class="table-action-btn edit-user-btn" data-edit-user='${JSON.stringify({ id: item.id, nombre: item.nombre, role_id: item.role_id, tipo_feria: item.tipo_feria })}'>Editar</button>
+          <button class="table-action-btn edit-user-btn" data-edit-user="${escapeHTML(JSON.stringify({ id: item.id, nombre: item.nombre, role_id: item.role_id, tipo_feria: item.tipo_feria }))}">Editar</button>
           <button class="table-action-btn delete-user-btn" data-delete-user-id="${item.id}">Eliminar</button>
         </td>
       </tr>`;
