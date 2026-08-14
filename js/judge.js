@@ -115,8 +115,8 @@ export async function bootstrapJudgePage() {
   function applyRubricForSelection(projectId) {
     currentRubricModel = resolveRubricModelForProject(projectId);
     renderJudgeRubric(currentRubricModel.indicators, currentRubricModel.scoreOptions);
-    loadSavedEvaluations(projectId, user.id);
-    loadSavedObservacion(projectId, user.id);
+    loadSavedEvaluations(projectId);
+    loadSavedObservacion(projectId);
 
     const badge = document.querySelector("[data-evaluation-type-badge]");
     if (badge) {
@@ -128,16 +128,15 @@ export async function bootstrapJudgePage() {
     }
   }
 
-  async function loadSavedEvaluations(projectId, judgeId) {
+  async function loadSavedEvaluations(projectId) {
     if (!projectId) return;
     const selectedProject = assignedProjectsCache.find((p) => Number(p.id) === Number(projectId));
     const tipoEval = selectedProject?.tipo_evaluacion ?? "Exposición";
-    const { data, error } = await supabase
-      .from("evaluaciones_proyectos")
-      .select("criterio, nota")
-      .eq("proyecto_id", projectId)
-      .eq("juez_id", judgeId)
-      .eq("tipo_evaluacion", tipoEval);
+    const { data, error } = await supabase.rpc("get_judge_evaluations", {
+      p_session_token: user.session_token,
+      p_project_id: Number(projectId),
+      p_tipo_evaluacion: tipoEval
+    });
     if (error || !data || !data.length) return;
     const lookup = new Map(data.map((r) => [r.criterio.trim(), r.nota]));
     let inputIndex = 0;
@@ -157,7 +156,7 @@ export async function bootstrapJudgePage() {
     });
   }
 
-  async function loadSavedObservacion(projectId, judgeId) {
+  async function loadSavedObservacion(projectId) {
     const textarea = document.querySelector("[data-observacion-input]");
     if (!textarea || !projectId) {
       if (textarea) textarea.value = "";
@@ -165,17 +164,15 @@ export async function bootstrapJudgePage() {
     }
     const selectedProject = assignedProjectsCache.find((p) => Number(p.id) === Number(projectId));
     const tipoEval = selectedProject?.tipo_evaluacion ?? "Exposición";
-    const { data, error } = await supabase
-      .from("observaciones_proyectos")
-      .select("texto")
-      .eq("proyecto_id", projectId)
-      .eq("juez_id", judgeId)
-      .eq("tipo_evaluacion", tipoEval)
-      .maybeSingle();
+    const { data, error } = await supabase.rpc("get_judge_observation", {
+      p_session_token: user.session_token,
+      p_project_id: Number(projectId),
+      p_tipo_evaluacion: tipoEval
+    });
     if (error) {
       return;
     }
-    textarea.value = data?.texto ?? "";
+    textarea.value = (Array.isArray(data) ? data[0]?.texto : data?.texto) ?? "";
   }
 
   async function saveObservacion(projectId, judgeId, tipoEval, texto) {
@@ -243,7 +240,7 @@ export async function bootstrapJudgePage() {
 
   async function refreshJudgeData() {
     try {
-      const assignedProjects = await loadAssignedProjectsForJudge(user.id);
+      const assignedProjects = await loadAssignedProjectsForJudge();
       assignedProjectsCache = assignedProjects;
 
       populateCategoryFilter(assignedProjects);
@@ -292,11 +289,9 @@ export async function bootstrapJudgePage() {
         setMessage(evaluationStatus, msg, "error");
       }
 
-      const { data, error } = await supabase
-        .from("evaluaciones_proyectos")
-        .select("id, proyecto_id, criterio, nota, tipo_evaluacion, proyectos_ferias(titulo)")
-        .eq("juez_id", user.id)
-        .order("created_at", { ascending: false });
+      const { data, error } = await supabase.rpc("get_judge_evaluations_with_titles", {
+        p_session_token: user.session_token
+      });
 
       if (error) {
         throw error;

@@ -169,11 +169,9 @@ export function pdfCheckPage(doc, y, needed) {
 
 export async function generateJudgePDF(user) {
     await loadJSPDF();
-    const { data, error } = await supabase
-        .from("evaluaciones_proyectos")
-        .select("proyecto_id, criterio, nota, tipo_evaluacion, proyectos_ferias(titulo)")
-        .eq("juez_id", user.id)
-        .order("proyecto_id", { ascending: true });
+    const { data, error } = await supabase.rpc("get_judge_evaluations_with_titles", {
+        p_session_token: user.session_token
+    });
     if (error) throw error;
     if (!data || !data.length) {
         showToast("No tienes evaluaciones guardadas para exportar.", "info");
@@ -346,16 +344,16 @@ export function pdfSubHeader(doc, title, y) {
   return y;
 }
 
-export async function generateAdminPDF() {
+export async function generateAdminPDF(sessionToken) {
   await loadJSPDF();
   const logoData = await loadMEPLogo();
 
   try {
     const [users, projectsResult, evaluations, assignmentsResult] = await Promise.all([
       loadUsers(),
-      supabase.from("proyectos_ferias").select("id, titulo, tipo_feria, categoria_expotecnica, categoria_pronatecyt"),
+      supabase.rpc("get_projects", { p_session_token: sessionToken }),
       fetchAllEvaluations(),
-      supabase.from("asignaciones_jueces").select("juez_id, proyecto_id, tipo_evaluacion")
+      supabase.rpc("get_assignments", { p_session_token: sessionToken })
     ]);
 
     if (projectsResult.error) {
