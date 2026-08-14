@@ -199,51 +199,6 @@ export async function loadUsers() {
     return data ?? [];
 }
 
-export async function loadUserForLogin(username) {
-    const tryExact = await supabase
-        .from("usuarios")
-        .select("id, nombre, contrasena_hash, role_id, tipo_feria")
-        .eq("nombre", username)
-        .maybeSingle();
-
-    if (!tryExact.error && tryExact.data) {
-        return tryExact;
-    }
-
-    if (tryExact.error && !isMissingColumnError(tryExact.error, "tipo_feria")) {
-        return tryExact;
-    }
-
-    const tryILikeWithFeria = await supabase
-        .from("usuarios")
-        .select("id, nombre, contrasena_hash, role_id, tipo_feria")
-        .ilike("nombre", username)
-        .maybeSingle();
-
-    if (!tryILikeWithFeria.error && tryILikeWithFeria.data) {
-        return tryILikeWithFeria;
-    }
-
-    if (tryILikeWithFeria.error && !isMissingColumnError(tryILikeWithFeria.error, "tipo_feria")) {
-        return tryILikeWithFeria;
-    }
-
-    const tryILike = await supabase
-        .from("usuarios")
-        .select("id, nombre, contrasena_hash, role_id")
-        .ilike("nombre", username)
-        .maybeSingle();
-
-    if (tryILike.data) {
-        return {
-            data: {...tryILike.data, tipo_feria: null },
-            error: tryILike.error
-        };
-    }
-
-    return tryILike;
-}
-
 export async function fetchAllEvaluations() {
     const pageSize = 1000;
     let allRows = [];
