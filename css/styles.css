@@ -149,7 +149,6 @@ body[data-page="login"] .login-stage {
 .login-header {
     padding: 1.2rem 2rem;
     background: linear-gradient(135deg, rgba(13, 42, 91, 0.95) 0%, rgba(26, 63, 122, 0.88) 100%);
-    background: linear-gradient(135deg, rgba(13, 42, 91, 0.95) 0%, rgba(26, 63, 122, 0.88) 100%);
     border-bottom: 1px solid rgba(199, 154, 46, 0.15);
     position: fixed;
     top: 0;
