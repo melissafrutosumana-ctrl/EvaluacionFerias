@@ -2879,6 +2879,9 @@ body[data-page="judge"] .btn-sm:hover {
     .progress-stat:last-child {
         grid-column: span 2;
     }
+    body[data-page="judge"] .card[data-judge-progress] .progress-stats {
+        grid-template-columns: 1fr 1fr;
+    }
     .progress-stat .progress-value {
         font-size: 1rem;
     }
