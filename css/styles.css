@@ -2224,6 +2224,11 @@ body[data-page="judge"] .btn-sm:hover {
         border-radius: 8px;
         text-align: center;
     }
+    header nav a[data-logout-link] {
+        margin-left: 0;
+        justify-content: center;
+        width: 100%;
+    }
     .brand-row {
         flex-direction: column;
         align-items: center;
@@ -2887,7 +2892,7 @@ body[data-page="judge"] .btn-sm:hover {
         padding-top: 68px;
     }
     body.nav-open[data-page="judge"] main {
-        padding-top: 88px;
+        padding-top: 170px;
     }
     .modal-overlay {
         padding: 0.25rem;
