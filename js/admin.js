@@ -36,7 +36,6 @@ function renderUsersTable(users, roles) {
         })
         .join("");
 
-    setMessage(status, "Usuarios.", "success");
 }
 
 function renderProjectsManagementTable(projects) {
@@ -131,7 +130,6 @@ function renderProjectsManagementTable(projects) {
         )
         .join("");
 
-    setMessage(status, "Proyectos cargados.", "success");
 }
 
 function getAllowedRolesForUserForm(roles) {
@@ -578,11 +576,6 @@ async function renderAdminReportsByFeria() {
     if (totalProjEl) totalProjEl.textContent = uniqueProjects.size;
     if (totalJudEl) totalJudEl.textContent = uniqueJudges.size;
     if (totalEvalEl) totalEvalEl.textContent = totalEval;
-
-    const status = document.querySelector("[data-project-results-status]");
-    if (status) {
-        setMessage(status, "Resultados cargados.", "success");
-    }
 }
 
 
@@ -646,12 +639,16 @@ function openAssignmentModal(judgeId, judgeName, allProjects, currentAssignments
     const listEl = document.querySelector("[data-modal-project-list]");
     const counterEl = document.querySelector("[data-modal-counter]");
     const saveBtn = document.querySelector("[data-modal-save]");
+    const selectAllBtn = document.querySelector("[data-modal-select-all]");
+    const emptyEl = document.querySelector("[data-modal-empty]");
 
     if (!overlay) return;
 
     const searchEl = document.querySelector("[data-modal-search]");
     nameEl.textContent = `Juez: ${judgeName}`;
     searchEl.value = "";
+    if (selectAllBtn) selectAllBtn.textContent = "Seleccionar todos";
+    if (emptyEl) emptyEl.hidden = true;
     openModalAccesible(overlay, { initialFocus: searchEl });
 
     const assignedIds = new Set(currentAssignments.map((a) => a.id));
@@ -665,13 +662,21 @@ function openAssignmentModal(judgeId, judgeName, allProjects, currentAssignments
 
     function renderList() {
         const rows = listEl.querySelectorAll("[data-project-row]");
+        let visibleCount = 0;
         rows.forEach((row) => {
             const match = !searchTerm || normalize(row.querySelector(".modal-project-title").textContent).includes(searchTerm);
             row.style.display = match ? "" : "none";
+            if (match) visibleCount++;
         });
+
+        if (emptyEl) emptyEl.hidden = visibleCount > 0;
 
         const checkedCount = listEl.querySelectorAll("[data-project-checkbox]:checked").length;
         counterEl.textContent = `${checkedCount}/${allProjects.length} seleccionados`;
+
+        if (selectAllBtn) {
+            selectAllBtn.textContent = checkedCount >= allProjects.length ? "Quitar todos" : "Seleccionar todos";
+        }
 
         listEl.querySelectorAll("[data-project-checkbox]").forEach((cb) => {
             const parent = cb.closest("[data-project-row]");
@@ -732,6 +737,17 @@ function openAssignmentModal(judgeId, judgeName, allProjects, currentAssignments
       renderList();
     }
   });
+
+  if (selectAllBtn) {
+    selectAllBtn.addEventListener("click", () => {
+      const checkedCount = listEl.querySelectorAll("[data-project-checkbox]:checked").length;
+      const checkAll = checkedCount < allProjects.length;
+      listEl.querySelectorAll("[data-project-checkbox]").forEach((cb) => {
+        cb.checked = checkAll;
+      });
+      renderList();
+    });
+  }
 
   saveBtn.onclick = async () => {
     const checkedBoxes = [...listEl.querySelectorAll("[data-project-checkbox]:checked")];
@@ -1245,7 +1261,6 @@ async function renderAdminObservaciones(feriaType = "", proyectoFilter, juezFilt
     const hasFilters = selectedProjectId || selectedJudgeId;
     container.innerHTML = `<p class="form-status">${hasFilters ? "Ninguna observacion coincide con los filtros seleccionados." : "Aun no hay observaciones registradas. Las observaciones apareceran aqui a medida que los jueces evalúen proyectos."}</p>`;
     if (countBadge) { countBadge.textContent = "0"; countBadge.hidden = false; }
-    setMessage(status, "Observaciones cargadas.", "success");
     return;
   }
 
