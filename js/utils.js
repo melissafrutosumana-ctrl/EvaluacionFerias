@@ -87,7 +87,40 @@ export const FESTIVAL_SUBCATEGORIES = {
 };
 export const EXPOTECNICA_CATEGORIES = ["DESAFIO STEAM", "EMPRENDIMIENTO E INNOVACION"];
 
+export const PRONAFECYT_EDUCATIONAL_CATEGORIES = [
+    "Primaria unidocente I ciclo",
+    "Primaria unidocente II ciclo",
+    "Primaria regular I ciclo",
+    "Primaria regular II ciclo",
+    "Colegio Técnico III ciclo",
+    "Colegio Técnico Educación Diversificada",
+    "Colegio Académico III ciclo",
+    "Colegio Académico Educación Diversificada"
+];
+
 export const PRONAFECYT_BY_NIVEL = {
+    "Primaria unidocente I ciclo": ["F11B - Quehacer Científico y Tecnológico"],
+    "Primaria unidocente II ciclo": ["F11B - Quehacer Científico y Tecnológico"],
+    "Primaria regular I ciclo": ["F11B - Quehacer Científico y Tecnológico"],
+    "Primaria regular II ciclo": ["F11B - Quehacer Científico y Tecnológico"],
+    "Colegio Técnico III ciclo": [
+        "F8B - Demostraciones Científicas y Tecnológicas",
+        "F9B - Investigación Científica",
+        "F10B - Investigación y Desarrollo Tecnológico"
+    ],
+    "Colegio Técnico Educación Diversificada": [
+        "F9B - Investigación Científica",
+        "F10B - Investigación y Desarrollo Tecnológico"
+    ],
+    "Colegio Académico III ciclo": [
+        "F8B - Demostraciones Científicas y Tecnológicas",
+        "F9B - Investigación Científica",
+        "F10B - Investigación y Desarrollo Tecnológico"
+    ],
+    "Colegio Académico Educación Diversificada": [
+        "F9B - Investigación Científica",
+        "F10B - Investigación y Desarrollo Tecnológico"
+    ],
     "Primaria (I y II Ciclos)": [
         "F11B - Quehacer Científico y Tecnológico"
     ],

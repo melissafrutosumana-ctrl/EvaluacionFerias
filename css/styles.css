@@ -1247,6 +1247,16 @@ body.nav-open[data-page="judge"] main {
     border-left: 3px solid var(--secondary);
 }
 
+.category-winner {
+    display: block;
+    color: var(--secondary-light);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    margin-top: 0.25rem;
+    text-transform: none;
+}
+
 .results-table .category-group-row td:first-letter {
     color: var(--secondary-light);
 }

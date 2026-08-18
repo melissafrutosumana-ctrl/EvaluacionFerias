@@ -1,5 +1,5 @@
 import { supabase } from "./supabase.js";
-import { escapeHTML, showToast, setMessage, normalizeRoleName, fillSelect, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, buildFeriaOptions, FESTIVAL_FERIA_NAME, FESTIVAL_CATEGORIES, FESTIVAL_SUBCATEGORIES, EXPOTECNICA_CATEGORIES, EXPOTECNICA_EJES, PRONAFECYT_CATEGORIES, updateProjectFormFieldsByFeria, showSkeleton, confirmDialog, PRONAFECYT_BY_NIVEL, getNivelFromPronatecyt, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore, openModalAccesible, closeModalAccesible } from "./utils.js";
+import { escapeHTML, showToast, setMessage, normalizeRoleName, fillSelect, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, buildFeriaOptions, FESTIVAL_FERIA_NAME, FESTIVAL_CATEGORIES, FESTIVAL_SUBCATEGORIES, EXPOTECNICA_CATEGORIES, EXPOTECNICA_EJES, PRONAFECYT_CATEGORIES, PRONAFECYT_EDUCATIONAL_CATEGORIES, updateProjectFormFieldsByFeria, showSkeleton, confirmDialog, PRONAFECYT_BY_NIVEL, getNivelFromPronatecyt, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore, openModalAccesible, closeModalAccesible } from "./utils.js";
 import { getSession, enforceRole, hashPassword, bindLogout } from "./auth.js";
 import { loadProjects, loadJudges, loadJudgeAssignments, loadUsers, fetchAllEvaluations } from "./data.js";
 import { generateAdminPDF } from "./pdf.js";
@@ -96,12 +96,16 @@ function renderProjectsManagementTable(projects) {
                 } else if (feriaType === "Feria Cientifica y Tecnologica") {
                     const parts = [];
                     const pronatecyt = String(item.categoria_pronatecyt ?? "").trim();
+                    const educationalCategory = String(item.nivel_educativo ?? "").trim();
                     const integrantes = [item.integrante_1, item.integrante_2, item.integrante_3]
                         .map((name) => String(name ?? "").trim())
                         .filter(Boolean);
 
                     if (pronatecyt) {
                         parts.push(`PRONAFECYT: ${pronatecyt}`);
+                    }
+                    if (educationalCategory) {
+                        parts.push(`Categoria educativa: ${educationalCategory}`);
                     }
                     if (integrantes.length) {
                         parts.push(`Integrantes: ${integrantes.join(", ")}`);
@@ -356,11 +360,14 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
         const escritoAvg = calcAverage(escritoJudges);
 
         const cat = proj ?.tipo_feria === "Feria Cientifica y Tecnologica" ?
-            getNivelFromPronatecyt(proj ?.categoria_pronatecyt) :
+            (proj ?.nivel_educativo || getNivelFromPronatecyt(proj ?.categoria_pronatecyt)) :
             (proj ?.categoria_expotecnica ?? proj ?.categoria_festival ?? null);
         const manualEscrito = proj ?.puntaje_escrito_manual != null ? Number(proj.puntaje_escrito_manual) : null;
         const escritoAvgFinal = manualEscrito !== null ? manualEscrito : escritoAvg;
         const escritoVotedFinal = manualEscrito !== null ? 1 : escritoVoted;
+        const evaluationComplete =
+            (expoTotal === 0 || expoVoted === expoTotal) &&
+            (manualEscrito !== null || escritoTotal === 0 || escritoVoted === escritoTotal);
 
         let finalScore;
         const isScientific = proj ?.tipo_feria === "Feria Cientifica y Tecnologica";
@@ -391,6 +398,7 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
             expoVoted,
             escritoTotal,
             escritoVoted,
+            evaluationComplete,
             finalScore
         });
     }
@@ -500,7 +508,11 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
 
         const html = [];
         for (const [cat, items] of grouped) {
-            html.push(`<tr class="category-group-row"><td colspan="4">${escapeHTML(cat)}</td></tr>`);
+            const winner = items.find((item) => item.evaluationComplete && item.finalScore > 0);
+            const winnerText = winner ?
+                `Ganador: ${escapeHTML(winner.projectName)} (${winner.finalScore.toFixed(0)} pts)` :
+                "Ganador pendiente de evaluacion";
+            html.push(`<tr class="category-group-row"><td colspan="4"><span>${escapeHTML(cat)}</span><span class="category-winner">${winnerText}</span></td></tr>`);
             items.forEach((r) => html.push(buildProjectRow(r)));
         }
         tbody.innerHTML = html.join("");
@@ -994,8 +1006,8 @@ export async function bootstrapAdminPage() {
           return;
         }
       } else if (isScientific) {
-        if (!PRONAFECYT_CATEGORIES.includes(categoriaPronatecyt)) {
-          showToast("Para Feria Cientifica debes seleccionar una categoria PRONAFECYT.", "error");
+        if (!PRONAFECYT_CATEGORIES.includes(categoriaPronatecyt) || !PRONAFECYT_EDUCATIONAL_CATEGORIES.includes(nivelEducativo)) {
+          showToast("Para Feria Cientifica debes seleccionar categoria educativa y formulario PRONAFECYT.", "error");
           return;
         }
       }
@@ -1451,6 +1463,10 @@ async function updateUser(userId, nombre, contrasena, tipoFeria, roleId) {
 }
 
 function showEditProjectModal(project) {
+  const educationalCategoryOptions = [...new Set([
+    ...PRONAFECYT_EDUCATIONAL_CATEGORIES,
+    project.nivel_educativo
+  ].filter(Boolean))];
   const overlay = document.createElement("div");
   overlay.className = "modal-overlay";
   overlay.innerHTML = `
@@ -1530,14 +1546,11 @@ function showEditProjectModal(project) {
         <div data-feria-section="Feria Cientifica y Tecnologica">
           <div class="field-group">
             <label class="field-label">
-              <span>Nivel educativo</span>
-              <select name="nivel_cientifico" data-nivel-cientifico-select>
-                <option value="">Selecciona un nivel</option>
-                <option value="Primaria (I y II Ciclos)">Primaria (I y II Ciclos)</option>
-                <option value="Secundaria - III Ciclo">Secundaria - III Ciclo</option>
-                <option value="Secundaria - Ed. Diversificada">Secundaria - Ed. Diversificada</option>
-                <option value="Educaci\u00f3n Especial">Educaci\u00f3n Especial</option>
-              </select>
+               <span>Categoria educativa</span>
+               <select name="nivel_cientifico" data-nivel-cientifico-select>
+                 <option value="">Selecciona una categoria</option>
+                 ${educationalCategoryOptions.map((category) => `<option value="${escapeHTML(category)}">${escapeHTML(category)}</option>`).join("")}
+               </select>
             </label>
             <label class="field-label" data-pronafecyt-cat-wrap hidden>
               <span>Formulario PRONAFECYT</span>
@@ -1719,6 +1732,11 @@ function showEditProjectModal(project) {
     const isFestival = tipoFeria === FESTIVAL_FERIA_NAME;
     const isExpotecnica = tipoFeria === "Feria Expotecnica";
     const isScientific = tipoFeria === "Feria Cientifica y Tecnologica";
+
+    if (isScientific && (!PRONAFECYT_BY_NIVEL[nivelEducativo] || !PRONAFECYT_CATEGORIES.includes(categoriaPronatecyt))) {
+      showToast("Para Feria Cientifica debes seleccionar categoria educativa y formulario PRONAFECYT.", "error");
+      return;
+    }
 
     const data = {
       titulo,
