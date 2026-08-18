@@ -89,7 +89,7 @@ test("los indicadores escritos conservan condiciones del PDF", () => {
 });
 
 test("cada categoria educativa del director tiene formularios compatibles", () => {
-  assert.strictEqual(PRONAFECYT_EDUCATIONAL_CATEGORIES.length, 8);
+  assert.strictEqual(PRONAFECYT_EDUCATIONAL_CATEGORIES.length, 9);
   PRONAFECYT_EDUCATIONAL_CATEGORIES.forEach((category) => {
     assert.ok(PRONAFECYT_BY_NIVEL[category]?.length);
   });

@@ -95,7 +95,8 @@ export const PRONAFECYT_EDUCATIONAL_CATEGORIES = [
     "Colegio Técnico III ciclo",
     "Colegio Técnico Educación Diversificada",
     "Colegio Académico III ciclo",
-    "Colegio Académico Educación Diversificada"
+    "Colegio Académico Educación Diversificada",
+    "Educación Especial"
 ];
 
 export const PRONAFECYT_BY_NIVEL = {
