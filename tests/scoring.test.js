@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert";
-import { calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore } from "../js/utils.js";
+import { calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore, PRONAFECYT_BY_NIVEL, PRONAFECYT_EDUCATIONAL_CATEGORIES } from "../js/utils.js";
+import { PRONAFECYT_CODE_MAX, getPronatecytRubricByCategory } from "../js/rubrics.js";
 
 test("calcAverage promedia solo los jueces que votaron", () => {
   const judges = [
@@ -65,4 +66,31 @@ test("calcExpotecnicaFinalScore Modelo: expo (51) + escrito (72) normalizado", (
 
 test("calcExpotecnicaFinalScore categoría desconocida devuelve expo crudo", () => {
   assert.strictEqual(calcExpotecnicaFinalScore("OTRA", 50, 0), 50);
+});
+
+test("los máximos PRONAFECYT coinciden con el PDF oficial", () => {
+  assert.deepStrictEqual(PRONAFECYT_CODE_MAX, {
+    F8B: 40, F8C: 64,
+    F9B: 40, F9C: 78,
+    F10B: 40, F10C: 98,
+    F11B: 40, F11C: 54,
+    F12B: 40, F12C: 54,
+    F13B: 100
+  });
+});
+
+test("los indicadores escritos conservan condiciones del PDF", () => {
+  const indicators = getPronatecytRubricByCategory("F9C - Investigación Científica").indicators
+    .filter((item) => !item.section)
+    .map((item) => item.text ?? item);
+
+  assert.ok(indicators.some((item) => item.includes("pregunta e hipótesis planteadas")));
+  assert.ok(indicators.some((item) => item.includes("estudiantes, docentes, familias")));
+});
+
+test("cada categoria educativa del director tiene formularios compatibles", () => {
+  assert.strictEqual(PRONAFECYT_EDUCATIONAL_CATEGORIES.length, 8);
+  PRONAFECYT_EDUCATIONAL_CATEGORIES.forEach((category) => {
+    assert.ok(PRONAFECYT_BY_NIVEL[category]?.length);
+  });
 });

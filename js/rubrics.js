@@ -1,6 +1,28 @@
 import { FESTIVAL_FERIA_NAME } from "./utils.js";
 
 export const PRONAFECYT_BY_NIVEL = {
+    "Primaria unidocente I ciclo": ["F11B - Quehacer Científico y Tecnológico"],
+    "Primaria unidocente II ciclo": ["F11B - Quehacer Científico y Tecnológico"],
+    "Primaria regular I ciclo": ["F11B - Quehacer Científico y Tecnológico"],
+    "Primaria regular II ciclo": ["F11B - Quehacer Científico y Tecnológico"],
+    "Colegio Técnico III ciclo": [
+        "F8B - Demostraciones Científicas y Tecnológicas",
+        "F9B - Investigación Científica",
+        "F10B - Investigación y Desarrollo Tecnológico"
+    ],
+    "Colegio Técnico Educación Diversificada": [
+        "F9B - Investigación Científica",
+        "F10B - Investigación y Desarrollo Tecnológico"
+    ],
+    "Colegio Académico III ciclo": [
+        "F8B - Demostraciones Científicas y Tecnológicas",
+        "F9B - Investigación Científica",
+        "F10B - Investigación y Desarrollo Tecnológico"
+    ],
+    "Colegio Académico Educación Diversificada": [
+        "F9B - Investigación Científica",
+        "F10B - Investigación y Desarrollo Tecnológico"
+    ],
     "Primaria (I y II Ciclos)": [
         "F11B - Quehacer Científico y Tecnológico"
     ],
@@ -38,14 +60,14 @@ export const PRONAFECYT_CATEGORIES = [
     "F13B - Mi Experiencia Científica"
 ];
 
-// ponytail: max code = indicadores × 3, normalizado a 40/50 del PDF
+// Maximos oficiales del PDF para los formularios B y C.
 export const PRONAFECYT_CODE_MAX = {
-    F8B: 66, F8C: 72,
-    F9B: 72, F9C: 81,
-    F10B: 72, F10C: 81,
-    F11B: 51, F11C: 69,
-    F12B: 54, F12C: 69,
-    F13B: 54
+    F8B: 40, F8C: 64,
+    F9B: 40, F9C: 78,
+    F10B: 40, F10C: 98,
+    F11B: 40, F11C: 54,
+    F12B: 40, F12C: 54,
+    F13B: 100
 };
 
 export function getRubricIndicatorsByFeria(feriaType) {
@@ -695,7 +717,7 @@ export function getPronatecytRubricByCategory(category) {
                     "Anota las ideas previas que motivan la realización del proyecto.",
                     "Señala la importancia del tema relacionado con la demostración.",
                     "Indica la(s) pregunta(s) general(es) relacionadas con la demostración.",
-                    "Explica el propósito principal de la demostración del campo científico, tecnológico o social seleccionado."
+                    "Explica el propósito principal de la demostración del campo científico, tecnológico o social seleccionado, tomando en cuenta la(s) pregunta(s) planteada(s)."
                 ]
             },
             {
@@ -723,7 +745,7 @@ export function getPronatecytRubricByCategory(category) {
                     "Contrasta los resultados obtenidos con la información consultada, anotando reflexiones personales, acordes a su edad.",
                     "Cita o hace referencia a las fuentes de información utilizando un formato de referencias (APA u otro).",
                     "Establece las conclusiones obtenidas a partir de la demostración realizada.",
-                    "Aporta evidencias (fotografías, listas de asistencia, afiches, entre otras) acerca de la comunicación de la información obtenida en la demostración a los miembros de la comunidad educativa."
+                    "Aporta evidencias (fotografías, listas de asistencia, afiches, entre otras) acerca de la comunicación de la información obtenida en la demostración, a los miembros de la comunidad educativa (estudiantes, docentes, familias, entre otros). También pueden presentar propuestas a grupos de personas, funcionarios o instituciones interesadas en la temática."
                 ]
             },
             {
@@ -763,7 +785,7 @@ export function getPronatecytRubricByCategory(category) {
                     "Indica la importancia del tema investigado.",
                     "Presenta la(s) pregunta(s) que orientan la investigación.",
                     "Redacta la(s) hipótesis que se desea comprobar, tomando en cuenta las variables, independiente y dependiente.",
-                    "Presenta el objetivo general y de uno a tres objetivos específicos de la investigación."
+                    "Presenta el objetivo general y de uno a tres objetivos específicos de la investigación, tomando en cuenta la pregunta e hipótesis planteadas."
                 ]
             },
             {
@@ -793,7 +815,7 @@ export function getPronatecytRubricByCategory(category) {
                     "Cita o hace referencia a las fuentes de información utilizando un formato de referencias (APA u otro).",
                     "Establece al menos una conclusión por cada objetivo específico planteado.",
                     "Brinda sugerencias para mejorar las actividades efectuadas, tomando en cuenta la(s) pregunta(s) de la investigación.",
-                    "Aporta evidencias (fotografías, listas de asistencia, afiches, entre otras) acerca de la comunicación de los logros obtenidos en la investigación."
+                    "Aporta evidencias (fotografías, listas de asistencia, afiches, entre otras) acerca de la comunicación de los logros obtenidos en la investigación, a los miembros de la comunidad educativa (estudiantes, docentes, familias, entre otros). También pueden presentar propuestas a grupos de personas, funcionarios o instituciones interesadas en la temática."
                 ]
             },
             {
@@ -847,7 +869,7 @@ export function getPronatecytRubricByCategory(category) {
                 title: "Explorando fuentes de información (Marco Teórico)",
                 indicators: [
                     "Describe los conceptos, variables o términos técnicos relevantes que se aplican en la investigación, indicando las fuentes de información consultadas de carácter científico, empírico o cotidiano, sin que se torne un listado de definiciones.",
-                    "Registra información adicional de diferentes fuentes de carácter científico, empírico o cotidiano, que complementan las ideas previas planteadas acerca del tema seleccionado.",
+                    "Registra información adicional de diferentes fuentes de carácter científico, empírico o cotidiano, que complementan las ideas previas planteadas acerca del tema seleccionado, indicando las fuentes de información consultadas de carácter científico, empírico o cotidiano, sin que este apartado se torne en un listado de definiciones.",
                     "Cita o hace referencia a las fuentes de información utilizando un formato de referencias (APA u otro)."
                 ]
             },
@@ -869,8 +891,8 @@ export function getPronatecytRubricByCategory(category) {
                     "Contrasta o compara los resultados obtenidos con la información teórica consultada, complementándola con reflexiones personales.",
                     "Las conclusiones se desprenden del análisis de resultados y están asociadas a los objetivos. Se realiza al menos una conclusión por cada objetivo específico.",
                     "Las conclusiones demuestran comprensión del tema investigado y son una síntesis de lo propuesto en la presentación y análisis de datos.",
-                    "Brinda sugerencias para mejorar las actividades efectuadas, tomando en cuenta la(s) pregunta(s) de la investigación. También propone futuras investigaciones o aplicaciones a favor de la sociedad.",
-                    "Indica cuáles evidencias (fotografías, listas de asistencia, afiches, entre otros) respaldan la comunicación de la información obtenida a la comunidad."
+                    "Brinda sugerencias para mejorar las actividades efectuadas, tomando en cuenta la(s) pregunta(s) de la investigación. También hace propuestas a futuras investigaciones o aplicaciones del conocimiento adquirido a favor de la sociedad.",
+                    "Indica cuáles evidencias (fotografías, listas de asistencia, afiches, entre otros) respaldan la comunicación de la información obtenida a las personas miembros de la comunidad (estudiantes, docentes, familias, entre otros). También pueden presentar propuestas a grupos de personas, funcionarios o instituciones interesadas en la temática."
                 ]
             },
             {
@@ -933,7 +955,7 @@ export function getPronatecytRubricByCategory(category) {
                     "Compara los hallazgos obtenidos con la información consultada, anotando reflexiones propias acordes a su edad.",
                     "Narra, describe o explica si las suposiciones o predicciones señaladas se cumplieron, basándose en los hallazgos obtenidos.",
                     "Establece los logros obtenidos en la investigación realizada, utilizando textos narrativos, descriptivos o explicativos, ilustraciones, entre otros. Sugiere ideas para futuras investigaciones.",
-                    "Aporta evidencias (fotografías, listas de asistencia, entre otras) acerca de la comunicación de los logros obtenidos a los miembros de la comunidad educativa.",
+                    "Aporta evidencias (fotografías, listas de asistencia, entre otras) acerca de la comunicación de los logros obtenidos a los miembros de la comunidad educativa (estudiantes, docentes, familias, entre otros). También pueden presentar propuestas a grupos de personas, funcionarios o instituciones interesadas en la temática.",
                     "Demuestra una apropiación del proceso de investigación, mediante los registros realizados, desde las ideas previas, pregunta o desafío, suposiciones hasta los logros obtenidos."
                 ]
             },
@@ -990,7 +1012,7 @@ export function getPronatecytRubricByCategory(category) {
                     "Cita o hace referencia a las fuentes de información utilizadas, mediante enunciados básicos, imágenes u otros.",
                     "Narra, describe o explica si las suposiciones o predicciones señaladas se cumplieron, basándose en los hallazgos obtenidos.",
                     "Establece los logros obtenidos en la investigación realizada, utilizando textos narrativos, descriptivos o explicativos, ilustraciones, entre otros.",
-                    "Aporta evidencias (fotografías, listas de asistencia, entre otras) acerca de la comunicación de los logros obtenidos a los miembros de la comunidad educativa.",
+                    "Aporta evidencias (fotografías, listas de asistencia, entre otras) acerca de la comunicación de los logros obtenidos a los miembros de la comunidad educativa (estudiantes, docentes, familias, entre otros). También pueden presentar propuestas a grupos de personas, funcionarios o instituciones interesadas en la temática.",
                     "Demuestra una apropiación del proceso de investigación, mediante los registros realizados, desde las ideas previas, pregunta o desafío, suposiciones hasta los logros obtenidos."
                 ]
             },
