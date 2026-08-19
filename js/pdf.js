@@ -1,7 +1,7 @@
 import { supabase } from "./supabase.js";
 import { showToast, FESTIVAL_FERIA_NAME, PRONAFECYT_CODE_MAX, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore } from "./utils.js";
 import { getExpotecnicaRubricByCategory } from "./rubrics.js";
-import { loadUsers, fetchAllEvaluations } from "./data.js";
+import { loadUsers, fetchAllEvaluations, fetchAllRpc } from "./data.js";
 
 let jspdfPromise = null;
 
@@ -172,22 +172,21 @@ export async function generateJudgePDF(user) {
     const logoData = await loadMEPLogo();
 
     const [evalResult, projectsData] = await Promise.all([
-        supabase.rpc("get_judge_evaluations_with_titles", {
+        fetchAllRpc("get_judge_evaluations_with_titles", {
             p_session_token: user.session_token
         }),
-        supabase.rpc("get_judge_projects", {
+        fetchAllRpc("get_judge_projects", {
             p_session_token: user.session_token
         })
     ]);
 
-    if (evalResult.error) throw evalResult.error;
-    const data = evalResult.data;
+    const data = evalResult;
     if (!data || !data.length) {
         showToast("No tienes evaluaciones guardadas para exportar.", "info");
         return;
     }
 
-    const projectsMap = new Map((projectsData.data ?? []).map((p) => [p.id, p]));
+    const projectsMap = new Map(projectsData.map((p) => [p.id, p]));
 
     // Fetch observations for all project+tipo combinations
     const uniqueCombos = new Map();
@@ -433,18 +432,14 @@ export async function generateAdminPDF(sessionToken) {
   try {
     const [users, projectsResult, evaluations, assignmentsResult] = await Promise.all([
       loadUsers(),
-      supabase.rpc("get_projects", { p_session_token: sessionToken }),
+      fetchAllRpc("get_projects", { p_session_token: sessionToken }),
       fetchAllEvaluations(),
-      supabase.rpc("get_assignments", { p_session_token: sessionToken })
+      fetchAllRpc("get_assignments", { p_session_token: sessionToken })
     ]);
-
-    if (projectsResult.error) {
-      throw new Error("Error al cargar datos");
-    }
 
     const filterEl = document.querySelector("[data-feria-results-filter]");
     const selectedFeria = filterEl ? filterEl.value : "";
-    const allProjects = projectsResult.data ?? [];
+    const allProjects = projectsResult;
     const filteredProjects = selectedFeria
       ? allProjects.filter((p) => p.tipo_feria === selectedFeria)
       : allProjects;
@@ -474,7 +469,7 @@ export async function generateAdminPDF(sessionToken) {
 
     // Group assignments by project
     const assignmentsByProject = new Map();
-    (assignmentsResult.data ?? []).forEach((a) => {
+    assignmentsResult.forEach((a) => {
       if (projectIds.has(a.proyecto_id)) {
         if (!assignmentsByProject.has(a.proyecto_id)) {
           assignmentsByProject.set(a.proyecto_id, []);

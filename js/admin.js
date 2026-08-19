@@ -1,7 +1,7 @@
 import { supabase } from "./supabase.js";
 import { escapeHTML, showToast, setMessage, normalizeRoleName, fillSelect, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, buildFeriaOptions, FESTIVAL_FERIA_NAME, FESTIVAL_CATEGORIES, FESTIVAL_SUBCATEGORIES, EXPOTECNICA_CATEGORIES, EXPOTECNICA_EJES, PRONAFECYT_CATEGORIES, PRONAFECYT_EDUCATIONAL_CATEGORIES, updateProjectFormFieldsByFeria, showSkeleton, confirmDialog, PRONAFECYT_BY_NIVEL, getNivelFromPronatecyt, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore, openModalAccesible, closeModalAccesible } from "./utils.js";
 import { getSession, enforceRole, hashPassword, bindLogout } from "./auth.js";
-import { loadProjects, loadJudges, loadJudgeAssignments, loadUsers, fetchAllEvaluations } from "./data.js";
+import { loadProjects, loadJudges, loadJudgeAssignments, loadUsers, fetchAllEvaluations, fetchAllRpc } from "./data.js";
 import { generateAdminPDF } from "./pdf.js";
 
 function renderUsersTable(users, roles) {
@@ -537,16 +537,12 @@ async function renderAdminReportsByFeria() {
 
     const [users, projectsResult, allEvals, assignmentsResult] = await Promise.all([
         loadUsers(),
-        supabase.rpc("get_projects", { p_session_token: getSession()?.session_token }),
+        fetchAllRpc("get_projects", { p_session_token: getSession()?.session_token }),
         fetchAllEvaluations(),
-        supabase.rpc("get_assignments", { p_session_token: getSession()?.session_token })
+        fetchAllRpc("get_assignments", { p_session_token: getSession()?.session_token })
     ]);
 
-    if (projectsResult.error) {
-        throw projectsResult.error;
-    }
-
-    const allProjects = projectsResult.data ?? [];
+    const allProjects = projectsResult;
     const filteredProjects = selectedFeria ?
         allProjects.filter((p) => p.tipo_feria === selectedFeria) :
         allProjects;
@@ -560,7 +556,7 @@ async function renderAdminReportsByFeria() {
     );
 
     const assignmentsByProject = new Map();
-    (assignmentsResult.data ?? []).forEach((a) => {
+    assignmentsResult.forEach((a) => {
         if (projectIdsInFeria.has(a.proyecto_id)) {
             if (!assignmentsByProject.has(a.proyecto_id)) {
                 assignmentsByProject.set(a.proyecto_id, []);
@@ -882,7 +878,7 @@ export async function bootstrapAdminPage() {
       loadProjects(""),
       loadJudgeAssignments(),
       loadUsers(),
-      supabase.rpc("get_projects", { p_session_token: getSession()?.session_token })
+      fetchAllRpc("get_projects", { p_session_token: getSession()?.session_token })
     ]);
 
     const roles = rolesResult.data ?? [];
@@ -892,7 +888,7 @@ export async function bootstrapAdminPage() {
     }
 
     const judges = judgesResult;
-    allProjectsCache = allProjectsResult.data ?? [];
+    allProjectsCache = allProjectsResult;
     allAssignmentsCache = assignmentsResult;
     const projects = projectsResult;
     const assignments = assignmentsResult;
@@ -1226,8 +1222,8 @@ async function renderAdminObservaciones(feriaType = "", proyectoFilter, juezFilt
 
   const [usersResult, projectsResult, observacionesResult] = await Promise.all([
     loadUsers(),
-    supabase.rpc("get_projects", { p_session_token: getSession()?.session_token }),
-    supabase.rpc("get_observations", { p_session_token: getSession()?.session_token })
+    fetchAllRpc("get_projects", { p_session_token: getSession()?.session_token }),
+    fetchAllRpc("get_observations", { p_session_token: getSession()?.session_token })
   ]);
 
   if (observacionesResult.error) {
@@ -1236,12 +1232,12 @@ async function renderAdminObservaciones(feriaType = "", proyectoFilter, juezFilt
     return;
   }
 
-  const allProjects = (projectsResult.data ?? []).filter((p) => !feriaType || p.tipo_feria === feriaType);
+  const allProjects = projectsResult.filter((p) => !feriaType || p.tipo_feria === feriaType);
   const allUsers = usersResult ?? [];
   const usersById = new Map(allUsers.map((u) => [u.id, u]));
   const projectsById = new Map(allProjects.map((p) => [p.id, p]));
   const projectIdsInFeria = new Set(allProjects.map((p) => p.id));
-  const rows = (observacionesResult.data ?? []).filter((r) => projectIdsInFeria.has(r.proyecto_id));
+  const rows = observacionesResult.filter((r) => projectIdsInFeria.has(r.proyecto_id));
 
   const selectedProjectId = proyectoFilter ? Number(proyectoFilter.value) : 0;
   const selectedJudgeId = juezFilter ? Number(juezFilter.value) : 0;

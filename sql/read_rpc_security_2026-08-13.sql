@@ -14,7 +14,7 @@ BEGIN
   SELECT role_name INTO v_role FROM app_sessions WHERE session_id = p_session_token AND expires_at > now();
   IF v_role IS NULL THEN RAISE EXCEPTION 'Invalid session'; END IF;
   IF v_role != 'administrador' THEN RAISE EXCEPTION 'Admin only'; END IF;
-  RETURN QUERY SELECT * FROM proyectos_ferias ORDER BY titulo ASC;
+  RETURN QUERY SELECT * FROM proyectos_ferias ORDER BY titulo ASC, id ASC;
 END; $function$;
 
 CREATE OR REPLACE FUNCTION public.get_project(p_session_token text, p_project_id bigint)
@@ -38,7 +38,7 @@ BEGIN
   SELECT role_name INTO v_role FROM app_sessions WHERE session_id = p_session_token AND expires_at > now();
   IF v_role IS NULL THEN RAISE EXCEPTION 'Invalid session'; END IF;
   IF v_role != 'administrador' THEN RAISE EXCEPTION 'Admin only'; END IF;
-  RETURN QUERY SELECT u.id, u.nombre, u.role_id, u.tipo_feria FROM usuarios u ORDER BY u.nombre ASC;
+  RETURN QUERY SELECT u.id, u.nombre, u.role_id, u.tipo_feria FROM usuarios u ORDER BY u.nombre ASC, u.id ASC;
 END; $function$;
 
 CREATE OR REPLACE FUNCTION public.get_roles(p_session_token text)
@@ -50,7 +50,7 @@ BEGIN
   SELECT role_name INTO v_role FROM app_sessions WHERE session_id = p_session_token AND expires_at > now();
   IF v_role IS NULL THEN RAISE EXCEPTION 'Invalid session'; END IF;
   IF v_role != 'administrador' THEN RAISE EXCEPTION 'Admin only'; END IF;
-  RETURN QUERY SELECT * FROM roles ORDER BY nombre ASC;
+  RETURN QUERY SELECT * FROM roles ORDER BY nombre ASC, id ASC;
 END; $function$;
 
 CREATE OR REPLACE FUNCTION public.get_assignments(p_session_token text)
@@ -62,7 +62,7 @@ BEGIN
   SELECT role_name INTO v_role FROM app_sessions WHERE session_id = p_session_token AND expires_at > now();
   IF v_role IS NULL THEN RAISE EXCEPTION 'Invalid session'; END IF;
   IF v_role != 'administrador' THEN RAISE EXCEPTION 'Admin only'; END IF;
-  RETURN QUERY SELECT * FROM asignaciones_jueces ORDER BY juez_id ASC, created_at ASC;
+  RETURN QUERY SELECT * FROM asignaciones_jueces ORDER BY juez_id ASC, created_at ASC, id ASC;
 END; $function$;
 
 CREATE OR REPLACE FUNCTION public.get_evaluations(p_session_token text)
@@ -74,7 +74,7 @@ BEGIN
   SELECT role_name INTO v_role FROM app_sessions WHERE session_id = p_session_token AND expires_at > now();
   IF v_role IS NULL THEN RAISE EXCEPTION 'Invalid session'; END IF;
   IF v_role != 'administrador' THEN RAISE EXCEPTION 'Admin only'; END IF;
-  RETURN QUERY SELECT * FROM evaluaciones_proyectos ORDER BY created_at DESC;
+  RETURN QUERY SELECT * FROM evaluaciones_proyectos ORDER BY created_at DESC, id DESC;
 END; $function$;
 
 CREATE OR REPLACE FUNCTION public.get_observations(p_session_token text)
@@ -86,7 +86,7 @@ BEGIN
   SELECT role_name INTO v_role FROM app_sessions WHERE session_id = p_session_token AND expires_at > now();
   IF v_role IS NULL THEN RAISE EXCEPTION 'Invalid session'; END IF;
   IF v_role != 'administrador' THEN RAISE EXCEPTION 'Admin only'; END IF;
-  RETURN QUERY SELECT * FROM observaciones_proyectos ORDER BY created_at DESC;
+  RETURN QUERY SELECT * FROM observaciones_proyectos ORDER BY created_at DESC, id DESC;
 END; $function$;
 
 -- ============ RPCs JUEZ (solo sus propios datos, user_id desde la sesión) ============
@@ -109,7 +109,7 @@ BEGIN
     FROM asignaciones_jueces a
     JOIN proyectos_ferias p ON p.id = a.proyecto_id
     WHERE a.juez_id = v_user_id
-    ORDER BY p.titulo ASC;
+    ORDER BY p.titulo ASC, p.id ASC;
 END; $function$;
 
 -- Evaluaciones guardadas del juez para un proyecto/tipo
@@ -156,5 +156,5 @@ BEGIN
     FROM evaluaciones_proyectos e
     LEFT JOIN proyectos_ferias p ON p.id = e.proyecto_id
     WHERE e.juez_id = v_user_id
-    ORDER BY e.created_at DESC;
+    ORDER BY e.created_at DESC, e.id DESC;
 END; $function$;

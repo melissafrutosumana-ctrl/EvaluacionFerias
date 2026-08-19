@@ -1,7 +1,7 @@
 import { supabase } from "./supabase.js";
 import { escapeHTML, showToast, setMessage, fillSelectGroupedByTipo, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, FESTIVAL_FERIA_NAME, renderJudgeRubric } from "./utils.js";
 import { enforceRole, bindLogout } from "./auth.js";
-import { loadAssignedProjectsForJudge } from "./data.js";
+import { loadAssignedProjectsForJudge, fetchAllRpc } from "./data.js";
 import { getRubricIndicatorsByFeria, getExpotecnicaRubricByCategory, getPronatecytRubricByCategory, getFestivalRubricBySubcategory, getFestivalRubricByCategory } from "./rubrics.js";
 import { generateJudgePDF } from "./pdf.js";
 
@@ -289,16 +289,12 @@ export async function bootstrapJudgePage() {
         setMessage(evaluationStatus, msg, "error");
       }
 
-      const { data, error } = await supabase.rpc("get_judge_evaluations_with_titles", {
+      const data = await fetchAllRpc("get_judge_evaluations_with_titles", {
         p_session_token: user.session_token
       });
 
-      if (error) {
-        throw error;
-      }
-
-      const evaluatedKeys = new Set((data ?? []).map((e) => `${e.proyecto_id}-${e.tipo_evaluacion ?? "Exposición"}`));
-      const evaluatedProjectIds = new Set((data ?? []).map((e) => e.proyecto_id));
+      const evaluatedKeys = new Set(data.map((e) => `${e.proyecto_id}-${e.tipo_evaluacion ?? "Exposición"}`));
+      const evaluatedProjectIds = new Set(data.map((e) => e.proyecto_id));
 
       const progressSection = document.querySelector("[data-judge-progress]");
       if (progressSection) {
