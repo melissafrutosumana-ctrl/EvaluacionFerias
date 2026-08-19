@@ -872,20 +872,14 @@ export async function bootstrapAdminPage() {
     if (usersTbody) showSkeleton(usersTbody, 4);
     if (assignmentsTbody) showSkeleton(assignmentsTbody, 3);
 
-    const [rolesResult, judgesResult, projectsResult, assignmentsResult, usersResult, allProjectsResult] = await Promise.all([
-      supabase.rpc("get_roles", { p_session_token: getSession()?.session_token }),
+    const [roles, judgesResult, projectsResult, assignmentsResult, usersResult, allProjectsResult] = await Promise.all([
+      fetchAllRpc("get_roles", { p_session_token: getSession()?.session_token }),
       loadJudges(""),
       loadProjects(""),
       loadJudgeAssignments(),
       loadUsers(),
       fetchAllRpc("get_projects", { p_session_token: getSession()?.session_token })
     ]);
-
-    const roles = rolesResult.data ?? [];
-
-    if (rolesResult.error) {
-      throw rolesResult.error;
-    }
 
     const judges = judgesResult;
     allProjectsCache = allProjectsResult;
@@ -1086,8 +1080,8 @@ export async function bootstrapAdminPage() {
       if (editBtn) {
         try {
           const userData = JSON.parse(editBtn.dataset.editUser);
-          const rolesResult = await supabase.rpc("get_roles", { p_session_token: getSession()?.session_token });
-          showEditUserModal(userData, rolesResult.data ?? []);
+          const roles = await fetchAllRpc("get_roles", { p_session_token: getSession()?.session_token });
+          showEditUserModal(userData, roles);
         } catch {
           showEditUserModal({ id: 0, nombre: "", role_id: 0, tipo_feria: "" }, []);
         }

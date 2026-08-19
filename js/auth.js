@@ -1,5 +1,5 @@
 ﻿import { supabase } from "./supabase.js";
-import { normalizeRoleName, showToast, setMessage, setupHideOnScroll, openModalAccesible, closeModalAccesible } from "./utils.js";
+import { normalizeRoleName, showToast, setMessage, setupHideOnScroll, openModalAccesible, closeModalAccesible, fetchAllRpc } from "./utils.js";
 import { generateJudgePDF } from "./pdf.js";
 
 export const SESSION_KEY = "ef_user_session";
@@ -123,7 +123,7 @@ export function showLogoutModal(user) {
         btn.disabled = true;
         btn.textContent = "Verificando...";
 
-        const { data: evalCheck } = await supabase.rpc("get_judge_evaluations_with_titles", {
+        const evalCheck = await fetchAllRpc("get_judge_evaluations_with_titles", {
             p_session_token: user.session_token
         });
 

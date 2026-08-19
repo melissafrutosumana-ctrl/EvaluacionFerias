@@ -717,3 +717,36 @@ export function calcExpotecnicaFinalScore(category, expoPts, escritoPts) {
     const escritoPct = max.escrito > 0 ? (escritoPts / max.escrito) * 50 : 0;
     return expoPct + escritoPct;
 }
+
+const RPC_PAGE_SIZE = 1000;
+const MAX_RPC_PAGES = 100;
+
+export async function fetchAllRpc(functionName, params = {}, pageSize = RPC_PAGE_SIZE, client) {
+    const sb = client ?? (await import("./supabase.js")).supabase;
+    const rows = [];
+    let offset = 0;
+    let pages = 0;
+
+    while (true) {
+        if (++pages > MAX_RPC_PAGES) {
+            throw new Error(`fetchAllRpc(${functionName}): superado el maximo de ${MAX_RPC_PAGES} paginas, el servidor no respeta el rango`);
+        }
+
+        const { data, error } = await sb
+            .rpc(functionName, params)
+            .range(offset, offset + pageSize - 1);
+
+        if (error) {
+            throw error;
+        }
+
+        const page = data ?? [];
+        rows.push(...page);
+
+        if (page.length < pageSize) {
+            return rows;
+        }
+
+        offset += pageSize;
+    }
+}
