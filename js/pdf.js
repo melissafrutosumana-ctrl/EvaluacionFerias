@@ -169,14 +169,50 @@ export function pdfCheckPage(doc, y, needed) {
 
 export async function generateJudgePDF(user) {
     await loadJSPDF();
-    const { data, error } = await supabase.rpc("get_judge_evaluations_with_titles", {
-        p_session_token: user.session_token
-    });
-    if (error) throw error;
+    const logoData = await loadMEPLogo();
+
+    const [evalResult, projectsData] = await Promise.all([
+        supabase.rpc("get_judge_evaluations_with_titles", {
+            p_session_token: user.session_token
+        }),
+        supabase.rpc("get_judge_projects", {
+            p_session_token: user.session_token
+        })
+    ]);
+
+    if (evalResult.error) throw evalResult.error;
+    const data = evalResult.data;
     if (!data || !data.length) {
         showToast("No tienes evaluaciones guardadas para exportar.", "info");
         return;
     }
+
+    const projectsMap = new Map((projectsData.data ?? []).map((p) => [p.id, p]));
+
+    // Fetch observations for all project+tipo combinations
+    const uniqueCombos = new Map();
+    data.forEach((item) => {
+        const pid = Number(item.proyecto_id);
+        const tipo = item.tipo_evaluacion ?? "Exposición";
+        const key = `${pid}-${tipo}`;
+        if (!uniqueCombos.has(key)) uniqueCombos.set(key, { pid, tipo });
+    });
+
+    const obsResults = await Promise.all(
+        [...uniqueCombos.values()].map((c) =>
+            supabase.rpc("get_judge_observation", {
+                p_session_token: user.session_token,
+                p_project_id: c.pid,
+                p_tipo_evaluacion: c.tipo
+            }).then((r) => ({ key: `${c.pid}-${c.tipo}`, data: r.data, error: r.error }))
+        )
+    );
+    const obsMap = new Map();
+    obsResults.forEach((o) => {
+        if (!o.error && o.data && o.data.length) {
+            obsMap.set(o.key, o.data[0]?.texto ?? "");
+        }
+    });
 
     // Group by project + tipo
     const grouped = new Map();
@@ -185,11 +221,14 @@ export async function generateJudgePDF(user) {
         const tipo = item.tipo_evaluacion ?? "Exposición";
         const key = `${pid}-${tipo}`;
         if (!grouped.has(key)) {
+            const proj = projectsMap.get(pid);
             grouped.set(key, {
-                titulo: item.proyectos_ferias ?.titulo || "Proyecto",
+                titulo: item.proyectos_ferias?.titulo || "Proyecto",
                 tipo,
+                projectData: proj ?? null,
                 items: [],
-                total: 0
+                total: 0,
+                observacion: obsMap.get(key) ?? ""
             });
         }
         const g = grouped.get(key);
@@ -204,7 +243,7 @@ export async function generateJudgePDF(user) {
     const W = PDF.PAGE_W;
     const colNotaX = M + 155;
     const colPctX = M + 140;
-    let y = pdfHeader(doc, "Reporte de Evaluaciones del Juez");
+    let y = pdfHeader(doc, "Reporte de Evaluaciones del Juez", logoData);
 
     const infoLines = [
         `Juez: ${user.nombre}`,
@@ -276,9 +315,30 @@ export async function generateJudgePDF(user) {
     rowIndex = 0;
 
     for (const [, g] of grouped) {
-        y = pdfCheckPage(doc, y, 22 + g.items.length * 6);
+        const extraLines = 1;
+        y = pdfCheckPage(doc, y, 22 + g.items.length * 6 + (g.observacion ? 14 : 0));
         const headerLabel = `${g.titulo} [${g.tipo === "Escrito" ? "Escrito" : "Exposición"}]`;
         y = pdfProjectHeader(doc, headerLabel, y);
+
+        // Show category/subcategory if available
+        if (g.projectData) {
+            const p = g.projectData;
+            let catText = "";
+            if (p.tipo_feria === "Feria Expotecnica" && p.categoria_expotecnica) {
+                catText = p.eje_tematico ? `${p.categoria_expotecnica} — ${p.eje_tematico}` : p.categoria_expotecnica;
+            } else if (p.tipo_feria === "Feria Cientifica y Tecnologica" && p.categoria_pronatecyt) {
+                catText = p.categoria_pronatecyt;
+            } else if (p.tipo_feria === "Festival Estudiantil de las Artes") {
+                catText = p.subcategoria_festival || p.categoria_festival || "";
+            }
+            if (catText) {
+                doc.setFont("helvetica", "italic");
+                doc.setFontSize(7.5);
+                doc.setTextColor(...PDF.MUTED);
+                doc.text(catText, M, y);
+                y += 5;
+            }
+        }
 
         y = pdfColHeader(doc, ["Criterio de evaluacion", "Nota"], [M, colNotaX], y);
 
@@ -310,7 +370,29 @@ export async function generateJudgePDF(user) {
         doc.setFontSize(7);
         doc.setTextColor(...PDF.MUTED);
         doc.text(`${g.items.length} criterio${g.items.length !== 1 ? "s" : ""}`, colNotaX, y, { align: "right" });
-        y += 9;
+        y += 5;
+
+        // Observation section
+        if (g.observacion) {
+            y += 3;
+            y = pdfCheckPage(doc, y, 14);
+            doc.setDrawColor(...PDF.BORDER);
+            doc.setFillColor(248, 250, 252);
+            const obsText = doc.splitTextToSize(g.observacion, W - 2 * M - 10);
+            const obsH = Math.max(obsText.length * 5 + 10, 14);
+            doc.roundedRect(M, y, W - 2 * M, obsH, 2, 2, "FD");
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(7.5);
+            doc.setTextColor(...PDF.PRIMARY);
+            doc.text("Observaciones:", M + 4, y + 5);
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(7);
+            doc.setTextColor(...PDF.INK);
+            doc.text(obsText, M + 4, y + 10);
+            y += obsH + 3;
+        }
+
+        y += 4;
     }
 
     y += 3;
@@ -405,10 +487,11 @@ export async function generateAdminPDF(sessionToken) {
       }
     });
 
-    // Build results (same logic as renderAdminScoresTable)
+    // Build results (mirrors renderAdminScoresTable logic including manualEscrito)
     const results = [];
     for (const [projectId, assignedJudges] of assignmentsByProject) {
       if (!projectsById.has(projectId)) continue;
+      const projData = projectsById.get(projectId);
       const expoJudges = [];
       const escritoJudges = [];
       let expoVoted = 0, expoTotal = 0;
@@ -431,26 +514,36 @@ export async function generateAdminPDF(sessionToken) {
       });
       const expoAvg = calcAverage(expoJudges);
       const escritoAvg = calcAverage(escritoJudges);
+
+      const manualEscrito = projData?.puntaje_escrito_manual != null ? Number(projData.puntaje_escrito_manual) : null;
+      const escritoAvgFinal = manualEscrito !== null ? manualEscrito : escritoAvg;
+      const escritoVotedFinal = manualEscrito !== null ? 1 : escritoVoted;
       const evalComplete =
         (expoTotal === 0 || expoVoted === expoTotal) &&
-        (escritoTotal === 0 || escritoVoted === escritoTotal);
+        (manualEscrito !== null || escritoTotal === 0 || escritoVoted === escritoTotal);
 
       let pdfFinalScore = 0;
       if (evalComplete) {
-        const projData = projectsById.get(projectId);
+        const bCode = String(projData?.categoria_pronatecyt || "").split(" ")[0];
         if (projData?.tipo_feria === "Feria Cientifica y Tecnologica") {
-          const bCode = String(projData?.categoria_pronatecyt || "").split(" ")[0];
-          pdfFinalScore = calcPronatecytFinalScore(bCode, expoAvg, escritoAvg);
+          const expoPts = expoAvg;
+          const escritoPts = manualEscrito !== null ? manualEscrito : escritoAvg;
+          pdfFinalScore = calcPronatecytFinalScore(bCode, expoPts, escritoPts);
         } else if (projData?.tipo_feria === "Feria Expotecnica") {
-          pdfFinalScore = calcExpotecnicaFinalScore(projData?.categoria_expotecnica, expoAvg, escritoAvg);
+          const expoPts = expoAvg;
+          const escritoPts = manualEscrito !== null ? manualEscrito : escritoAvg;
+          pdfFinalScore = calcExpotecnicaFinalScore(projData?.categoria_expotecnica, expoPts, escritoPts);
+        } else if (manualEscrito !== null) {
+          pdfFinalScore = expoVoted > 0 ? expoAvg + manualEscrito : manualEscrito;
         } else {
-          pdfFinalScore = calcFinalScore(expoVoted, expoAvg, escritoVoted, escritoAvg);
+          pdfFinalScore = calcFinalScore(expoVoted, expoAvg, escritoVotedFinal, escritoAvgFinal);
         }
       }
 
       results.push({
-        projectName: projectsById.get(projectId)?.titulo ?? "Proyecto",
+        projectName: projData?.titulo ?? "Proyecto",
         projectId,
+        manualEscrito,
         expoJudges, escritoJudges,
         expoTotal, expoVoted,
         escritoTotal, escritoVoted,
@@ -538,6 +631,7 @@ export async function generateAdminPDF(sessionToken) {
     let rowIndex = 0;
     results.forEach((r, idx) => {
       const isFirst = idx === 0;
+      r._rankIdx = idx;
       y = pdfCheckPage(doc, y, 7);
       if (rowIndex % 2 === 1) {
         doc.setFillColor(...PDF.ROW_ALT);
@@ -577,7 +671,9 @@ export async function generateAdminPDF(sessionToken) {
         const expoMax = getMaxScoreForProject(r.projectId, "Exposición");
         const escritoMax = getMaxScoreForProject(r.projectId, "Escrito");
         const expoScore = r.expoTotal > 0 && r.expoVoted > 0 ? Math.round(r.expoAvg) : "—";
-        const escritoScore = r.escritoTotal > 0 && r.escritoVoted > 0 ? Math.round(r.escritoAvg) : "—";
+        const escritoScore = r.manualEscrito !== null
+          ? Math.round(r.manualEscrito)
+          : (r.escritoTotal > 0 && r.escritoVoted > 0 ? Math.round(r.escritoAvg) : "—");
         doc.text(`${expoScore}/${expoMax}`, col3X, y + 0.5);
         doc.text(`${escritoScore}/${escritoMax}`, col4X, y + 0.5);
         doc.setFont("helvetica", "bold");
@@ -707,13 +803,15 @@ export async function generateAdminPDF(sessionToken) {
 
       if (isFEA) {
         doc.text(`Puntaje: ${expoAvgRound}/${expoMax}`, M, y + 0.5);
+      } else if (r.manualEscrito !== null) {
+        doc.text(`Expo: ${expoAvgRound}/${expoMax} | Escrito: ${Math.round(r.manualEscrito)}/${escritoMax} (manual) | Final: ${finalDisplay}`, M, y + 0.5);
       } else {
         doc.text(`Expo: ${expoAvgRound}/${expoMax} | Escrito: ${escritoAvgRound}/${escritoMax} | Final: ${finalDisplay}`, M, y + 0.5);
       }
       y += 8;
 
       // Separador visual entre proyectos
-      if (results.indexOf(r) < results.length - 1) {
+      if (r._rankIdx < results.length - 1) {
         doc.setDrawColor(...PDF.BORDER);
         doc.setLineWidth(0.6);
         doc.setLineDashPattern([2, 2], 0);
