@@ -1,0 +1,1 @@
+// archivo temporal de verificacion del sync automatico entre colegios
