@@ -6,16 +6,36 @@ function sessionToken() {
     return getSession()?.session_token ?? "";
 }
 
+const RPC_PAGE_SIZE = 1000;
+
+export async function fetchAllRpc(functionName, params = {}, pageSize = RPC_PAGE_SIZE) {
+    const rows = [];
+    let offset = 0;
+
+    while (true) {
+        const { data, error } = await supabase
+            .rpc(functionName, params)
+            .range(offset, offset + pageSize - 1);
+
+        if (error) {
+            throw error;
+        }
+
+        const page = data ?? [];
+        rows.push(...page);
+
+        if (page.length < pageSize) {
+            return rows;
+        }
+
+        offset += pageSize;
+    }
+}
+
 export async function loadProjects(feriaType = "") {
-    const { data, error } = await supabase.rpc("get_projects", {
+    const projects = await fetchAllRpc("get_projects", {
         p_session_token: sessionToken()
     });
-
-    if (error) {
-        throw error;
-    }
-
-    const projects = data ?? [];
 
     if (!feriaType) {
         return projects;
@@ -25,20 +45,16 @@ export async function loadProjects(feriaType = "") {
 }
 
 export async function loadJudges(feriaType = "") {
-    const [{ data: users, error: usersError }, { data: roles, error: rolesError }] = await Promise.all([
-        supabase.rpc("get_users", { p_session_token: sessionToken() }),
+    const [users, rolesResult] = await Promise.all([
+        fetchAllRpc("get_users", { p_session_token: sessionToken() }),
         supabase.rpc("get_roles", { p_session_token: sessionToken() })
     ]);
 
-    if (usersError) {
-        throw usersError;
+    if (rolesResult.error) {
+        throw rolesResult.error;
     }
 
-    if (rolesError) {
-        throw rolesError;
-    }
-
-    const roleNamesById = new Map((roles ?? []).map((role) => [role.id, normalizeRoleName(role.nombre)]));
+    const roleNamesById = new Map((rolesResult.data ?? []).map((role) => [role.id, normalizeRoleName(role.nombre)]));
 
     return (users ?? []).filter((item) => {
         const isJudge = roleNamesById.get(item.role_id) === "Juez";
@@ -48,52 +64,30 @@ export async function loadJudges(feriaType = "") {
 }
 
 export async function loadJudgeAssignments() {
-    const { data, error } = await supabase.rpc("get_assignments", {
+    return fetchAllRpc("get_assignments", {
         p_session_token: sessionToken()
     });
-
-    if (error) {
-        throw error;
-    }
-
-    return data ?? [];
 }
 
 export async function loadAssignedProjectsForJudge() {
-    const { data, error } = await supabase.rpc("get_judge_projects", {
+    const data = await fetchAllRpc("get_judge_projects", {
         p_session_token: sessionToken()
     });
 
-    if (error) {
-        throw error;
-    }
-
-    return (data ?? []).map((item) => ({
+    return data.map((item) => ({
         ...item,
         tipo_evaluacion: item.tipo_evaluacion ?? "Exposición"
     }));
 }
 
 export async function loadUsers() {
-    const { data, error } = await supabase.rpc("get_users", {
+    return fetchAllRpc("get_users", {
         p_session_token: sessionToken()
     });
-
-    if (error) {
-        throw error;
-    }
-
-    return data ?? [];
 }
 
 export async function fetchAllEvaluations() {
-    const { data, error } = await supabase.rpc("get_evaluations", {
+    return fetchAllRpc("get_evaluations", {
         p_session_token: sessionToken()
     });
-
-    if (error) {
-        throw error;
-    }
-
-    return data ?? [];
 }
