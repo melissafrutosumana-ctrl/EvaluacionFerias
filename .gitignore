@@ -11,6 +11,13 @@ node_modules/
 # Archivos del sistema
 .DS_Store
 Thumbs.db
+Continue
+
+# Documentos y propuestas locales (nunca versionar)
+docs/
+openspec/
+PRODUCT.md
+proposal.md
 
 # Testing artifacts
 .playwright-mcp/
