@@ -337,8 +337,9 @@ export async function bootstrapJudgePage() {
         const key = `${Number.isFinite(projectId) ? String(projectId) : "?"}-${tipo}`;
 
         if (!groupedByProject.has(key)) {
+          const titulo = item.titulo || item.proyectos_ferias?.titulo || `Proyecto #${projectId}`;
           groupedByProject.set(key, {
-            titulo: item.proyectos_ferias?.titulo ?? "Proyecto",
+            titulo,
             proyecto_id: projectId,
             tipo: tipo,
             valores: [],
