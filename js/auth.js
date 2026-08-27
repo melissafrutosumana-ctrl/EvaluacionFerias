@@ -153,17 +153,15 @@ export function showLogoutModal(user) {
 
 
 
+// ponytail: pre-hash SHA-256 cliente -> servidor aplica bcrypt (extensions.crypt) via lazy_bcrypt_migration.sql
+// No añadir salt cliente: servidor maneja sal bf10 y migracion lazy desde contrasena_hash.
 export async function hashPassword(password) {
     const encoder = new TextEncoder();
     const data = encoder.encode(password);
     const digest = await crypto.subtle.digest("SHA-256", data);
     const bytes = new Uint8Array(digest);
     let binary = "";
-
-    bytes.forEach((byte) => {
-        binary += String.fromCharCode(byte);
-    });
-
+    bytes.forEach((byte) => { binary += String.fromCharCode(byte); });
     return btoa(binary);
 }
 
