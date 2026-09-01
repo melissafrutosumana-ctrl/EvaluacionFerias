@@ -1,4 +1,4 @@
-﻿import { supabase } from "./supabase.js";
+import { supabase } from "./supabase.js";
 import { normalizeRoleName, showToast, setMessage, setupHideOnScroll, openModalAccesible, closeModalAccesible, fetchAllRpc } from "./utils.js";
 import { generateJudgePDF } from "./pdf.js";
 
@@ -72,7 +72,7 @@ export function bindLogout() {
             showLogoutModal(user);
         } else {
             clearSession();
-            window.location.href = "index.html";
+            window.location.href = "/index.html";
         }
     });
 }
@@ -115,7 +115,7 @@ export function showLogoutModal(user) {
         closeModalAccesible(overlay);
         overlay.remove();
         clearSession();
-        window.location.href = "index.html";
+        window.location.href = "/index.html";
     });
 
     document.getElementById("modal-download-btn").addEventListener("click", async() => {
@@ -147,14 +147,14 @@ export function showLogoutModal(user) {
         closeModalAccesible(overlay);
         overlay.remove();
         clearSession();
-        window.location.href = "index.html";
+        window.location.href = "/index.html";
     });
 }
 
 
 
 // ponytail: pre-hash SHA-256 cliente -> servidor aplica bcrypt (extensions.crypt) via lazy_bcrypt_migration.sql
-// No añadir salt cliente: servidor maneja sal bf10 y migracion lazy desde contrasena_hash.
+// No a�adir salt cliente: servidor maneja sal bf10 y migracion lazy desde contrasena_hash.
 export async function hashPassword(password) {
     const encoder = new TextEncoder();
     const data = encoder.encode(password);
@@ -171,7 +171,7 @@ export async function enforceRole(requiredRole) {
   const normalizedRequiredRole = normalizeRoleName(requiredRole);
 
   if (!user) {
-    window.location.href = "index.html";
+    window.location.href = "/index.html";
     return null;
   }
 
@@ -195,12 +195,12 @@ export async function bootstrapLoginPage() {
   const sessionRole = normalizeRoleName(user?.role);
 
   if (sessionRole === "Juez") {
-    window.location.href = "juez.html";
+    window.location.href = "/juez.html";
     return;
   }
 
   if (sessionRole === "administrador") {
-    window.location.href = "usuarios.html";
+    window.location.href = "/usuarios.html";
     return;
   }
 
@@ -261,12 +261,12 @@ export async function bootstrapLoginPage() {
       });
 
       if (normalizeRoleName(result.user_role) === "Juez") {
-        window.location.href = "juez.html";
+        window.location.href = "/juez.html";
         return;
       }
 
       if (normalizeRoleName(result.user_role) === "administrador") {
-        window.location.href = "usuarios.html";
+        window.location.href = "/usuarios.html";
         return;
       }
 
