@@ -34,3 +34,8 @@ supabase/
 
 # Vercel
 .vercel/
+
+# strix local
+strix_runs/
+vigila-strix.ps1
+vigila*.ps1
