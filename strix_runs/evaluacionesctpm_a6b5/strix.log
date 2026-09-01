@@ -1,0 +1,286 @@
+2026-08-26 18:23:42.110 INFO    evaluacionesctpm_a6b5 - strix.core.runner: Starting Strix scan evaluacionesctpm_a6b5 (image=ghcr.io/usestrix/strix-sandbox:1.3.0, max_turns=500, interactive=False, run_dir=D:\Trabajos Importantes\En desarrollo\EvaluacionesCTPM\strix_runs\evaluacionesctpm_a6b5)
+2026-08-26 18:23:42.111 INFO    evaluacionesctpm_a6b5 - strix.core.runner: LLM model resolved: gemini/gemini-3.6-flash
+2026-08-26 18:23:42.112 INFO    evaluacionesctpm_a6b5 - strix.core.runner: Bringing up sandbox session for scan evaluacionesctpm_a6b5
+2026-08-26 18:23:42.113 DEBUG   evaluacionesctpm_a6b5 - strix.runtime.backends: Selected sandbox backend: docker
+2026-08-26 18:23:42.115 INFO    evaluacionesctpm_a6b5 - strix.runtime.session_manager: Creating sandbox session for scan evaluacionesctpm_a6b5 (backend=docker, image=ghcr.io/usestrix/strix-sandbox:1.3.0)
+2026-08-26 18:23:42.487 DEBUG   evaluacionesctpm_a6b5 - strix.runtime.docker_client: Creating sandbox container: image=ghcr.io/usestrix/strix-sandbox:1.3.0 caps=['NET_ADMIN', 'NET_RAW'] exposed_ports=[48080]
+2026-08-26 18:23:42.853 INFO    evaluacionesctpm_a6b5 - strix.runtime.docker_client: Sandbox container created: id=eb5fa8cc53ea image=ghcr.io/usestrix/strix-sandbox:1.3.0
+2026-08-26 18:23:44.557 DEBUG   evaluacionesctpm_a6b5 - strix.runtime.session_manager: Caido host endpoint resolved: http://127.0.0.1:60083
+2026-08-26 18:23:44.557 INFO    evaluacionesctpm_a6b5 - strix.runtime.caido_bootstrap: Bootstrapping Caido client (host=http://127.0.0.1:60083, container=http://127.0.0.1:48080)
+2026-08-26 18:23:45.387 INFO    evaluacionesctpm_a6b5 - strix.runtime.caido_bootstrap: Caido project selected: eecc0ab9-6378-4ba8-8f09-cb58bbc5725c
+2026-08-26 18:23:45.388 INFO    evaluacionesctpm_a6b5 - strix.runtime.session_manager: Sandbox session for scan evaluacionesctpm_a6b5 ready and cached
+2026-08-26 18:23:45.388 INFO    evaluacionesctpm_a6b5 - strix.core.runner: Sandbox ready for scan evaluacionesctpm_a6b5
+2026-08-26 18:23:45.430 DEBUG   evaluacionesctpm_a6b5 - strix.skills: Loaded skill: scan_modes/quick -> quick
+2026-08-26 18:23:45.469 DEBUG   evaluacionesctpm_a6b5 - strix.skills: Loaded skill: tooling/agent_browser -> agent_browser
+2026-08-26 18:23:45.495 DEBUG   evaluacionesctpm_a6b5 - strix.skills: Loaded skill: tooling/python -> python
+2026-08-26 18:23:45.527 DEBUG   evaluacionesctpm_a6b5 - strix.skills: Loaded skill: coordination/root_agent -> root_agent
+2026-08-26 18:23:45.552 DEBUG   evaluacionesctpm_a6b5 - strix.skills: Loaded skill: coordination/source_aware_whitebox -> source_aware_whitebox
+2026-08-26 18:23:45.573 DEBUG   evaluacionesctpm_a6b5 - strix.skills: Loaded skill: custom/source_aware_sast -> source_aware_sast
+2026-08-26 18:23:45.577 DEBUG   evaluacionesctpm_a6b5 - strix.skills: load_skills: 6 skill(s) resolved
+2026-08-26 18:23:47.288 DEBUG   - - strix.telemetry.posthog: posthog event sent: skill_loaded
+2026-08-26 18:23:47.319 DEBUG   - - strix.telemetry.posthog: posthog event sent: skill_loaded
+2026-08-26 18:23:47.395 DEBUG   - - strix.telemetry.posthog: posthog event sent: skill_loaded
+2026-08-26 18:23:47.624 DEBUG   - - strix.telemetry.posthog: posthog event sent: skill_loaded
+2026-08-26 18:23:47.773 DEBUG   - - strix.telemetry.posthog: posthog event sent: skill_loaded
+2026-08-26 18:23:47.846 DEBUG   - - strix.telemetry.posthog: posthog event sent: skill_loaded
+2026-08-26 18:23:48.417 DEBUG   evaluacionesctpm_a6b5 - strix.agents.prompt: render_system_prompt: scan_mode=quick root=True whitebox=True skills=6 prompt_len=81507
+2026-08-26 18:23:48.418 INFO    evaluacionesctpm_a6b5 - strix.agents.factory: Built root agent 'Root Agent' (skills=0, tools=30, scan_mode=quick, whitebox=True)
+2026-08-26 18:23:48.419 INFO    evaluacionesctpm_a6b5 - strix.core.agents: agent.register 267c2f70 (Root Agent) parent=-
+2026-08-26 18:23:48.881 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating trace
+2026-08-26 18:23:48.886 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Setting current trace: no-op
+2026-08-26 18:23:48.886 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:23:48.921 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:23:48.921 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Starting turn 1, current_agent=Root Agent
+2026-08-26 18:23:48.922 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:23:48.953 DEBUG   evaluacionesctpm_a6b5 - openai.agents: No conversation_id available for request
+2026-08-26 18:23:48.954 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:23:48.960 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Calling LLM
+2026-08-26 18:23:49.198 DEBUG   - - strix.telemetry.scarf: scarf event sent: skill_loaded
+2026-08-26 18:23:49.228 DEBUG   - - strix.telemetry.scarf: scarf event sent: skill_loaded
+2026-08-26 18:23:49.440 DEBUG   - - strix.telemetry.scarf: scarf event sent: skill_loaded
+2026-08-26 18:23:49.539 DEBUG   - - strix.telemetry.scarf: scarf event sent: skill_loaded
+2026-08-26 18:23:49.602 DEBUG   - - strix.telemetry.scarf: scarf event sent: skill_loaded
+2026-08-26 18:23:49.604 DEBUG   - - strix.telemetry.scarf: scarf event sent: skill_loaded
+2026-08-26 18:23:54.750 INFO    evaluacionesctpm_a6b5 - strix.report.sarif: Wrote SARIF 2.1.0 report: D:\Trabajos Importantes\En desarrollo\EvaluacionesCTPM\strix_runs\evaluacionesctpm_a6b5\findings.sarif (0 results)
+2026-08-26 18:23:54.751 INFO    evaluacionesctpm_a6b5 - strix.report.state: Essential scan data saved to: D:\Trabajos Importantes\En desarrollo\EvaluacionesCTPM\strix_runs\evaluacionesctpm_a6b5
+2026-08-26 18:23:54.752 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Processing output item type=reasoning class=ResponseReasoningItem
+2026-08-26 18:23:54.752 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Processing output item type=message class=ResponseOutputMessage
+2026-08-26 18:23:54.752 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Processing output item type=function_call class=ResponseFunctionToolCall
+2026-08-26 18:23:54.753 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:23:54.860 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Turn 1 complete, next_step type=NextStepRunAgain
+2026-08-26 18:23:55.035 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Starting turn 2, current_agent=Root Agent
+2026-08-26 18:23:55.036 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:23:55.038 DEBUG   evaluacionesctpm_a6b5 - openai.agents: No conversation_id available for request
+2026-08-26 18:23:55.038 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:23:55.041 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Calling LLM
+2026-08-26 18:23:56.748 INFO    evaluacionesctpm_a6b5 - strix.report.sarif: Wrote SARIF 2.1.0 report: D:\Trabajos Importantes\En desarrollo\EvaluacionesCTPM\strix_runs\evaluacionesctpm_a6b5\findings.sarif (0 results)
+2026-08-26 18:23:56.750 INFO    evaluacionesctpm_a6b5 - strix.report.state: Essential scan data saved to: D:\Trabajos Importantes\En desarrollo\EvaluacionesCTPM\strix_runs\evaluacionesctpm_a6b5
+2026-08-26 18:23:56.751 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Processing output item type=message class=ResponseOutputMessage
+2026-08-26 18:23:56.751 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Processing output item type=function_call class=ResponseFunctionToolCall
+2026-08-26 18:23:56.753 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:23:57.900 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Turn 2 complete, next_step type=NextStepRunAgain
+2026-08-26 18:23:58.033 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Starting turn 3, current_agent=Root Agent
+2026-08-26 18:23:58.033 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:23:58.035 DEBUG   evaluacionesctpm_a6b5 - openai.agents: No conversation_id available for request
+2026-08-26 18:23:58.036 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:23:58.039 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Calling LLM
+2026-08-26 18:23:59.978 INFO    evaluacionesctpm_a6b5 - strix.report.sarif: Wrote SARIF 2.1.0 report: D:\Trabajos Importantes\En desarrollo\EvaluacionesCTPM\strix_runs\evaluacionesctpm_a6b5\findings.sarif (0 results)
+2026-08-26 18:23:59.979 INFO    evaluacionesctpm_a6b5 - strix.report.state: Essential scan data saved to: D:\Trabajos Importantes\En desarrollo\EvaluacionesCTPM\strix_runs\evaluacionesctpm_a6b5
+2026-08-26 18:23:59.980 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Processing output item type=message class=ResponseOutputMessage
+2026-08-26 18:23:59.980 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Processing output item type=function_call class=ResponseFunctionToolCall
+2026-08-26 18:23:59.981 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:24:00.058 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Turn 3 complete, next_step type=NextStepRunAgain
+2026-08-26 18:24:00.224 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Starting turn 4, current_agent=Root Agent
+2026-08-26 18:24:00.225 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:24:00.226 DEBUG   evaluacionesctpm_a6b5 - openai.agents: No conversation_id available for request
+2026-08-26 18:24:00.227 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:24:00.229 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Calling LLM
+2026-08-26 18:24:01.929 INFO    evaluacionesctpm_a6b5 - strix.report.sarif: Wrote SARIF 2.1.0 report: D:\Trabajos Importantes\En desarrollo\EvaluacionesCTPM\strix_runs\evaluacionesctpm_a6b5\findings.sarif (0 results)
+2026-08-26 18:24:01.931 INFO    evaluacionesctpm_a6b5 - strix.report.state: Essential scan data saved to: D:\Trabajos Importantes\En desarrollo\EvaluacionesCTPM\strix_runs\evaluacionesctpm_a6b5
+2026-08-26 18:24:01.931 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Processing output item type=message class=ResponseOutputMessage
+2026-08-26 18:24:01.931 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Processing output item type=function_call class=ResponseFunctionToolCall
+2026-08-26 18:24:01.932 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:24:02.013 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Turn 4 complete, next_step type=NextStepRunAgain
+2026-08-26 18:24:02.148 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Starting turn 5, current_agent=Root Agent
+2026-08-26 18:24:02.148 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:24:02.150 DEBUG   evaluacionesctpm_a6b5 - openai.agents: No conversation_id available for request
+2026-08-26 18:24:02.150 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:24:02.153 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Calling LLM
+2026-08-26 18:24:03.553 INFO    evaluacionesctpm_a6b5 - strix.report.sarif: Wrote SARIF 2.1.0 report: D:\Trabajos Importantes\En desarrollo\EvaluacionesCTPM\strix_runs\evaluacionesctpm_a6b5\findings.sarif (0 results)
+2026-08-26 18:24:03.554 INFO    evaluacionesctpm_a6b5 - strix.report.state: Essential scan data saved to: D:\Trabajos Importantes\En desarrollo\EvaluacionesCTPM\strix_runs\evaluacionesctpm_a6b5
+2026-08-26 18:24:03.555 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Processing output item type=message class=ResponseOutputMessage
+2026-08-26 18:24:03.556 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Processing output item type=function_call class=ResponseFunctionToolCall
+2026-08-26 18:24:03.557 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:24:03.659 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Turn 5 complete, next_step type=NextStepRunAgain
+2026-08-26 18:24:03.813 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Starting turn 6, current_agent=Root Agent
+2026-08-26 18:24:03.814 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:24:03.818 DEBUG   evaluacionesctpm_a6b5 - openai.agents: No conversation_id available for request
+2026-08-26 18:24:03.818 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:24:03.823 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Calling LLM
+2026-08-26 18:24:04.129 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Retrying failed streamed model request in 2.0s (attempt 1/5).
+2026-08-26 18:24:06.141 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:24:06.145 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Calling LLM
+2026-08-26 18:24:06.443 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Retrying failed streamed model request in 4.0s (attempt 2/5).
+2026-08-26 18:24:10.451 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:24:10.454 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Calling LLM
+2026-08-26 18:24:10.737 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Retrying failed streamed model request in 8.0s (attempt 3/5).
+2026-08-26 18:24:18.739 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:24:18.742 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Calling LLM
+2026-08-26 18:24:19.034 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Retrying failed streamed model request in 16.0s (attempt 4/5).
+2026-08-26 18:24:35.043 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:24:35.045 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Calling LLM
+2026-08-26 18:24:35.320 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Retrying failed streamed model request in 32.0s (attempt 5/5).
+2026-08-26 18:25:07.326 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:25:07.328 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Calling LLM
+2026-08-26 18:25:08.916 INFO    evaluacionesctpm_a6b5 - strix.report.sarif: Wrote SARIF 2.1.0 report: D:\Trabajos Importantes\En desarrollo\EvaluacionesCTPM\strix_runs\evaluacionesctpm_a6b5\findings.sarif (0 results)
+2026-08-26 18:25:08.917 INFO    evaluacionesctpm_a6b5 - strix.report.state: Essential scan data saved to: D:\Trabajos Importantes\En desarrollo\EvaluacionesCTPM\strix_runs\evaluacionesctpm_a6b5
+2026-08-26 18:25:08.918 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Processing output item type=message class=ResponseOutputMessage
+2026-08-26 18:25:08.918 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Processing output item type=function_call class=ResponseFunctionToolCall
+2026-08-26 18:25:08.919 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:25:09.100 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Turn 6 complete, next_step type=NextStepRunAgain
+2026-08-26 18:25:09.648 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Starting turn 7, current_agent=Root Agent
+2026-08-26 18:25:09.648 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:25:09.650 DEBUG   evaluacionesctpm_a6b5 - openai.agents: No conversation_id available for request
+2026-08-26 18:25:09.651 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:25:09.654 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Calling LLM
+2026-08-26 18:25:11.482 INFO    evaluacionesctpm_a6b5 - strix.report.sarif: Wrote SARIF 2.1.0 report: D:\Trabajos Importantes\En desarrollo\EvaluacionesCTPM\strix_runs\evaluacionesctpm_a6b5\findings.sarif (0 results)
+2026-08-26 18:25:11.483 INFO    evaluacionesctpm_a6b5 - strix.report.state: Essential scan data saved to: D:\Trabajos Importantes\En desarrollo\EvaluacionesCTPM\strix_runs\evaluacionesctpm_a6b5
+2026-08-26 18:25:11.483 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Processing output item type=message class=ResponseOutputMessage
+2026-08-26 18:25:11.484 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Processing output item type=function_call class=ResponseFunctionToolCall
+2026-08-26 18:25:11.484 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:25:11.552 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Turn 7 complete, next_step type=NextStepRunAgain
+2026-08-26 18:25:11.687 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Starting turn 8, current_agent=Root Agent
+2026-08-26 18:25:11.687 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:25:11.690 DEBUG   evaluacionesctpm_a6b5 - openai.agents: No conversation_id available for request
+2026-08-26 18:25:11.690 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:25:11.693 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Calling LLM
+2026-08-26 18:25:12.954 INFO    evaluacionesctpm_a6b5 - strix.report.sarif: Wrote SARIF 2.1.0 report: D:\Trabajos Importantes\En desarrollo\EvaluacionesCTPM\strix_runs\evaluacionesctpm_a6b5\findings.sarif (0 results)
+2026-08-26 18:25:12.955 INFO    evaluacionesctpm_a6b5 - strix.report.state: Essential scan data saved to: D:\Trabajos Importantes\En desarrollo\EvaluacionesCTPM\strix_runs\evaluacionesctpm_a6b5
+2026-08-26 18:25:12.956 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Processing output item type=message class=ResponseOutputMessage
+2026-08-26 18:25:12.956 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Processing output item type=function_call class=ResponseFunctionToolCall
+2026-08-26 18:25:12.956 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:25:13.018 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Turn 8 complete, next_step type=NextStepRunAgain
+2026-08-26 18:25:13.171 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Starting turn 9, current_agent=Root Agent
+2026-08-26 18:25:13.172 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:25:13.173 DEBUG   evaluacionesctpm_a6b5 - openai.agents: No conversation_id available for request
+2026-08-26 18:25:13.174 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:25:13.176 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Calling LLM
+2026-08-26 18:25:14.780 INFO    evaluacionesctpm_a6b5 - strix.report.sarif: Wrote SARIF 2.1.0 report: D:\Trabajos Importantes\En desarrollo\EvaluacionesCTPM\strix_runs\evaluacionesctpm_a6b5\findings.sarif (0 results)
+2026-08-26 18:25:14.782 INFO    evaluacionesctpm_a6b5 - strix.report.state: Essential scan data saved to: D:\Trabajos Importantes\En desarrollo\EvaluacionesCTPM\strix_runs\evaluacionesctpm_a6b5
+2026-08-26 18:25:14.782 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Processing output item type=message class=ResponseOutputMessage
+2026-08-26 18:25:14.782 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Processing output item type=function_call class=ResponseFunctionToolCall
+2026-08-26 18:25:14.783 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:25:14.852 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Turn 9 complete, next_step type=NextStepRunAgain
+2026-08-26 18:25:15.003 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Starting turn 10, current_agent=Root Agent
+2026-08-26 18:25:15.004 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:25:15.005 DEBUG   evaluacionesctpm_a6b5 - openai.agents: No conversation_id available for request
+2026-08-26 18:25:15.006 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:25:15.008 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Calling LLM
+2026-08-26 18:27:08.714 INFO    evaluacionesctpm_a6b5 - strix.report.sarif: Wrote SARIF 2.1.0 report: D:\Trabajos Importantes\En desarrollo\EvaluacionesCTPM\strix_runs\evaluacionesctpm_a6b5\findings.sarif (0 results)
+2026-08-26 18:27:08.718 INFO    evaluacionesctpm_a6b5 - strix.report.state: Essential scan data saved to: D:\Trabajos Importantes\En desarrollo\EvaluacionesCTPM\strix_runs\evaluacionesctpm_a6b5
+2026-08-26 18:27:08.720 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Processing output item type=message class=ResponseOutputMessage
+2026-08-26 18:27:08.720 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Processing output item type=function_call class=ResponseFunctionToolCall
+2026-08-26 18:27:08.722 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:27:08.829 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Turn 10 complete, next_step type=NextStepRunAgain
+2026-08-26 18:27:09.348 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Starting turn 11, current_agent=Root Agent
+2026-08-26 18:27:09.348 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:27:09.352 DEBUG   evaluacionesctpm_a6b5 - openai.agents: No conversation_id available for request
+2026-08-26 18:27:09.352 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:27:09.357 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Calling LLM
+2026-08-26 18:27:11.117 INFO    evaluacionesctpm_a6b5 - strix.report.sarif: Wrote SARIF 2.1.0 report: D:\Trabajos Importantes\En desarrollo\EvaluacionesCTPM\strix_runs\evaluacionesctpm_a6b5\findings.sarif (0 results)
+2026-08-26 18:27:11.118 INFO    evaluacionesctpm_a6b5 - strix.report.state: Essential scan data saved to: D:\Trabajos Importantes\En desarrollo\EvaluacionesCTPM\strix_runs\evaluacionesctpm_a6b5
+2026-08-26 18:27:11.119 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Processing output item type=message class=ResponseOutputMessage
+2026-08-26 18:27:11.119 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Processing output item type=function_call class=ResponseFunctionToolCall
+2026-08-26 18:27:11.120 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:27:11.194 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Turn 11 complete, next_step type=NextStepRunAgain
+2026-08-26 18:27:11.363 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Starting turn 12, current_agent=Root Agent
+2026-08-26 18:27:11.364 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:27:11.366 DEBUG   evaluacionesctpm_a6b5 - openai.agents: No conversation_id available for request
+2026-08-26 18:27:11.366 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:27:11.369 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Calling LLM
+2026-08-26 18:27:13.421 INFO    evaluacionesctpm_a6b5 - strix.report.sarif: Wrote SARIF 2.1.0 report: D:\Trabajos Importantes\En desarrollo\EvaluacionesCTPM\strix_runs\evaluacionesctpm_a6b5\findings.sarif (0 results)
+2026-08-26 18:27:13.423 INFO    evaluacionesctpm_a6b5 - strix.report.state: Essential scan data saved to: D:\Trabajos Importantes\En desarrollo\EvaluacionesCTPM\strix_runs\evaluacionesctpm_a6b5
+2026-08-26 18:27:13.424 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Processing output item type=message class=ResponseOutputMessage
+2026-08-26 18:27:13.424 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Processing output item type=function_call class=ResponseFunctionToolCall
+2026-08-26 18:27:13.425 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:27:13.503 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Turn 12 complete, next_step type=NextStepRunAgain
+2026-08-26 18:27:13.661 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Starting turn 13, current_agent=Root Agent
+2026-08-26 18:27:13.662 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:27:13.665 DEBUG   evaluacionesctpm_a6b5 - openai.agents: No conversation_id available for request
+2026-08-26 18:27:13.665 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:27:13.673 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Calling LLM
+2026-08-26 18:27:15.708 INFO    evaluacionesctpm_a6b5 - strix.report.sarif: Wrote SARIF 2.1.0 report: D:\Trabajos Importantes\En desarrollo\EvaluacionesCTPM\strix_runs\evaluacionesctpm_a6b5\findings.sarif (0 results)
+2026-08-26 18:27:15.709 INFO    evaluacionesctpm_a6b5 - strix.report.state: Essential scan data saved to: D:\Trabajos Importantes\En desarrollo\EvaluacionesCTPM\strix_runs\evaluacionesctpm_a6b5
+2026-08-26 18:27:15.710 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Processing output item type=message class=ResponseOutputMessage
+2026-08-26 18:27:15.710 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Processing output item type=function_call class=ResponseFunctionToolCall
+2026-08-26 18:27:15.711 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:27:15.789 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Turn 13 complete, next_step type=NextStepRunAgain
+2026-08-26 18:27:15.931 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Starting turn 14, current_agent=Root Agent
+2026-08-26 18:27:15.931 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:27:15.934 DEBUG   evaluacionesctpm_a6b5 - openai.agents: No conversation_id available for request
+2026-08-26 18:27:15.934 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:27:15.939 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Calling LLM
+2026-08-26 18:27:17.282 INFO    evaluacionesctpm_a6b5 - strix.report.sarif: Wrote SARIF 2.1.0 report: D:\Trabajos Importantes\En desarrollo\EvaluacionesCTPM\strix_runs\evaluacionesctpm_a6b5\findings.sarif (0 results)
+2026-08-26 18:27:17.283 INFO    evaluacionesctpm_a6b5 - strix.report.state: Essential scan data saved to: D:\Trabajos Importantes\En desarrollo\EvaluacionesCTPM\strix_runs\evaluacionesctpm_a6b5
+2026-08-26 18:27:17.284 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Processing output item type=message class=ResponseOutputMessage
+2026-08-26 18:27:17.284 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Processing output item type=function_call class=ResponseFunctionToolCall
+2026-08-26 18:27:17.284 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:27:17.363 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Turn 14 complete, next_step type=NextStepRunAgain
+2026-08-26 18:27:17.498 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Starting turn 15, current_agent=Root Agent
+2026-08-26 18:27:17.499 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:27:17.502 DEBUG   evaluacionesctpm_a6b5 - openai.agents: No conversation_id available for request
+2026-08-26 18:27:17.502 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:27:17.507 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Calling LLM
+2026-08-26 18:27:19.916 INFO    evaluacionesctpm_a6b5 - strix.report.sarif: Wrote SARIF 2.1.0 report: D:\Trabajos Importantes\En desarrollo\EvaluacionesCTPM\strix_runs\evaluacionesctpm_a6b5\findings.sarif (0 results)
+2026-08-26 18:27:19.917 INFO    evaluacionesctpm_a6b5 - strix.report.state: Essential scan data saved to: D:\Trabajos Importantes\En desarrollo\EvaluacionesCTPM\strix_runs\evaluacionesctpm_a6b5
+2026-08-26 18:27:19.918 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Processing output item type=message class=ResponseOutputMessage
+2026-08-26 18:27:19.918 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Processing output item type=function_call class=ResponseFunctionToolCall
+2026-08-26 18:27:19.919 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:27:19.979 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Turn 15 complete, next_step type=NextStepRunAgain
+2026-08-26 18:27:20.123 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Starting turn 16, current_agent=Root Agent
+2026-08-26 18:27:20.123 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:27:20.125 DEBUG   evaluacionesctpm_a6b5 - openai.agents: No conversation_id available for request
+2026-08-26 18:27:20.125 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:27:20.128 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Calling LLM
+2026-08-26 18:27:20.442 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Retrying failed streamed model request in 2.0s (attempt 1/5).
+2026-08-26 18:27:22.448 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:27:22.451 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Calling LLM
+2026-08-26 18:27:22.767 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Retrying failed streamed model request in 4.0s (attempt 2/5).
+2026-08-26 18:27:26.776 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:27:26.779 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Calling LLM
+2026-08-26 18:27:27.055 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Retrying failed streamed model request in 8.0s (attempt 3/5).
+2026-08-26 18:27:35.059 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:27:35.061 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Calling LLM
+2026-08-26 18:27:35.367 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Retrying failed streamed model request in 16.0s (attempt 4/5).
+2026-08-26 18:27:51.381 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:27:51.386 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Calling LLM
+2026-08-26 18:27:52.589 INFO    evaluacionesctpm_a6b5 - strix.report.sarif: Wrote SARIF 2.1.0 report: D:\Trabajos Importantes\En desarrollo\EvaluacionesCTPM\strix_runs\evaluacionesctpm_a6b5\findings.sarif (0 results)
+2026-08-26 18:27:52.590 INFO    evaluacionesctpm_a6b5 - strix.report.state: Essential scan data saved to: D:\Trabajos Importantes\En desarrollo\EvaluacionesCTPM\strix_runs\evaluacionesctpm_a6b5
+2026-08-26 18:27:52.591 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Processing output item type=message class=ResponseOutputMessage
+2026-08-26 18:27:52.591 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Processing output item type=function_call class=ResponseFunctionToolCall
+2026-08-26 18:27:52.592 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:27:52.657 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Turn 16 complete, next_step type=NextStepRunAgain
+2026-08-26 18:27:52.793 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Starting turn 17, current_agent=Root Agent
+2026-08-26 18:27:52.793 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:27:52.796 DEBUG   evaluacionesctpm_a6b5 - openai.agents: No conversation_id available for request
+2026-08-26 18:27:52.796 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:27:52.799 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Calling LLM
+2026-08-26 18:27:55.045 INFO    evaluacionesctpm_a6b5 - strix.report.sarif: Wrote SARIF 2.1.0 report: D:\Trabajos Importantes\En desarrollo\EvaluacionesCTPM\strix_runs\evaluacionesctpm_a6b5\findings.sarif (0 results)
+2026-08-26 18:27:55.046 INFO    evaluacionesctpm_a6b5 - strix.report.state: Essential scan data saved to: D:\Trabajos Importantes\En desarrollo\EvaluacionesCTPM\strix_runs\evaluacionesctpm_a6b5
+2026-08-26 18:27:55.047 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Processing output item type=message class=ResponseOutputMessage
+2026-08-26 18:27:55.047 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Processing output item type=function_call class=ResponseFunctionToolCall
+2026-08-26 18:27:55.048 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:27:55.199 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Turn 17 complete, next_step type=NextStepRunAgain
+2026-08-26 18:27:55.347 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Starting turn 18, current_agent=Root Agent
+2026-08-26 18:27:55.347 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:27:55.349 DEBUG   evaluacionesctpm_a6b5 - openai.agents: No conversation_id available for request
+2026-08-26 18:27:55.349 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:27:55.352 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Calling LLM
+2026-08-26 18:27:57.631 INFO    evaluacionesctpm_a6b5 - strix.report.sarif: Wrote SARIF 2.1.0 report: D:\Trabajos Importantes\En desarrollo\EvaluacionesCTPM\strix_runs\evaluacionesctpm_a6b5\findings.sarif (0 results)
+2026-08-26 18:27:57.633 INFO    evaluacionesctpm_a6b5 - strix.report.state: Essential scan data saved to: D:\Trabajos Importantes\En desarrollo\EvaluacionesCTPM\strix_runs\evaluacionesctpm_a6b5
+2026-08-26 18:27:57.635 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Processing output item type=message class=ResponseOutputMessage
+2026-08-26 18:27:57.635 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Processing output item type=function_call class=ResponseFunctionToolCall
+2026-08-26 18:27:57.636 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:27:57.917 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Turn 18 complete, next_step type=NextStepRunAgain
+2026-08-26 18:27:58.006 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Starting turn 19, current_agent=Root Agent
+2026-08-26 18:27:58.006 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:27:58.009 DEBUG   evaluacionesctpm_a6b5 - openai.agents: No conversation_id available for request
+2026-08-26 18:27:58.010 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:27:58.016 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Calling LLM
+2026-08-26 18:27:58.342 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Retrying failed streamed model request in 2.0s (attempt 1/5).
+2026-08-26 18:28:00.352 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:28:00.356 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Calling LLM
+2026-08-26 18:28:03.099 INFO    evaluacionesctpm_a6b5 - strix.report.sarif: Wrote SARIF 2.1.0 report: D:\Trabajos Importantes\En desarrollo\EvaluacionesCTPM\strix_runs\evaluacionesctpm_a6b5\findings.sarif (0 results)
+2026-08-26 18:28:03.101 INFO    evaluacionesctpm_a6b5 - strix.report.state: Essential scan data saved to: D:\Trabajos Importantes\En desarrollo\EvaluacionesCTPM\strix_runs\evaluacionesctpm_a6b5
+2026-08-26 18:28:03.102 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Processing output item type=message class=ResponseOutputMessage
+2026-08-26 18:28:03.102 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Processing output item type=function_call class=ResponseFunctionToolCall
+2026-08-26 18:28:03.103 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:28:03.270 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Turn 19 complete, next_step type=NextStepRunAgain
+2026-08-26 18:28:03.389 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Starting turn 20, current_agent=Root Agent
+2026-08-26 18:28:03.389 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:28:03.392 DEBUG   evaluacionesctpm_a6b5 - openai.agents: No conversation_id available for request
+2026-08-26 18:28:03.392 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:28:03.396 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Calling LLM
+2026-08-26 18:28:03.670 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Retrying failed streamed model request in 2.0s (attempt 1/5).
+2026-08-26 18:28:05.673 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Tracing is disabled. Not creating span
+2026-08-26 18:28:05.677 DEBUG   evaluacionesctpm_a6b5 - openai.agents: Calling LLM

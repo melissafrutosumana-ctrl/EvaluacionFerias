@@ -1,4 +1,19 @@
 {
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/usuarios.html", "destination": "/templates/usuarios.html" },
+    { "source": "/proyectos.html", "destination": "/templates/proyectos.html" },
+    { "source": "/asignaciones.html", "destination": "/templates/asignaciones.html" },
+    { "source": "/resultados.html", "destination": "/templates/resultados.html" },
+    { "source": "/observaciones.html", "destination": "/templates/observaciones.html" },
+    { "source": "/juez.html", "destination": "/templates/juez.html" },
+    { "source": "/usuarios", "destination": "/templates/usuarios.html" },
+    { "source": "/proyectos", "destination": "/templates/proyectos.html" },
+    { "source": "/asignaciones", "destination": "/templates/asignaciones.html" },
+    { "source": "/resultados", "destination": "/templates/resultados.html" },
+    { "source": "/observaciones", "destination": "/templates/observaciones.html" },
+    { "source": "/juez", "destination": "/templates/juez.html" }
+  ],
   "headers": [
     {
       "source": "/(.*)",
