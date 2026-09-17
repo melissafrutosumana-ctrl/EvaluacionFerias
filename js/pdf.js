@@ -108,15 +108,6 @@ export function pdfHeader(doc, title, logoDataUrl) {
         doc.setFontSize(6.2);
         doc.setTextColor(200, 215, 235);
         doc.text("Dirección Regional Pacífico Central  ·  Sistema de Evaluación de Ferias", tx, y + 19);
-        // Identificador institucional del sistema asociado (ASU).
-        doc.setFillColor(...PDF.GOLD);
-        doc.roundedRect(PDF.PAGE_W - PDF.MARGIN - 21, y + 5, 15, 15, 2.5, 2.5, "F");
-        doc.setTextColor(...PDF.PRIMARY);
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(8);
-        doc.text("ASU", PDF.PAGE_W - PDF.MARGIN - 13.5, y + 14.2, { align: "center" });
-        doc.setFontSize(4.2);
-        doc.text("EVALUACIÓN", PDF.PAGE_W - PDF.MARGIN - 13.5, y + 18.2, { align: "center" });
     } else {
         doc.setTextColor(...PDF.GOLD);
         doc.setFont("helvetica", "bold");
