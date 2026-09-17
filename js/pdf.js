@@ -85,6 +85,7 @@ export const PDF = {
 };
 
 export function pdfHeader(doc, title, logoDataUrl) {
+    doc.__reportTitle = title;
     let y = 10;
     doc.setFillColor(...PDF.PRIMARY);
     doc.roundedRect(PDF.MARGIN, y, PDF.PAGE_W - 2 * PDF.MARGIN, 30, 3, 3, "F");
@@ -162,9 +163,42 @@ export function pdfFooter(doc, now) {
     }
 }
 
+export function pdfContinuationHeader(doc) {
+    const title = doc.__reportTitle ?? "Reporte institucional";
+    doc.setFillColor(...PDF.PRIMARY);
+    doc.rect(0, 0, PDF.PAGE_W, 10, "F");
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(6.2);
+    doc.setTextColor(...PDF.WHITE);
+    doc.text("MINISTERIO DE EDUCACIÓN PÚBLICA · DIRECCIÓN REGIONAL PACÍFICO CENTRAL", PDF.MARGIN, 6.2);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(5.8);
+    doc.setTextColor(210, 224, 240);
+    doc.text(title, PDF.PAGE_W - PDF.MARGIN, 6.2, { align: "right" });
+    doc.setDrawColor(...PDF.GOLD);
+    doc.setLineWidth(0.45);
+    doc.line(PDF.MARGIN, 11.8, PDF.PAGE_W - PDF.MARGIN, 11.8);
+}
+
+export function pdfNewPage(doc) {
+    doc.addPage();
+    doc.setFillColor(253, 253, 253);
+    doc.rect(0, 0, PDF.PAGE_W, PDF.PAGE_H, "F");
+    pdfContinuationHeader(doc);
+    return PDF.MARGIN + 3;
+}
+
 export function pdfInfoBox(doc, lines, y) {
     const boxW = PDF.PAGE_W - 2 * PDF.MARGIN;
-    const boxH = lines.length * 5.2 + 10;
+    const entries = lines.map((line) => {
+        const sep = line.indexOf(":");
+        const label = sep > 0 ? line.slice(0, sep + 1) : "";
+        const value = sep > 0 ? line.slice(sep + 1).trim() : line;
+        doc.setFont("helvetica", sep > 0 ? "bold" : "normal");
+        doc.setFontSize(sep > 0 ? 7.2 : 7);
+        return { label, value, lines: doc.splitTextToSize(value, boxW - (sep > 0 ? 33 : 10)) };
+    });
+    const boxH = entries.reduce((sum, entry) => sum + Math.max(5.2, entry.lines.length * 3.8), 0) + 10;
     y = pdfCheckPage(doc, y, boxH + 4);
     doc.setFillColor(...PDF.ROW_ALT);
     doc.setDrawColor(...PDF.BORDER);
@@ -172,26 +206,23 @@ export function pdfInfoBox(doc, lines, y) {
     doc.setFillColor(...PDF.GOLD);
     doc.roundedRect(PDF.MARGIN, y, 2.2, boxH, 0.6, 0.6, "F");
     let ly = y + 6;
-    lines.forEach((line) => {
-        const sep = line.indexOf(":");
-        if (sep > 0) {
-            const label = line.slice(0, sep + 1);
-            const value = line.slice(sep + 1).trim();
+    entries.forEach((entry) => {
+        if (entry.label) {
             doc.setFont("helvetica", "bold");
             doc.setFontSize(6);
             doc.setTextColor(...PDF.MUTED);
-            doc.text(label.toUpperCase(), PDF.MARGIN + 5, ly);
+            doc.text(entry.label.toUpperCase(), PDF.MARGIN + 5, ly);
             doc.setFont("helvetica", "bold");
             doc.setFontSize(7.2);
             doc.setTextColor(...PDF.INK);
-            doc.text(value, PDF.MARGIN + 28, ly);
+            doc.text(entry.lines, PDF.MARGIN + 28, ly);
         } else {
             doc.setFont("helvetica", "normal");
             doc.setFontSize(7);
             doc.setTextColor(...PDF.MUTED);
-            doc.text(line, PDF.MARGIN + 5, ly);
+            doc.text(entry.lines, PDF.MARGIN + 5, ly);
         }
-        ly += 5.2;
+        ly += Math.max(5.2, entry.lines.length * 3.8);
     });
     return y + boxH + 6;
 }
@@ -234,10 +265,7 @@ export function pdfColHeader(doc, labels, positions, y) {
 
 export function pdfCheckPage(doc, y, needed) {
     if (y + (needed || 22) > PDF.PAGE_LIMIT) {
-        doc.addPage();
-        doc.setFillColor(253, 253, 253);
-        doc.rect(0, 0, PDF.PAGE_W, PDF.PAGE_H, "F");
-        return PDF.MARGIN;
+        return pdfNewPage(doc);
     }
     return y;
 }
@@ -408,10 +436,7 @@ export async function generateJudgePDF(user) {
         const obsH = g.observacion ? Math.max(16, obsLines.length * 3.8 + 14) : 0;
         const blockH = hdrH + catH + 7 + (bodyForAuto.length * 7) + 10 + obsH + 10;
         if (blockH < PDF.PAGE_LIMIT - PDF.MARGIN * 2 && y + blockH > PDF.PAGE_LIMIT) {
-            doc.addPage();
-            doc.setFillColor(253, 253, 253);
-            doc.rect(0, 0, PDF.PAGE_W, PDF.PAGE_H, "F");
-            y = PDF.MARGIN;
+            y = pdfNewPage(doc);
         }
         const cardX = M, cardW = tableW;
         doc.setFillColor(...PDF.PRIMARY);
@@ -781,10 +806,7 @@ export async function generateAdminPDF(sessionToken) {
       const rowsNeeded = (r.expoJudges.length + r.escritoJudges.length)*7 + 8;
       const blockH = hdrH + catH + 7 + rowsNeeded + 8;
       if(blockH < PDF.PAGE_LIMIT - PDF.MARGIN*2 && y + blockH > PDF.PAGE_LIMIT){
-        doc.addPage();
-        doc.setFillColor(253,253,253);
-        doc.rect(0,0,PDF.PAGE_W,PDF.PAGE_H,"F");
-        y = PDF.MARGIN;
+        y = pdfNewPage(doc);
       }
       doc.setFillColor(...PDF.PRIMARY);
       doc.roundedRect(M, y, W-2*M, hdrH, 2,2,"F");
