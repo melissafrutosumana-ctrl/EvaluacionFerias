@@ -1071,8 +1071,8 @@ export function getPronatecytRubricByCategory(category) {
 export function getFestivalAdvancedScoreOptions() {
     return [
         { value: 3, label: "3 Avanzado" },
-        { value: 2, label: "2 Basico" },
-        { value: 1, label: "1 Intermedio" }
+        { value: 2, label: "2 Intermedio" },
+        { value: 1, label: "1 Basico" }
     ];
 }
 

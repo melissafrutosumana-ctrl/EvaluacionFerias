@@ -1,8 +1,15 @@
 import { test } from "node:test";
 import assert from "node:assert";
 import { calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore, PRONAFECYT_BY_NIVEL, PRONAFECYT_EDUCATIONAL_CATEGORIES } from "../js/utils.js";
-import { PRONAFECYT_CODE_MAX, getPronatecytRubricByCategory } from "../js/rubrics.js";
+import { PRONAFECYT_CODE_MAX, getFestivalAdvancedScoreOptions, getPronatecytRubricByCategory } from "../js/rubrics.js";
 
+test("la escala avanzada del Festival conserva el orden 3, 2, 1", () => {
+  assert.deepStrictEqual(getFestivalAdvancedScoreOptions(), [
+    { value: 3, label: "3 Avanzado" },
+    { value: 2, label: "2 Intermedio" },
+    { value: 1, label: "1 Basico" }
+  ]);
+});
 test("calcAverage promedia solo los jueces que votaron", () => {
   const judges = [
     { voted: true, sum: 40 },

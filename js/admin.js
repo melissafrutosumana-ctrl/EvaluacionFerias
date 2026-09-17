@@ -4,6 +4,15 @@ import { getSession, enforceRole, hashPassword, bindLogout } from "./auth.js";
 import { loadProjects, loadJudges, loadJudgeAssignments, loadUsers, fetchAllEvaluations, fetchAllRpc } from "./data.js";
 import { generateAdminPDF } from "./pdf.js";
 
+function formatEvaluationDate(value) {
+    if (!value) return "Sin programar";
+    return new Date(`${value}T00:00:00`).toLocaleDateString("es-CR", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric"
+    });
+}
+
 function renderUsersTable(users, roles) {
     const tbody = document.querySelector("[data-users-table]");
     const status = document.querySelector("[data-users-table-status]");
@@ -117,6 +126,8 @@ function renderProjectsManagementTable(projects) {
                         .filter(Boolean);
                     detailText = integrantes.length ? integrantes.join(" | ") : "-";
                 }
+
+                detailText = `${detailText} | Evaluación: ${formatEvaluationDate(item.fecha_evaluacion)}`;
 
                 return `
         <tr>
@@ -360,7 +371,7 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
         const escritoAvg = calcAverage(escritoJudges);
 
         const cat = proj ?.tipo_feria === "Feria Cientifica y Tecnologica" ?
-            (proj ?.nivel_educativo || getNivelFromPronatecyt(proj ?.categoria_pronatecyt)) :
+            (proj ?.categoria_pronatecyt || "Sin categoría") :
             (proj ?.categoria_expotecnica ?? proj ?.categoria_festival ?? null);
         const manualEscrito = proj ?.puntaje_escrito_manual != null ? Number(proj.puntaje_escrito_manual) : null;
         const escritoAvgFinal = manualEscrito !== null ? manualEscrito : escritoAvg;
@@ -390,6 +401,7 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
         results.push({
             projectId,
             projectName: proj ?.titulo ?? "Proyecto",
+            feria: proj ?.tipo_feria ?? "Feria",
             categoria: cat,
             manualEscrito,
             expoJudges,
@@ -496,14 +508,19 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
         }
     });
 
-    const groupByCategory = selectedFeria === "Feria Expotecnica" || selectedFeria === "Festival Estudiantil de las Artes" || selectedFeria === "Feria Cientifica y Tecnologica";
+    const groupByCategory = results.some((result) =>
+        result.feria === "Feria Expotecnica" ||
+        result.feria === "Festival Estudiantil de las Artes" ||
+        result.feria === "Feria Cientifica y Tecnologica"
+    );
 
     if (groupByCategory) {
         const grouped = new Map();
         results.forEach((r) => {
             const cat = r.categoria || "Sin categoría";
-            if (!grouped.has(cat)) grouped.set(cat, []);
-            grouped.get(cat).push(r);
+            const groupLabel = selectedFeria ? cat : `${r.feria} — ${cat}`;
+            if (!grouped.has(groupLabel)) grouped.set(groupLabel, []);
+            grouped.get(groupLabel).push(r);
         });
 
         const html = [];
@@ -966,6 +983,7 @@ export async function bootstrapAdminPage() {
       const ejeTematico = String(formData.get("eje_tematico") ?? "").trim();
       const categoriaPronatecyt = String(formData.get("categoria_pronatecyt") ?? "").trim();
       const nivelEducativo = String(formData.get("nivel_cientifico") ?? "").trim();
+      const fechaEvaluacion = String(formData.get("fecha_evaluacion") ?? "").trim();
       const isFestival = tipoFeria === FESTIVAL_FERIA_NAME;
       const isExpotecnica = tipoFeria === "Feria Expotecnica";
       const isScientific = tipoFeria === "Feria Cientifica y Tecnologica";
@@ -1019,7 +1037,8 @@ export async function bootstrapAdminPage() {
           participacion: participacion || null,
           categoria_expotecnica: isExpotecnica ? categoriaExpotecnica : null,
           eje_tematico: isExpotecnica ? ejeTematico : null,
-          categoria_pronatecyt: isScientific ? categoriaPronatecyt : null
+          categoria_pronatecyt: isScientific ? categoriaPronatecyt : null,
+          fecha_evaluacion: fechaEvaluacion || null
         };
 
         const { error } = await supabase.rpc("admin_save_project", {
@@ -1483,6 +1502,13 @@ function showEditProjectModal(project) {
           </label>
         </div>
 
+        <div class="field-group">
+          <label class="field-label">
+            <span>Fecha de evaluación</span>
+            <input name="fecha_evaluacion" type="date" value="${escapeHTML(String(project.fecha_evaluacion ?? ""))}">
+          </label>
+        </div>
+
         <div data-integrantes-block>
           <div class="field-row">
             <label class="field-label">
@@ -1719,6 +1745,7 @@ function showEditProjectModal(project) {
     const ejeTematico = String(formData.get("eje_tematico") ?? "").trim();
     const categoriaPronatecyt = String(formData.get("categoria_pronatecyt") ?? "").trim();
     const nivelEducativo = String(formData.get("nivel_cientifico") ?? "").trim();
+    const fechaEvaluacion = String(formData.get("fecha_evaluacion") ?? "").trim();
     const isFestival = tipoFeria === FESTIVAL_FERIA_NAME;
     const isExpotecnica = tipoFeria === "Feria Expotecnica";
     const isScientific = tipoFeria === "Feria Cientifica y Tecnologica";
@@ -1741,7 +1768,8 @@ function showEditProjectModal(project) {
       participacion: participacion || null,
       categoria_expotecnica: isExpotecnica ? categoriaExpotecnica : null,
       eje_tematico: isExpotecnica ? ejeTematico : null,
-      categoria_pronatecyt: isScientific ? categoriaPronatecyt : null
+      categoria_pronatecyt: isScientific ? categoriaPronatecyt : null,
+      fecha_evaluacion: fechaEvaluacion || null
     };
 
     try {
