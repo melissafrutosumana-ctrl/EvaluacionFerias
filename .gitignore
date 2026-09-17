@@ -39,3 +39,10 @@ supabase/
 strix_runs/
 vigila-strix.ps1
 vigila*.ps1
+
+# Configuración MCP y artefactos locales de desarrollo
+.mcp.json
+output/
+tmp/
+work/
+tools/
