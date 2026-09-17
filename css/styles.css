@@ -4195,7 +4195,7 @@ body[data-page="judge"] .btn-sm:hover {
 
 /* ===== TABLAS RESPONSIVE (MÓVIL) ===== */
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
     /* --- Rúbrica del juez: layout de tarjetas para votar fácil --- */
     .rubric-table thead {
         display: none;
