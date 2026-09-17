@@ -13,6 +13,26 @@ function formatEvaluationDate(value) {
     });
 }
 
+function isAdminRole(roleId, roles) {
+    const role = (roles ?? []).find((item) => Number(item.id) === Number(roleId));
+    return normalizeRoleName(role?.nombre) === "administrador";
+}
+
+function updateUserFeriaField(form, roles) {
+    if (!form) return;
+
+    const roleSelect = form.querySelector('[name="role_id"]');
+    const feriaSelect = form.querySelector('[name="tipo_feria"]');
+    const feriaField = form.querySelector('[data-user-feria-field]');
+    if (!roleSelect || !feriaSelect || !feriaField) return;
+
+    const isAdmin = isAdminRole(roleSelect.value, roles);
+    feriaField.hidden = isAdmin;
+    feriaSelect.required = !isAdmin;
+    feriaSelect.disabled = isAdmin;
+    if (isAdmin) feriaSelect.value = "";
+}
+
 function renderUsersTable(users, roles) {
     const tbody = document.querySelector("[data-users-table]");
     const status = document.querySelector("[data-users-table-status]");
@@ -33,10 +53,11 @@ function renderUsersTable(users, roles) {
         .map((item) => {
             const roleName = roleNamesById.get(item.role_id) ?? "Sin rol";
             const roleClass = roleName === "administrador" ? "role-badge role-admin" : roleName === "Juez" ? "role-badge role-judge" : "role-badge";
+            const feriaLabel = roleName === "administrador" ? "Acceso global" : (item.tipo_feria ?? "-");
             return `<tr>
         <td>${escapeHTML(item.nombre)}</td>
         <td><span class="${roleClass}">${escapeHTML(roleName)}</span></td>
-        <td>${escapeHTML(item.tipo_feria ?? "-")}</td>
+        <td>${escapeHTML(feriaLabel)}</td>
         <td>
           <button class="table-action-btn edit-user-btn" data-edit-user="${escapeHTML(JSON.stringify({ id: item.id, nombre: item.nombre, role_id: item.role_id, tipo_feria: item.tipo_feria }))}">Editar</button>
           <button class="table-action-btn delete-user-btn" data-delete-user-id="${item.id}">Eliminar</button>
@@ -854,7 +875,7 @@ export async function bootstrapAdminPage() {
     adminName.textContent = user.nombre;
   }
   if (feriaTag) {
-    feriaTag.textContent = user.tipo_feria ?? "";
+    feriaTag.textContent = user.role === "administrador" ? "Acceso global" : (user.tipo_feria ?? "");
   }
 
   const userForm = document.querySelector("[data-user-form]");
@@ -882,6 +903,7 @@ export async function bootstrapAdminPage() {
 
   let allProjectsCache = [];
   let allAssignmentsCache = [];
+  let rolesCache = [];
 
   async function refreshAdminDataView() {
     const usersTbody = document.querySelector("[data-users-table]");
@@ -899,6 +921,7 @@ export async function bootstrapAdminPage() {
     ]);
 
     const judges = judgesResult;
+    rolesCache = roles;
     allProjectsCache = allProjectsResult;
     allAssignmentsCache = assignmentsResult;
     const projects = projectsResult;
@@ -906,6 +929,7 @@ export async function bootstrapAdminPage() {
     const users = usersResult;
 
     fillSelect(document.querySelector("[data-user-role-select]"), getAllowedRolesForUserForm(roles), "Selecciona un rol");
+    updateUserFeriaField(userForm, rolesCache);
     renderUsersTable(users, roles);
     renderProjectsManagementTable(projects);
     renderJudgeAssignmentsTable(judges, allProjectsCache, assignments);
@@ -919,6 +943,9 @@ export async function bootstrapAdminPage() {
   }
 
   if (userForm) {
+    const userRoleSelect = userForm.querySelector('[name="role_id"]');
+    userRoleSelect?.addEventListener("change", () => updateUserFeriaField(userForm, rolesCache));
+
     userForm.addEventListener("submit", async (event) => {
       event.preventDefault();
       const btn = userForm.querySelector("button[type=submit]");
@@ -927,10 +954,11 @@ export async function bootstrapAdminPage() {
       const formData = new FormData(userForm);
       const nombre = String(formData.get("nombre") ?? "").trim();
       const contrasena = String(formData.get("contrasena") ?? "");
-      const tipoFeria = String(formData.get("tipo_feria") ?? "").trim();
       const roleId = Number(formData.get("role_id"));
+      const isAdmin = isAdminRole(roleId, rolesCache);
+      const tipoFeria = isAdmin ? null : String(formData.get("tipo_feria") ?? "").trim();
 
-      if (!nombre || !contrasena || !tipoFeria || !roleId) {
+      if (!nombre || !contrasena || !roleId || (!isAdmin && !tipoFeria)) {
         showToast("Completa todos los campos del usuario.", "error");
         return;
       }
@@ -1378,9 +1406,9 @@ function showEditUserModal(user, roles) {
         Nueva contraseña <span style="color:#94a3b8;font-size:0.75rem;">(dejar en blanco para mantener)</span>
         <input name="contrasena" type="password" autocomplete="new-password">
       </label>
-      <label class="edit-modal-field">
+      <label class="edit-modal-field" data-user-feria-field>
         Tipo de feria
-        <select name="tipo_feria" required>${feriaOptions}</select>
+        <select name="tipo_feria">${feriaOptions}</select>
       </label>
       <label class="edit-modal-field">
         Rol
@@ -1398,6 +1426,11 @@ function showEditUserModal(user, roles) {
   document.body.appendChild(overlay);
   openModalAccesible(overlay);
 
+  const editForm = document.getElementById("edit-user-form");
+  const editRoleSelect = editForm.querySelector('[name="role_id"]');
+  editRoleSelect.addEventListener("change", () => updateUserFeriaField(editForm, roles));
+  updateUserFeriaField(editForm, roles);
+
   overlay.addEventListener("click", (e) => {
     if (e.target === overlay) {
       closeModalAccesible(overlay);
@@ -1414,7 +1447,7 @@ function showEditUserModal(user, roles) {
     overlay.remove();
   });
 
-  document.getElementById("edit-user-form").addEventListener("submit", async (e) => {
+  editForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     const status = document.getElementById("edit-user-status");
     const btn = e.target.querySelector("button[type=submit]");
@@ -1423,10 +1456,11 @@ function showEditUserModal(user, roles) {
     const userId = Number(formData.get("user_id"));
     const nombre = String(formData.get("nombre") ?? "").trim();
     const contrasena = String(formData.get("contrasena") ?? "");
-    const tipoFeria = String(formData.get("tipo_feria") ?? "").trim();
     const roleId = Number(formData.get("role_id"));
+    const isAdmin = isAdminRole(roleId, roles);
+    const tipoFeria = isAdmin ? null : String(formData.get("tipo_feria") ?? "").trim();
 
-    if (!nombre || !tipoFeria || !roleId) {
+    if (!nombre || !roleId || (!isAdmin && !tipoFeria)) {
       status.textContent = "Completa todos los campos.";
       status.style.color = "#dc2626";
       return;
