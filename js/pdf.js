@@ -108,6 +108,15 @@ export function pdfHeader(doc, title, logoDataUrl) {
         doc.setFontSize(6.2);
         doc.setTextColor(200, 215, 235);
         doc.text("Dirección Regional Pacífico Central  ·  Sistema de Evaluación de Ferias", tx, y + 19);
+        // Identificador institucional del sistema asociado (ASU).
+        doc.setFillColor(...PDF.GOLD);
+        doc.roundedRect(PDF.PAGE_W - PDF.MARGIN - 21, y + 5, 15, 15, 2.5, 2.5, "F");
+        doc.setTextColor(...PDF.PRIMARY);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(8);
+        doc.text("ASU", PDF.PAGE_W - PDF.MARGIN - 13.5, y + 14.2, { align: "center" });
+        doc.setFontSize(4.2);
+        doc.text("EVALUACIÓN", PDF.PAGE_W - PDF.MARGIN - 13.5, y + 18.2, { align: "center" });
     } else {
         doc.setTextColor(...PDF.GOLD);
         doc.setFont("helvetica", "bold");
@@ -270,6 +279,32 @@ export function pdfCheckPage(doc, y, needed) {
     return y;
 }
 
+export function pdfSignatureBlock(doc, y, labels = ["Firma", "Nombre y cargo"]) {
+    const blockH = 30;
+    y = pdfCheckPage(doc, y, blockH);
+    const gap = 12;
+    const colW = (PDF.PAGE_W - 2 * PDF.MARGIN - gap) / 2;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(7.5);
+    doc.setTextColor(...PDF.PRIMARY);
+    doc.text("VALIDACIÓN Y FIRMAS", PDF.MARGIN, y + 5);
+    doc.setDrawColor(...PDF.GOLD);
+    doc.setLineWidth(0.5);
+    doc.line(PDF.MARGIN, y + 7, PDF.MARGIN + 28, y + 7);
+    const lineY = y + 22;
+    labels.forEach((label, i) => {
+        const x = PDF.MARGIN + i * (colW + gap);
+        doc.setDrawColor(...PDF.INK);
+        doc.setLineWidth(0.35);
+        doc.line(x, lineY, x + colW, lineY);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(6.8);
+        doc.setTextColor(...PDF.INK_LIGHT);
+        doc.text(label.toUpperCase(), x + colW / 2, lineY + 5, { align: "center" });
+    });
+    return lineY + 10;
+}
+
 
 export async function generateJudgePDF(user) {
     await loadJSPDF();
@@ -325,8 +360,7 @@ export async function generateJudgePDF(user) {
     doc.rect(0, 0, PDF.PAGE_W, PDF.PAGE_H, "F");
     const now = new Date();
     const M = PDF.MARGIN, W = PDF.PAGE_W;
-    let y = pdfHeader(doc, "Reporte de Evaluaciones", logoData ? "MEP" : mockUserTipo(user));
-    function mockUserTipo(u){ return u.tipo_feria || ""; }
+    let y = pdfHeader(doc, "Reporte de Evaluaciones", logoData);
 
     const infoLines = [
         `Juez: ${user.nombre}`,
@@ -584,6 +618,7 @@ export async function generateJudgePDF(user) {
     doc.setFontSize(12);
     doc.text(`${grandTotal} pts`, W - M - 4, y + 7.5, { align: "right" });
     y += 18;
+    y = pdfSignatureBlock(doc, y, ["Firma del juez", "Nombre y cargo"]);
     pdfFooter(doc, now);
     doc.save(`evaluaciones_${user.nombre.replace(/\s+/g, "_")}.pdf`);
 }
@@ -702,7 +737,7 @@ export async function generateAdminPDF(sessionToken) {
     doc.rect(0,0,PDF.PAGE_W,PDF.PAGE_H,"F");
     const now = new Date();
     const M = PDF.MARGIN, W = PDF.PAGE_W;
-    let y = pdfHeader(doc, "Reporte de Resultados", logoData ? "MEP" : "");
+    let y = pdfHeader(doc, "Reporte de Resultados", logoData);
     const feriaLabel = selectedFeria || "Todas las ferias";
     const isFEA = selectedFeria === FESTIVAL_FERIA_NAME || (results.length > 0 && results.every(r => projectsById.get(r.projectId)?.tipo_feria === FESTIVAL_FERIA_NAME));
     const infoLines = [`Feria: ${feriaLabel}`, `Total de proyectos: ${results.length}`, `Total de jueces participantes: ${usersById.size}`, `Total evaluaciones: ${evaluations.length}`, `Generado: ${now.toLocaleDateString("es-CR")} ${now.toLocaleTimeString("es-CR")}`];
@@ -882,6 +917,7 @@ export async function generateAdminPDF(sessionToken) {
     doc.setTextColor(...PDF.MUTED);
     doc.text(`Proyecto líder: ${results[0]?.projectName||"—"} — ${results[0]?.evalComplete? Math.round(results[0].finalScore)+" pts":"pendiente"}`, M+4, y+11);
     y+=22;
+    y = pdfSignatureBlock(doc, y, ["Firma responsable", "Sello institucional"]);
     pdfFooter(doc, now);
     const fileName = selectedFeria ? `resultados_${selectedFeria.replace(/\s+/g, "_")}.pdf` : "resultados_generales.pdf";
     doc.save(fileName);
