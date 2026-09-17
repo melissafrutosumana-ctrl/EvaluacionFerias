@@ -893,6 +893,11 @@ body.nav-open[data-page="judge"] main {
     color: var(--ink);
 }
 
+.field-label[data-user-feria-field][hidden],
+.edit-modal-field[data-user-feria-field][hidden] {
+    display: none !important;
+}
+
 .field-label span {
     font-size: var(--text-xs);
     font-weight: 600;
