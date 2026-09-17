@@ -1,5 +1,5 @@
 import { supabase } from "./supabase.js";
-import { escapeHTML, showToast, setMessage, normalizeRoleName, fillSelect, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, buildFeriaOptions, FESTIVAL_FERIA_NAME, FESTIVAL_CATEGORIES, FESTIVAL_SUBCATEGORIES, EXPOTECNICA_CATEGORIES, EXPOTECNICA_EJES, PRONAFECYT_CATEGORIES, PRONAFECYT_EDUCATIONAL_CATEGORIES, updateProjectFormFieldsByFeria, showSkeleton, confirmDialog, PRONAFECYT_BY_NIVEL, getNivelFromPronatecyt, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore, openModalAccesible, closeModalAccesible } from "./utils.js";
+import { escapeHTML, showToast, setMessage, normalizeRoleName, fillSelect, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, buildFeriaOptions, FESTIVAL_FERIA_NAME, FESTIVAL_CATEGORIES, FESTIVAL_SUBCATEGORIES, EXPOTECNICA_CATEGORIES, EXPOTECNICA_EJES, PRONAFECYT_CATEGORIES, PRONAFECYT_EDUCATIONAL_CATEGORIES, PRONAFECYT_C_RAW_MAX, updateProjectFormFieldsByFeria, showSkeleton, confirmDialog, PRONAFECYT_BY_NIVEL, getNivelFromPronatecyt, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore, openModalAccesible, closeModalAccesible } from "./utils.js";
 import { getSession, enforceRole, hashPassword, bindLogout } from "./auth.js";
 import { loadProjects, loadJudges, loadJudgeAssignments, loadUsers, fetchAllEvaluations, fetchAllRpc } from "./data.js";
 import { generateAdminPDF } from "./pdf.js";
@@ -394,7 +394,12 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
         const cat = proj ?.tipo_feria === "Feria Cientifica y Tecnologica" ?
             (proj ?.categoria_pronatecyt || "Sin categoría") :
             (proj ?.categoria_expotecnica ?? proj ?.categoria_festival ?? null);
-        const manualEscrito = proj ?.puntaje_escrito_manual != null ? Number(proj.puntaje_escrito_manual) : null;
+        const isScientific = proj ?.tipo_feria === "Feria Cientifica y Tecnologica";
+        const isExpotecnica = proj ?.tipo_feria === "Feria Expotecnica";
+        const writtenMax = isScientific ?
+            (PRONAFECYT_C_RAW_MAX[String(proj ?.categoria_pronatecyt || "").split(" ")[0].replace("B", "C")] || 0) :
+            (isExpotecnica ? ({ "DESAFIO STEAM": 105, "EMPRENDIMIENTO E INNOVACION": 72 }[proj ?.categoria_expotecnica] || 0) : 0);
+        const manualEscrito = writtenMax > 0 && proj ?.puntaje_escrito_manual != null ? Number(proj.puntaje_escrito_manual) : null;
         const escritoAvgFinal = manualEscrito !== null ? manualEscrito : escritoAvg;
         const escritoVotedFinal = manualEscrito !== null ? 1 : escritoVoted;
         const evaluationComplete =
@@ -402,8 +407,6 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
             (manualEscrito !== null || escritoTotal === 0 || escritoVoted === escritoTotal);
 
         let finalScore;
-        const isScientific = proj ?.tipo_feria === "Feria Cientifica y Tecnologica";
-        const isExpotecnica = proj ?.tipo_feria === "Feria Expotecnica";
         if (isScientific) {
             const bCode = String(proj ?.categoria_pronatecyt || "").split(" ")[0];
             const expoPts = expoAvg;
@@ -424,6 +427,7 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
             projectName: proj ?.titulo ?? "Proyecto",
             feria: proj ?.tipo_feria ?? "Feria",
             categoria: cat,
+            writtenMax,
             manualEscrito,
             expoJudges,
             escritoJudges,
@@ -448,7 +452,8 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
         const totalAssigned = r.expoTotal + r.escritoTotal;
         const pct = totalAssigned > 0 ? Math.round(totalVoted / totalAssigned * 100) : 0;
         const barColor = pct === 100 ? "var(--secondary)" : pct > 50 ? "var(--secondary-light)" : "var(--ink-secondary)";
-        const escritoCell = r.manualEscrito !== null ?
+        const escritoCell = r.writtenMax === 0 ?
+            '<span class="judge-empty">No aplica</span>' : r.manualEscrito !== null ?
             `<span class="manual-score-display">${r.manualEscrito.toFixed(0)} <span class="judge-status">(manual)</span></span>
          <button class="btn-manual-escrito" data-project-id="${r.projectId}" data-current="${r.manualEscrito}" title="Editar puntaje manual" aria-label="Editar puntaje manual">
            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>
@@ -458,7 +463,7 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>
            Ingresar manual
          </button>`;
-        return `<tr data-result-row="${r.projectId}">
+        return `<tr data-result-row="${r.projectId}" data-written-max="${r.writtenMax}">
       <td>
         <strong>${escapeHTML(r.projectName)}</strong>
         <div class="judge-progress-wrap">
@@ -483,10 +488,13 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
 
         const originalContent = cell.innerHTML;
         const hasCurrent = current !== "";
+        const maxScore = Number(btn.closest("tr")?.dataset.writtenMax || 0);
         cell.innerHTML = `
-      <form class="manual-escrito-form" style="display:flex;gap:0.4rem;align-items:center;flex-wrap:wrap;">
-        <input type="number" class="manual-escrito-input" min="0" step="0.1"
-          value="${escapeHTML(current)}" placeholder="Puntaje" style="width:90px;">
+      <form class="manual-escrito-form" style="display:flex;gap:0.4rem;align-items:center;flex-wrap:wrap;" aria-label="Puntaje escrito manual">
+        <label class="sr-only" for="manual-score-${projectId}">Puntaje escrito (0 a ${maxScore})</label>
+        <input id="manual-score-${projectId}" type="number" class="manual-escrito-input" min="0" max="${maxScore}" step="0.1"
+          value="${escapeHTML(current)}" placeholder="0–${maxScore}" inputmode="decimal" required style="width:90px;">
+        <span class="judge-status" aria-hidden="true">/ ${maxScore}</span>
         <button type="submit" class="btn-primary btn-sm">Guardar</button>
         ${hasCurrent ? '<button type="button" class="btn-secondary btn-sm manual-escrito-delete">Borrar</button>' : ''}
         <button type="button" class="btn-secondary btn-sm manual-escrito-cancel">Cancelar</button>
@@ -495,8 +503,13 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
         cell.querySelector(".manual-escrito-cancel").addEventListener("click", () => {
             cell.innerHTML = originalContent;
         });
+        cell.querySelector(".manual-escrito-input")?.focus();
 
         async function saveScore(num) {
+            const submitButton = cell.querySelector('button[type="submit"]');
+            const deleteButton = cell.querySelector('.manual-escrito-delete');
+            if (submitButton) { submitButton.disabled = true; submitButton.textContent = "Guardando…"; }
+            if (deleteButton) deleteButton.disabled = true;
             const { error } = await supabase.rpc("admin_set_manual_escrito", {
                 p_session_token: getSession()?.session_token,
                 p_project_id: Number(projectId),
@@ -507,6 +520,7 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
                 cell.innerHTML = originalContent;
                 return;
             }
+            showToast(num === null ? "Puntaje manual eliminado." : "Puntaje manual guardado.", "success");
             await renderAdminReportsByFeria();
         }
 
@@ -514,8 +528,8 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
             ev.preventDefault();
             const val = cell.querySelector(".manual-escrito-input").value.trim();
             const num = val === "" ? null : Number(val);
-            if (val !== "" && (isNaN(num) || num < 0)) {
-                showToast("Ingrese un puntaje válido (0 o más).", "error");
+            if (val === "" || !Number.isFinite(num) || num < 0 || num > maxScore) {
+                showToast(`Ingrese un puntaje entre 0 y ${maxScore}.`, "error");
                 return;
             }
             await saveScore(num);
@@ -524,6 +538,7 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
         const deleteBtn = cell.querySelector(".manual-escrito-delete");
         if (deleteBtn) {
             deleteBtn.addEventListener("click", async () => {
+                if (!window.confirm("¿Borrar el puntaje manual de este proyecto? Se volverá a usar el promedio de jueces.")) return;
                 await saveScore(null);
             });
         }

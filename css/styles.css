@@ -66,6 +66,19 @@
     outline-offset: var(--focus-ring-offset);
 }
 
+/* Texto disponible para lectores de pantalla sin alterar la composición visual. */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
 body {
     margin: 0;
     font-family: var(--font-body);
