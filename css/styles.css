@@ -4204,6 +4204,8 @@ body[data-page="judge"] .btn-sm:hover {
     .rubric-table tbody {
         display: block;
         width: 100%;
+        max-width: 100%;
+        min-width: 0;
     }
     .rubric-table tbody tr {
         display: flex;
