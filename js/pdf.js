@@ -271,7 +271,7 @@ export function pdfCheckPage(doc, y, needed) {
 }
 
 export function pdfSignatureBlock(doc, y, labels = ["Firma", "Nombre y cargo"]) {
-    const blockH = 30;
+    const blockH = 42;
     y = pdfCheckPage(doc, y, blockH);
     const gap = 12;
     const colW = (PDF.PAGE_W - 2 * PDF.MARGIN - gap) / 2;
@@ -282,7 +282,7 @@ export function pdfSignatureBlock(doc, y, labels = ["Firma", "Nombre y cargo"]) 
     doc.setDrawColor(...PDF.GOLD);
     doc.setLineWidth(0.5);
     doc.line(PDF.MARGIN, y + 7, PDF.MARGIN + 28, y + 7);
-    const lineY = y + 22;
+    const lineY = y + 32;
     labels.forEach((label, i) => {
         const x = PDF.MARGIN + i * (colW + gap);
         doc.setDrawColor(...PDF.INK);
@@ -293,7 +293,7 @@ export function pdfSignatureBlock(doc, y, labels = ["Firma", "Nombre y cargo"]) 
         doc.setTextColor(...PDF.INK_LIGHT);
         doc.text(label.toUpperCase(), x + colW / 2, lineY + 5, { align: "center" });
     });
-    return lineY + 10;
+    return lineY + 12;
 }
 
 
