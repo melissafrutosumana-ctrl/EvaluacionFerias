@@ -33,10 +33,14 @@ export async function bootstrapJudgePage() {
   const myEvaluationsStatus = document.querySelector("[data-my-evaluations-status]");
   const myEvaluationsList = document.querySelector("[data-my-evaluations]");
   const projectSelect = document.querySelector("[data-project-select]");
+  const dateFilter = document.querySelector("[data-judge-date-filter]");
+  const dateSelect = document.querySelector("[data-judge-date-select]");
+  const dateStatus = document.querySelector("[data-judge-date-status]");
   const categoryFilter = document.querySelector("[data-judge-category-filter]");
   const categorySelect = document.querySelector("[data-judge-category-select]");
   const categoryStatus = document.querySelector("[data-judge-category-status]");
   let assignedProjectsCache = [];
+  let activeDateFilter = "";
   let activeCategoryFilter = "";
   let currentRubricModel = {
     indicators: getRubricIndicatorsByFeria(userFeria),
@@ -189,6 +193,35 @@ export async function bootstrapJudgePage() {
     } catch { /* ignorar: fallo silencioso de carga */ }
   }
 
+  function formatEvaluationDate(value) {
+    if (!value) return "";
+    return new Date(`${value}T00:00:00`).toLocaleDateString("es-CR", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric"
+    });
+  }
+
+  function populateDateFilter(projects) {
+    if (!dateSelect || !dateFilter) return;
+
+    const dates = [...new Set(projects.map((project) => project.fecha_evaluacion).filter(Boolean))].sort();
+    dateFilter.hidden = dates.length === 0;
+    if (!dates.length) return;
+
+    const currentValue = dateSelect.value;
+    dateSelect.innerHTML = '<option value="">Todos los proyectos</option>';
+    dates.forEach((date) => {
+      const option = document.createElement("option");
+      option.value = date;
+      option.textContent = formatEvaluationDate(date);
+      dateSelect.appendChild(option);
+    });
+    if (currentValue && dates.includes(currentValue)) {
+      dateSelect.value = currentValue;
+    }
+  }
+
   function populateCategoryFilter(projects) {
     if (!categorySelect || !categoryFilter) return;
 
@@ -228,14 +261,18 @@ export async function bootstrapJudgePage() {
   }
 
   function getFilteredProjects(projects) {
-    if (!activeCategoryFilter) return projects;
+    const dateFilteredProjects = activeDateFilter
+      ? projects.filter((project) => project.fecha_evaluacion === activeDateFilter)
+      : projects;
 
-    const projectFeria = projects.length ? (projects[0].tipo_feria ?? userFeria) : userFeria;
+    if (!activeCategoryFilter) return dateFilteredProjects;
+
+    const projectFeria = dateFilteredProjects.length ? (dateFilteredProjects[0].tipo_feria ?? userFeria) : userFeria;
     const isFestival = projectFeria === FESTIVAL_FERIA_NAME;
     const isScientific = projectFeria === "Feria Cientifica y Tecnologica";
     let categoryField = isFestival ? "categoria_festival" : "categoria_expotecnica";
     if (isScientific) categoryField = "categoria_pronatecyt";
-    return projects.filter((p) => String(p[categoryField] ?? "") === activeCategoryFilter);
+    return dateFilteredProjects.filter((p) => String(p[categoryField] ?? "") === activeCategoryFilter);
   }
 
   async function refreshJudgeData() {
@@ -243,6 +280,7 @@ export async function bootstrapJudgePage() {
       const assignedProjects = await loadAssignedProjectsForJudge();
       assignedProjectsCache = assignedProjects;
 
+      populateDateFilter(assignedProjects);
       populateCategoryFilter(assignedProjects);
 
       const filteredProjects = getFilteredProjects(assignedProjects);
@@ -274,16 +312,18 @@ export async function bootstrapJudgePage() {
         return item;
       });
 
+      const previousProjectId = projectSelect?.value;
       fillSelectGroupedByTipo(projectSelect, projectsForSelect, new Set());
-
-      if (projectSelect?.value) {
-        applyRubricForSelection(projectSelect.value);
-      } else {
-        applyRubricForSelection(filteredProjects[0]?.id ?? "");
+      const previousProjectIsVisible = projectsForSelect.some((project) => Number(project.id) === Number(previousProjectId));
+      if (projectSelect) {
+        projectSelect.value = previousProjectIsVisible ? previousProjectId : String(filteredProjects[0]?.id ?? "");
       }
+      applyRubricForSelection(projectSelect?.value ?? "");
 
       if (!filteredProjects.length) {
-        const msg = activeCategoryFilter
+        const msg = activeDateFilter
+          ? `No hay proyectos programados para ${formatEvaluationDate(activeDateFilter)}.`
+          : activeCategoryFilter
           ? `No hay proyectos en la categoria "${activeCategoryFilter}".`
           : "Este juez no tiene proyectos asignados por el admin.";
         setMessage(evaluationStatus, msg, "error");
@@ -399,6 +439,19 @@ export async function bootstrapJudgePage() {
       } else {
         categoryStatus.textContent = "";
         categoryStatus.removeAttribute("data-kind");
+      }
+    }
+    refreshJudgeData();
+  });
+
+  dateSelect?.addEventListener("change", () => {
+    activeDateFilter = dateSelect.value;
+    if (dateStatus) {
+      if (activeDateFilter) {
+        setMessage(dateStatus, `Mostrando proyectos del ${formatEvaluationDate(activeDateFilter)}.`, "success");
+      } else {
+        dateStatus.textContent = "";
+        dateStatus.removeAttribute("data-kind");
       }
     }
     refreshJudgeData();
