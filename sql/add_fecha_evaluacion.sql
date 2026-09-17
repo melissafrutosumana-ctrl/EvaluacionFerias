@@ -7,6 +7,11 @@ ALTER TABLE public.proyectos_ferias
 CREATE INDEX IF NOT EXISTS idx_proyectos_ferias_fecha_evaluacion
   ON public.proyectos_ferias (fecha_evaluacion);
 
+-- PostgreSQL no permite cambiar el tipo de retorno con CREATE OR REPLACE.
+-- Se recrean las RPC porque ahora incluyen fecha_evaluacion.
+DROP FUNCTION IF EXISTS public.admin_save_project(TEXT, JSONB);
+DROP FUNCTION IF EXISTS public.get_judge_projects(TEXT);
+
 -- Guarda proyectos nuevos y existentes, incluida la fecha de evaluación.
 CREATE OR REPLACE FUNCTION public.admin_save_project(
   p_session_token TEXT,
