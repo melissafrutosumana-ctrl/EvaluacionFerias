@@ -3217,7 +3217,6 @@ body[data-page="judge"] .btn-sm:hover {
     bottom: auto !important;
     left: auto !important;
     z-index: 9999 !important;
-    transform: none !important;
     width: min(360px, calc(100vw - 2rem));
     min-height: 48px;
     box-sizing: border-box;
