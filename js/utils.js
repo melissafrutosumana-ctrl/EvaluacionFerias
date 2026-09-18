@@ -203,6 +203,15 @@ export const EXPOTECNICA_MAX = {
 
 export function showToast(message, type = "info") {
     const toastType = ["success", "error", "info", "warning"].includes(type) ? type : "info";
+    const toastKey = `${toastType}:${String(message ?? "")}`;
+    const now = Date.now();
+    const recentToasts = showToast._recent ?? (showToast._recent = new Map());
+    const previous = recentToasts.get(toastKey) ?? 0;
+    if (now - previous < 1200) return;
+    recentToasts.set(toastKey, now);
+    for (const [key, timestamp] of recentToasts) {
+        if (now - timestamp > 5000) recentToasts.delete(key);
+    }
 
     // Toastify provides the shared corner notification treatment. Keep the
     // local implementation as a safe fallback when the CDN is unavailable.

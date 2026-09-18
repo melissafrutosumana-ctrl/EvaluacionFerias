@@ -66,6 +66,20 @@ export async function bootstrapJudgePage() {
   let draftStatusTimer = null;
   let lastDraftErrorToastAt = 0;
 
+  function handleDraftConnectionChange() {
+    if (navigator.onLine) {
+      showToast("Conexión restaurada. Guardando borrador…", "success");
+      const projectId = Number(projectSelect?.value);
+      if (projectId) saveDraft(projectId);
+      return;
+    }
+    setDraftStatus("Sin conexión: el borrador se guardará al reconectar", "error");
+    showToast("Sin conexión. El respaldo se reintentará al reconectar.", "warning");
+  }
+
+  window.addEventListener("online", handleDraftConnectionChange);
+  window.addEventListener("offline", handleDraftConnectionChange);
+
   function setDraftStatus(message, kind = "") {
     const status = document.querySelector("[data-evaluation-draft-status]");
     if (!status) return;
