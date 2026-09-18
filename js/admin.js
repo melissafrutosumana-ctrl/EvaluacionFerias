@@ -88,43 +88,38 @@ function renderProjectsManagementTable(projects) {
                 const feriaType = String(item.tipo_feria ?? "");
                 const isFestival = feriaType === FESTIVAL_FERIA_NAME;
                 const isExpotecnica = feriaType === "Feria Expotecnica";
-                let detailText = "-";
+                const detailParts = [];
 
                 if (isFestival) {
-                    const parts = [];
                     const category = String(item.categoria_festival ?? "").trim();
                     const subcategory = String(item.subcategoria_festival ?? "").trim();
                     const participation = String(item.participacion ?? "").trim();
 
                     if (category) {
-                        parts.push(`Categoria: ${category}`);
+                        detailParts.push(["Categoría", category]);
                     }
 
                     if (subcategory) {
-                        parts.push(`Subcategoria: ${subcategory}`);
+                        detailParts.push(["Subcategoría", subcategory]);
                     }
 
                     if (participation) {
-                        parts.push(`Participacion: ${participation}`);
+                        detailParts.push(["Participación", participation]);
                     }
 
-                    detailText = parts.length ? parts.join(" | ") : "-";
                 } else if (isExpotecnica) {
-                    const parts = [];
                     const category = String(item.categoria_expotecnica ?? "").trim();
                     const eje = String(item.eje_tematico ?? "").trim();
 
                     if (category) {
-                        parts.push(`Categoria: ${category}`);
+                        detailParts.push(["Categoría", category]);
                     }
 
                     if (eje) {
-                        parts.push(`Eje: ${eje}`);
+                        detailParts.push(["Eje temático", eje]);
                     }
 
-                    detailText = parts.length ? parts.join(" | ") : "-";
                 } else if (feriaType === "Feria Cientifica y Tecnologica") {
-                    const parts = [];
                     const pronatecyt = String(item.categoria_pronatecyt ?? "").trim();
                     const educationalCategory = String(item.nivel_educativo ?? "").trim();
                     const integrantes = [item.integrante_1, item.integrante_2, item.integrante_3]
@@ -132,29 +127,31 @@ function renderProjectsManagementTable(projects) {
                         .filter(Boolean);
 
                     if (pronatecyt) {
-                        parts.push(`PRONAFECYT: ${pronatecyt}`);
+                        detailParts.push(["PRONAFECYT", pronatecyt]);
                     }
                     if (educationalCategory) {
-                        parts.push(`Categoria educativa: ${educationalCategory}`);
+                        detailParts.push(["Categoría educativa", educationalCategory]);
                     }
                     if (integrantes.length) {
-                        parts.push(`Integrantes: ${integrantes.join(", ")}`);
+                        detailParts.push(["Integrantes", integrantes.join(", ")]);
                     }
-                    detailText = parts.length ? parts.join(" | ") : "-";
                 } else {
                     const integrantes = [item.integrante_1, item.integrante_2, item.integrante_3]
                         .map((name) => String(name ?? "").trim())
                         .filter(Boolean);
-                    detailText = integrantes.length ? integrantes.join(" | ") : "-";
+                    if (integrantes.length) detailParts.push(["Integrantes", integrantes.join(", ")]);
                 }
 
-                detailText = `${detailText} | Evaluación: ${formatEvaluationDate(item.fecha_evaluacion)}`;
+                detailParts.push(["Evaluación", formatEvaluationDate(item.fecha_evaluacion)]);
+                const detailHtml = detailParts.length ?
+                    `<div class="project-detail-list">${detailParts.map(([label, value]) => `<div class="project-detail-row"><span class="project-detail-label">${escapeHTML(label)}</span><span class="project-detail-value">${escapeHTML(value || "-")}</span></div>`).join("")}</div>` :
+                    "-";
 
                 return `
         <tr>
           <td>${escapeHTML(item.titulo)}</td>
           <td>${escapeHTML(item.tipo_feria ?? "-")}</td>
-          <td>${escapeHTML(detailText)}</td>
+          <td class="project-detail-cell">${detailHtml}</td>
           <td>${item.id}</td>
           <td>
             <button class="table-action-btn edit-project-btn" data-project-id="${item.id}">Editar</button>
