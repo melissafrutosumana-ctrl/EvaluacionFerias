@@ -1390,8 +1390,12 @@ async function renderAdminObservaciones(feriaType = "", proyectoFilter, juezFilt
   }
 
   if (!filtered.length) {
-    const hasFilters = selectedProjectId || selectedJudgeId;
-    container.innerHTML = `<p class="form-status">${hasFilters ? "Ninguna observacion coincide con los filtros seleccionados." : "Aun no hay observaciones registradas. Las observaciones apareceran aqui a medida que los jueces evalúen proyectos."}</p>`;
+    const hasFilters = feriaType || selectedProjectId || selectedJudgeId || normalizedProjectSearch || normalizedJudgeSearch;
+    const emptyMessage = hasFilters ?
+      "Ninguna observación coincide con los filtros seleccionados." :
+      "Aún no hay observaciones registradas. Las observaciones aparecerán aquí a medida que los jueces evalúen proyectos.";
+    container.innerHTML = `<p class="form-status">${emptyMessage}</p>`;
+    setMessage(status, hasFilters ? "Sin coincidencias con los filtros actuales." : "", hasFilters ? "info" : "info");
     if (countBadge) { countBadge.textContent = "0"; countBadge.hidden = false; }
     return;
   }
