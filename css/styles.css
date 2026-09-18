@@ -3793,6 +3793,12 @@ body[data-page="judge"] .btn-sm:hover {
     flex: 1;
 }
 
+/* Los buscadores reemplazan los selectores duplicados de proyecto y juez. */
+.feria-filter-bar[data-observaciones-filters] label:has(select[data-observaciones-proyecto-filter]),
+.feria-filter-bar[data-observaciones-filters] label:has(select[data-observaciones-juez-filter]) {
+    display: none;
+}
+
 .feria-filter-bar .observaciones-search-field {
     gap: 0.35rem;
 }
