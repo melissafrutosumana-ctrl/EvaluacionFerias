@@ -119,26 +119,29 @@ test("PDF admin ranking con datos reales respeta anchos y no recorta nombres", (
   let warned = "";
   const origWarn = console.warn;
   console.warn = (m) => { warned += String(m); };
-  autoTable(doc, {
-    head: [["PROYECTO", "TIPO", "CRIT.", "PUNTAJE"]],
-    body,
-    margin: { left: 14, right: 14, bottom: 15 },
-    tableWidth: "wrap",
-    columnStyles: {
-      0: { cellWidth: 110, overflow: "linebreak" },
-      1: { cellWidth: 22, overflow: "linebreak" },
-      2: { cellWidth: 16, overflow: "linebreak" },
-      3: { cellWidth: 24, overflow: "linebreak" }
-    },
-    styles: { overflow: "linebreak", minCellHeight: 0, fontSize: 6.8 },
-    didParseCell: (data) => {
-      if (data.section === 'body' && data.column.index === 0) {
-        const txt = (data.cell.text || []).join(" ");
-        if (txt.length > 280) data.cell.styles.fontSize = 6;
+  try {
+    autoTable(doc, {
+      head: [["PROYECTO", "TIPO", "CRIT.", "PUNTAJE"]],
+      body,
+      margin: { left: 14, right: 14, bottom: 15 },
+      tableWidth: "wrap",
+      columnStyles: {
+        0: { cellWidth: 110, overflow: "linebreak" },
+        1: { cellWidth: 22, overflow: "linebreak" },
+        2: { cellWidth: 16, overflow: "linebreak" },
+        3: { cellWidth: 24, overflow: "linebreak" }
+      },
+      styles: { overflow: "linebreak", minCellHeight: 0, fontSize: 6.8 },
+      didParseCell: (data) => {
+        if (data.section === 'body' && data.column.index === 0) {
+          const txt = (data.cell.text || []).join(" ");
+          if (txt.length > 280) data.cell.styles.fontSize = 6;
+        }
       }
-    }
-  });
-  console.warn = origWarn;
+    });
+  } finally {
+    console.warn = origWarn;
+  }
   assert.ok(!warned.includes("could not fit page"), `no debe advertir overflow con datos reales: ${warned}`);
   assert.ok(doc.lastAutoTable.finalY > 0, "autoTable con datos reales debe tener finalY");
 });

@@ -36,7 +36,10 @@ export async function restoreAppSession() {
             p_session_token: user.session_token
         });
 
-        if (error) return false;
+        if (error) {
+            sessionStorage.removeItem(SESSION_KEY);
+            return false;
+        }
 
         const result = Array.isArray(data) ? data[0] : data;
         if (!result?.user_id) {
@@ -53,6 +56,7 @@ export async function restoreAppSession() {
         });
         return true;
     } catch {
+        sessionStorage.removeItem(SESSION_KEY);
         return false;
     }
 }
@@ -71,7 +75,7 @@ export function bindLogout() {
         if (user && normalizeRoleName(user.role) === "Juez") {
             showLogoutModal(user);
         } else {
-            clearSession();
+            await clearSession();
             window.location.href = "/index.html";
         }
     });
@@ -111,10 +115,10 @@ export function showLogoutModal(user) {
         }
     });
 
-    document.getElementById("modal-logout-btn").addEventListener("click", () => {
+    document.getElementById("modal-logout-btn").addEventListener("click", async() => {
         closeModalAccesible(overlay);
         overlay.remove();
-        clearSession();
+        await clearSession();
         window.location.href = "/index.html";
     });
 
@@ -146,7 +150,7 @@ export function showLogoutModal(user) {
         }
         closeModalAccesible(overlay);
         overlay.remove();
-        clearSession();
+        await clearSession();
         window.location.href = "/index.html";
     });
 }
@@ -154,7 +158,7 @@ export function showLogoutModal(user) {
 
 
 // ponytail: pre-hash SHA-256 cliente -> servidor aplica bcrypt (extensions.crypt) via lazy_bcrypt_migration.sql
-// No añadir salt cliente: servidor maneja sal bf10 y migracion lazy desde contrasena_hash.
+// No aÃ±adir salt cliente: servidor maneja sal bf10 y migracion lazy desde contrasena_hash.
 export async function hashPassword(password) {
     const encoder = new TextEncoder();
     const data = encoder.encode(password);
@@ -166,11 +170,11 @@ export async function hashPassword(password) {
 }
 
 export async function enforceRole(requiredRole) {
-  await restoreAppSession();
+  const restored = await restoreAppSession();
   const user = getSession();
   const normalizedRequiredRole = normalizeRoleName(requiredRole);
 
-  if (!user) {
+  if (!restored || !user) {
     window.location.href = "/index.html";
     return null;
   }

@@ -24,14 +24,17 @@ ALTER TABLE app_sessions ENABLE ROW LEVEL SECURITY;
 --    Los hashes SHA-256 viejos son base64 de bytes binarios.
 --    pgcrypto crypt() espera texto plano como input.
 --    Esta funcion SOLO se usa durante la migracion.
-CREATE OR REPLACE FUNCTION migrate_user_password(p_user_id BIGINT, p_plain_password TEXT)
+CREATE OR REPLACE FUNCTION public.migrate_user_password(p_user_id BIGINT, p_plain_password TEXT)
 RETURNS VOID AS $$
 BEGIN
   UPDATE usuarios
   SET contrasena_bcrypt = crypt(p_plain_password, gen_salt('bf', 10))
   WHERE id = p_user_id;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, extensions;
+
+-- Esta función solo debe usarse como migración controlada por el propietario.
+REVOKE ALL ON FUNCTION public.migrate_user_password(bigint, text) FROM PUBLIC;
 
 -- 5. Funcion de autenticacion segura
 --    - Acepta bcrypt si existe contrasena_bcrypt
@@ -111,7 +114,7 @@ BEGIN
 
   RETURN QUERY SELECT v_user.id, v_user.nombre, v_role, v_user.tipo_feria, v_session_token;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, extensions;
 
 -- 6. Funcion para restaurar sesion (llamar al cargar pagina)
 CREATE OR REPLACE FUNCTION restore_session(p_session_token TEXT)
@@ -150,7 +153,7 @@ BEGIN
 
   RETURN QUERY SELECT v_user.id, v_user.nombre, v_session.role_name, v_user.tipo_feria;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- 7. Funcion para cerrar sesion
 CREATE OR REPLACE FUNCTION logout_session(p_session_token TEXT)
@@ -160,7 +163,7 @@ BEGIN
   PERFORM set_config('app.current_user_id', '', false);
   PERFORM set_config('app.current_user_role', '', false);
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- 8. Funcion helper para RLS: obtener usuario actual
 CREATE OR REPLACE FUNCTION current_app_user_id()

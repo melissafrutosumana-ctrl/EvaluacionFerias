@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS login_attempts (
 );
 
 -- 2. Registrar intento fallido
-CREATE OR REPLACE FUNCTION record_failed_attempt(p_username TEXT)
+CREATE OR REPLACE FUNCTION public.record_failed_attempt(p_username TEXT)
 RETURNS VOID AS $$
 BEGIN
   INSERT INTO login_attempts (username, failed_count, last_failed_at)
@@ -20,10 +20,10 @@ BEGIN
       END,
       last_failed_at = now();
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- 3. Verificar si está bloqueado (>= 5 fallos en 15 min)
-CREATE OR REPLACE FUNCTION is_locked_out(p_username TEXT)
+CREATE OR REPLACE FUNCTION public.is_locked_out(p_username TEXT)
 RETURNS BOOLEAN AS $$
 DECLARE v_locked BOOLEAN;
 BEGIN
@@ -31,12 +31,13 @@ BEGIN
   FROM login_attempts WHERE username = p_username;
   RETURN COALESCE(v_locked, FALSE);
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- 4. authenticate_user con rate limiting (reemplaza la versión anterior)
 CREATE OR REPLACE FUNCTION public.authenticate_user(p_username text, p_password_hash text)
 RETURNS TABLE(user_id bigint, user_name text, user_role text, user_feria text, session_token text)
 LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
   v_user RECORD;
@@ -91,3 +92,6 @@ BEGIN
   RETURN QUERY SELECT v_user.id, v_user.nombre, v_role, v_user.tipo_feria, v_session_token;
 END;
 $$;
+
+REVOKE ALL ON FUNCTION public.record_failed_attempt(text) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.is_locked_out(text) FROM PUBLIC;

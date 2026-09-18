@@ -92,10 +92,12 @@ END; $function$;
 -- ============ RPCs JUEZ (solo sus propios datos, user_id desde la sesión) ============
 
 -- Proyectos asignados al juez de la sesión (join asignaciones -> proyectos)
+DROP FUNCTION IF EXISTS public.get_judge_projects(text);
 CREATE OR REPLACE FUNCTION public.get_judge_projects(p_session_token text)
 RETURNS TABLE(id bigint, titulo text, tipo_feria text, tipo_evaluacion text,
               categoria_festival text, subcategoria_festival text,
-              categoria_expotecnica text, eje_tematico text, categoria_pronatecyt text)
+              categoria_expotecnica text, eje_tematico text, categoria_pronatecyt text,
+              fecha_evaluacion date)
 LANGUAGE plpgsql SECURITY DEFINER
 AS $function$
 DECLARE v_user_id BIGINT;
@@ -105,7 +107,8 @@ BEGIN
   RETURN QUERY
     SELECT p.id, p.titulo, p.tipo_feria, a.tipo_evaluacion,
            p.categoria_festival, p.subcategoria_festival,
-           p.categoria_expotecnica, p.eje_tematico, p.categoria_pronatecyt
+           p.categoria_expotecnica, p.eje_tematico, p.categoria_pronatecyt,
+           p.fecha_evaluacion
     FROM asignaciones_jueces a
     JOIN proyectos_ferias p ON p.id = a.proyecto_id
     WHERE a.juez_id = v_user_id

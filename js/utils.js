@@ -718,10 +718,16 @@ export function calcExpotecnicaFinalScore(category, expoPts, escritoPts) {
     return expoPct + escritoPct;
 }
 
+// PostgREST puede limitar silenciosamente una respuesta a 1000 filas. Mantener
+// este tamaño evita saltos de offset cuando alguien solicita un rango mayor.
 const RPC_PAGE_SIZE = 1000;
 const MAX_RPC_PAGES = 100;
 
 export async function fetchAllRpc(functionName, params = {}, pageSize = RPC_PAGE_SIZE, client) {
+    if (!Number.isInteger(pageSize) || pageSize <= 0) {
+        throw new TypeError("fetchAllRpc: pageSize debe ser un entero positivo");
+    }
+    const effectivePageSize = Math.min(pageSize, RPC_PAGE_SIZE);
     const sb = client ?? (await import("./supabase.js")).supabase;
     const rows = [];
     let offset = 0;
@@ -734,7 +740,7 @@ export async function fetchAllRpc(functionName, params = {}, pageSize = RPC_PAGE
 
         const { data, error } = await sb
             .rpc(functionName, params)
-            .range(offset, offset + pageSize - 1);
+            .range(offset, offset + effectivePageSize - 1);
 
         if (error) {
             throw error;
@@ -743,10 +749,10 @@ export async function fetchAllRpc(functionName, params = {}, pageSize = RPC_PAGE
         const page = data ?? [];
         rows.push(...page);
 
-        if (page.length < pageSize) {
+        if (page.length < effectivePageSize) {
             return rows;
         }
 
-        offset += pageSize;
+        offset += effectivePageSize;
     }
 }

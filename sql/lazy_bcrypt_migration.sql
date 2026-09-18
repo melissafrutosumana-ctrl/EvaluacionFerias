@@ -2,6 +2,7 @@ CREATE OR REPLACE FUNCTION public.authenticate_user(p_username text, p_password_
  RETURNS TABLE(user_id bigint, user_name text, user_role text, user_feria text, session_token text)
  LANGUAGE plpgsql
  SECURITY DEFINER
+ SET search_path = public
  AS $function$
      DECLARE
        v_user RECORD;
@@ -61,4 +62,7 @@ CREATE OR REPLACE FUNCTION public.authenticate_user(p_username text, p_password_
 
        RETURN QUERY SELECT v_user.id, v_user.nombre, v_role, v_user.tipo_feria, v_session_token;
      END;
-     $function$
+     $function$;
+
+REVOKE ALL ON FUNCTION public.authenticate_user(text, text) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.authenticate_user(text, text) TO anon, authenticated;

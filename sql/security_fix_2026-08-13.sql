@@ -6,8 +6,10 @@
 --    -> anon podia insertar/borrar intentos (DoS de login o bypass de rate limiting).
 --    El rate limiting va por RPCs SECURITY DEFINER (record_failed_attempt/is_locked_out), que corren como owner, asi que siguen funcionando.
 
-REVOKE ALL ON FUNCTION public.migrate_user_password FROM PUBLIC;
-REVOKE EXECUTE ON FUNCTION public.migrate_user_password FROM anon, authenticated;
+REVOKE ALL ON FUNCTION public.migrate_user_password(bigint, text) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.migrate_user_password(bigint, text) FROM anon, authenticated;
 
 ALTER TABLE public.login_attempts ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON public.login_attempts FROM anon, authenticated;
+REVOKE ALL ON FUNCTION public.record_failed_attempt(text) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.is_locked_out(text) FROM PUBLIC;
