@@ -1306,6 +1306,7 @@ body[data-page="admin"] .quick-nav-link.active:focus-visible {
     position: relative;
     background: linear-gradient(135deg, var(--primary) 0%, #173f7a 100%);
     color: #ffffff;
+    text-align: left;
     padding: 0.9rem 1rem 0.85rem 1.1rem;
     border-bottom: none;
     border-left: 4px solid var(--secondary);
@@ -1313,14 +1314,7 @@ body[data-page="admin"] .quick-nav-link.active:focus-visible {
 }
 
 .results-table .category-group-row td::after {
-    position: absolute;
-    top: 0;
-    right: 1rem;
-    width: 5rem;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08));
-    content: "";
-    pointer-events: none;
+    display: none;
 }
 
 .category-group-title {
