@@ -828,11 +828,28 @@ body.nav-open[data-page="judge"] main {
     box-shadow: var(--shadow-md);
 }
 
+/* El foco de la navegación administrativa debe conservar contraste sobre tarjetas claras. */
+body[data-page="admin"] .quick-nav-link:focus,
+body[data-page="admin"] .quick-nav-link:focus-visible {
+    color: var(--primary);
+    background: var(--surface);
+    border-color: var(--primary);
+    outline: 3px solid rgba(37, 99, 235, 0.28);
+    outline-offset: 2px;
+}
+
 .quick-nav-link.active {
     color: #ffffff;
     background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
     border-color: transparent;
     box-shadow: 0 2px 8px rgba(13, 42, 91, 0.25);
+}
+
+body[data-page="admin"] .quick-nav-link.active:focus,
+body[data-page="admin"] .quick-nav-link.active:focus-visible {
+    color: #ffffff;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    border-color: transparent;
 }
 
 .quick-nav-link svg {
@@ -4082,6 +4099,8 @@ body[data-page="judge"] .btn-sm:hover {
 
     body[data-page="admin"] .quick-nav-link {
         min-height: 48px;
+        min-width: 0;
+        max-width: 100%;
         justify-content: center;
         gap: 0.25rem;
         padding: 0.45rem 0.25rem;
@@ -4089,6 +4108,8 @@ body[data-page="judge"] .btn-sm:hover {
         font-size: 0.67rem;
         line-height: 1.15;
         white-space: normal;
+        overflow-wrap: anywhere;
+        word-break: break-word;
         flex-direction: column;
     }
 
