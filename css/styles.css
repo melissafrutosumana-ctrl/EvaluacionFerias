@@ -1306,7 +1306,7 @@ body[data-page="admin"] .quick-nav-link.active:focus-visible {
     position: relative;
     background: linear-gradient(135deg, var(--primary) 0%, #173f7a 100%);
     color: #ffffff;
-    text-align: left;
+    text-align: center;
     padding: 0.9rem 1rem 0.85rem 1.1rem;
     border-bottom: none;
     border-left: 4px solid var(--secondary);
@@ -1337,6 +1337,8 @@ body[data-page="admin"] .quick-nav-link.active:focus-visible {
     align-items: center;
     max-width: 100%;
     margin-top: 0.55rem;
+    margin-right: auto;
+    margin-left: auto;
     padding: 0.28rem 0.6rem;
     border: 1px solid rgba(255, 204, 77, 0.45);
     border-radius: 999px;
