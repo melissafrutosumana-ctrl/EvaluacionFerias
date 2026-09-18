@@ -4929,6 +4929,9 @@ body[data-page="judge"] .btn-sm:hover {
         content: "";
         display: none;
     }
+    [data-projects-table] td {
+        background: var(--surface) !important;
+    }
     .project-detail-list {
         gap: 0.5rem;
     }
