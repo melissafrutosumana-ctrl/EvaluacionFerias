@@ -3209,6 +3209,46 @@ body[data-page="judge"] .btn-sm:hover {
     background: #0d2a5b;
 }
 
+/* Toastify: avisos tipo iPhone, sin iconos ni boton decorativo. */
+.toastify.toast-toastify {
+    width: min(360px, calc(100vw - 2rem));
+    min-height: 48px;
+    box-sizing: border-box;
+    padding: 0.8rem 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 15px;
+    color: #fff;
+    font-family: var(--font-body, Outfit, sans-serif);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    line-height: 1.35;
+    box-shadow: 0 12px 30px rgba(13, 42, 91, 0.22);
+    animation: toast-in 0.28s var(--ease-out);
+}
+
+.toastify.toast-toastify.toast-success {
+    background: linear-gradient(135deg, #16803c, #1e9b50);
+}
+
+.toastify.toast-toastify.toast-error {
+    background: linear-gradient(135deg, #b42318, #d92d20);
+}
+
+.toastify.toast-toastify.toast-warning {
+    background: linear-gradient(135deg, #a15c00, #c77800);
+}
+
+.toastify.toast-toastify.toast-info {
+    background: linear-gradient(135deg, #0d2a5b, #174a8f);
+}
+
+@media (max-width: 520px) {
+    .toastify.toast-toastify {
+        margin: 0.75rem;
+        width: calc(100vw - 1.5rem);
+    }
+}
+
 @keyframes toast-in {
     from {
         transform: translateX(100%);

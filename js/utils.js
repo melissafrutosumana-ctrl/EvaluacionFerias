@@ -202,6 +202,24 @@ export const EXPOTECNICA_MAX = {
 };
 
 export function showToast(message, type = "info") {
+    const toastType = ["success", "error", "info", "warning"].includes(type) ? type : "info";
+
+    // Toastify provides the shared corner notification treatment. Keep the
+    // local implementation as a safe fallback when the CDN is unavailable.
+    if (typeof globalThis.Toastify === "function") {
+        globalThis.Toastify({
+            text: String(message ?? ""),
+            duration: 3500,
+            gravity: "top",
+            position: "right",
+            close: false,
+            stopOnFocus: true,
+            className: `toast-toastify toast-${toastType}`,
+            escapeMarkup: true
+        }).showToast();
+        return;
+    }
+
     const existing = document.querySelector(".toast-container");
     if (!existing) {
         const container = document.createElement("div");
@@ -210,7 +228,7 @@ export function showToast(message, type = "info") {
     }
 
     const toast = document.createElement("div");
-    toast.className = `toast toast-${type}`;
+    toast.className = `toast toast-${toastType}`;
     toast.textContent = message;
     document.querySelector(".toast-container").appendChild(toast);
 
