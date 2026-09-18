@@ -223,7 +223,7 @@ export async function bootstrapLoginPage() {
     const password = String(formData.get("password") ?? "");
 
     if (!usuario || !password) {
-      showToast("Completa usuario y contrasena.", "error");
+      showToast("Completa usuario y contraseña.", "error");
       return;
     }
 
