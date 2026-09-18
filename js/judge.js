@@ -52,6 +52,135 @@ export async function bootstrapJudgePage() {
     ]
   };
 
+  // The SQL migration exposes these draft RPCs. Keeping their names in one
+  // place makes the client contract explicit and avoids scattering magic
+  // strings through the form handlers.
+  const draftRpc = {
+    get: "get_judge_evaluation_draft",
+    save: "save_judge_evaluation_draft",
+    remove: "delete_judge_evaluation_draft"
+  };
+  let draftSaveTimer = null;
+  let draftLoadToken = 0;
+  let rubricLoadToken = 0;
+  let draftStatusTimer = null;
+
+  function setDraftStatus(message, kind = "") {
+    const status = document.querySelector("[data-evaluation-draft-status]");
+    if (!status) return;
+    status.textContent = message;
+    if (kind) status.dataset.kind = kind;
+    else status.removeAttribute("data-kind");
+    clearTimeout(draftStatusTimer);
+    if (message) {
+      draftStatusTimer = setTimeout(() => {
+        status.textContent = "";
+        status.removeAttribute("data-kind");
+      }, 3200);
+    }
+  }
+
+  function getSelectedProjectType(projectId) {
+    return assignedProjectsCache.find((p) => Number(p.id) === Number(projectId))?.tipo_evaluacion ?? "Exposición";
+  }
+
+  function readDraftForm(projectId) {
+    if (!projectId) return { evaluations: [], observation: "" };
+    const evaluations = [];
+    let inputIndex = 0;
+    currentRubricModel.indicators.forEach((item) => {
+      if (item && typeof item === "object" && item.section) return;
+      const text = typeof item === "string" ? item : (item?.text ?? "");
+      const checked = document.querySelector(`input[name="indicador_${inputIndex}"]:checked`);
+      if (checked) evaluations.push({ criterio: text, nota: Number(checked.value) });
+      inputIndex++;
+    });
+    return {
+      evaluations,
+      observation: document.querySelector("[data-observacion-input]")?.value ?? ""
+    };
+  }
+
+  async function saveDraft(projectId, draftData = readDraftForm(projectId)) {
+    if (!projectId) return;
+    const tipoEval = getSelectedProjectType(projectId);
+    try {
+      const { error } = await supabase.rpc(draftRpc.save, {
+        p_session_token: user.session_token,
+        p_project_id: Number(projectId),
+        p_tipo_evaluacion: tipoEval,
+        p_draft_data: draftData
+      });
+      if (error) throw error;
+      setDraftStatus("Borrador guardado", "success");
+    } catch {
+      // Draft persistence must never interrupt the judge's evaluation flow.
+      setDraftStatus("No se pudo guardar el borrador", "error");
+    }
+  }
+
+  function scheduleDraftSave() {
+    clearTimeout(draftSaveTimer);
+    const projectId = Number(projectSelect?.value);
+    if (!projectId) return;
+    // Capture the form while it still belongs to this project. If the judge
+    // changes projects before the debounce expires, never persist the new
+    // project's controls under the previous project's key.
+    const draftData = readDraftForm(projectId);
+    setDraftStatus("Guardando borrador…");
+    draftSaveTimer = setTimeout(() => {
+      if (Number(projectSelect?.value) === projectId) saveDraft(projectId, draftData);
+    }, 650);
+  }
+
+  async function loadDraft(projectId, options = {}) {
+    if (!projectId) return;
+    const loadToken = ++draftLoadToken;
+    const tipoEval = getSelectedProjectType(projectId);
+    try {
+      const { data, error } = await supabase.rpc(draftRpc.get, {
+        p_session_token: user.session_token,
+        p_project_id: Number(projectId),
+        p_tipo_evaluacion: tipoEval
+      });
+      if (error || loadToken !== draftLoadToken || !data) return;
+      const rows = Array.isArray(data) ? data : [data];
+      const draftData = rows[0]?.draft_data ?? {};
+      const draftEvaluations = Array.isArray(draftData.evaluations) ? draftData.evaluations : [];
+      if (!options.skipEvaluations) {
+        const lookup = new Map(draftEvaluations.filter((item) => item?.criterio).map((item) => [String(item.criterio).trim(), item.nota]));
+        let inputIndex = 0;
+        currentRubricModel.indicators.forEach((item) => {
+          if (item && typeof item === "object" && item.section) return;
+          const text = typeof item === "string" ? item : (item?.text ?? "");
+          const saved = lookup.get(text.trim());
+          if (saved !== undefined && saved !== null) {
+            document.querySelectorAll(`input[name="indicador_${inputIndex}"]`).forEach((radio) => {
+              radio.checked = Number(radio.value) === Number(saved);
+            });
+          }
+          inputIndex++;
+        });
+      }
+      const textarea = document.querySelector("[data-observacion-input]");
+      if (!options.skipObservation && textarea && draftData.observation !== undefined) textarea.value = draftData.observation ?? "";
+      if (rows.length) setDraftStatus("Borrador recuperado", "success");
+    } catch {
+      // Missing/expired drafts are equivalent to an empty draft.
+    }
+  }
+
+  async function deleteDraft(projectId) {
+    if (!projectId) return;
+    try {
+      await supabase.rpc(draftRpc.remove, {
+        p_session_token: user.session_token,
+        p_project_id: Number(projectId),
+        p_tipo_evaluacion: getSelectedProjectType(projectId)
+      });
+    } catch { /* best effort; completed evaluations remain authoritative */ }
+  }
+
   function resolveRubricModelForProject(projectId) {
     const selectedProject = assignedProjectsCache.find((item) => Number(item.id) === Number(projectId));
     const projectFeria = selectedProject?.tipo_feria ?? userFeria;
@@ -117,10 +246,13 @@ export async function bootstrapJudgePage() {
   }
 
   function applyRubricForSelection(projectId) {
+    const selectionToken = ++rubricLoadToken;
     currentRubricModel = resolveRubricModelForProject(projectId);
     renderJudgeRubric(currentRubricModel.indicators, currentRubricModel.scoreOptions);
-    loadSavedEvaluations(projectId);
-    loadSavedObservacion(projectId);
+    Promise.all([loadSavedEvaluations(projectId, selectionToken), loadSavedObservacion(projectId, selectionToken)]).then(([hasSavedEvaluation, hasSavedObservation]) => {
+      if (selectionToken !== rubricLoadToken || Number(projectSelect?.value) !== Number(projectId)) return;
+      loadDraft(projectId, { skipEvaluations: hasSavedEvaluation, skipObservation: hasSavedObservation });
+    });
 
     const badge = document.querySelector("[data-evaluation-type-badge]");
     if (badge) {
@@ -132,8 +264,8 @@ export async function bootstrapJudgePage() {
     }
   }
 
-  async function loadSavedEvaluations(projectId) {
-    if (!projectId) return;
+  async function loadSavedEvaluations(projectId, selectionToken) {
+    if (!projectId) return false;
     const selectedProject = assignedProjectsCache.find((p) => Number(p.id) === Number(projectId));
     const tipoEval = selectedProject?.tipo_evaluacion ?? "Exposición";
     const { data, error } = await supabase.rpc("get_judge_evaluations", {
@@ -141,7 +273,8 @@ export async function bootstrapJudgePage() {
       p_project_id: Number(projectId),
       p_tipo_evaluacion: tipoEval
     });
-    if (error || !data || !data.length) return;
+    if (selectionToken !== rubricLoadToken || Number(projectSelect?.value) !== Number(projectId)) return false;
+    if (error || !data || !data.length) return false;
     const lookup = new Map(data.map((r) => [r.criterio.trim(), r.nota]));
     let inputIndex = 0;
     currentRubricModel.indicators.forEach((item) => {
@@ -158,13 +291,14 @@ export async function bootstrapJudgePage() {
       }
       inputIndex++;
     });
+    return true;
   }
 
-  async function loadSavedObservacion(projectId) {
+  async function loadSavedObservacion(projectId, selectionToken) {
     const textarea = document.querySelector("[data-observacion-input]");
     if (!textarea || !projectId) {
       if (textarea) textarea.value = "";
-      return;
+      return false;
     }
     const selectedProject = assignedProjectsCache.find((p) => Number(p.id) === Number(projectId));
     const tipoEval = selectedProject?.tipo_evaluacion ?? "Exposición";
@@ -173,10 +307,12 @@ export async function bootstrapJudgePage() {
       p_project_id: Number(projectId),
       p_tipo_evaluacion: tipoEval
     });
+    if (selectionToken !== rubricLoadToken || Number(projectSelect?.value) !== Number(projectId)) return false;
     if (error) {
-      return;
+      return false;
     }
     textarea.value = (Array.isArray(data) ? data[0]?.texto : data?.texto) ?? "";
+    return Boolean(textarea.value.trim());
   }
 
   async function saveObservacion(projectId, judgeId, tipoEval, texto) {
@@ -512,6 +648,9 @@ export async function bootstrapJudgePage() {
         const observacionTexto = String(formData.get("observacion") ?? "");
         try { await saveObservacion(proyectoId, user.id, tipoEval, observacionTexto); } catch { /* ignorar */ } // ponytail: fallo silencioso si tabla no existe
 
+      clearTimeout(draftSaveTimer);
+      await deleteDraft(proyectoId);
+
       evaluationForm.reset();
       showToast("Evaluacion guardada correctamente.", "success");
       await refreshJudgeData();
@@ -522,5 +661,10 @@ export async function bootstrapJudgePage() {
     btn.disabled = false;
     btn.textContent = originalText;
   });
+
+  evaluationForm.addEventListener("change", (event) => {
+    if (event.target.matches('input[type="radio"][name^="indicador_"]')) scheduleDraftSave();
+  });
+  evaluationForm.querySelector("[data-observacion-input]")?.addEventListener("input", scheduleDraftSave);
 }
 
