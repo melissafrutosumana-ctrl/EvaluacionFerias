@@ -538,7 +538,12 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
         const deleteBtn = cell.querySelector(".manual-escrito-delete");
         if (deleteBtn) {
             deleteBtn.addEventListener("click", async () => {
-                if (!window.confirm("¿Borrar el puntaje manual de este proyecto? Se volverá a usar el promedio de jueces.")) return;
+                const confirmed = await confirmDialog({
+                    title: "Borrar puntaje manual",
+                    message: "Se volverá a usar el promedio de jueces para este proyecto.",
+                    confirmLabel: "Borrar puntaje"
+                });
+                if (!confirmed) return;
                 await saveScore(null);
             });
         }
