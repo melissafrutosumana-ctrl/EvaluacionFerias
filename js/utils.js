@@ -213,38 +213,49 @@ export function showToast(message, type = "info") {
         if (now - timestamp > 5000) recentToasts.delete(key);
     }
 
-    // Toastify provides the shared corner notification treatment. Keep the
-    // local implementation as a safe fallback when the CDN is unavailable.
-    if (typeof globalThis.Toastify === "function") {
-        globalThis.Toastify({
-            text: String(message ?? ""),
-            duration: 3500,
-            gravity: "top",
-            position: "right",
-            close: false,
-            stopOnFocus: true,
-            className: `toast-toastify toast-${toastType}`,
-            escapeMarkup: true
-        }).showToast();
-        return;
+    const labels = { success: "Listo", error: "Error", warning: "Atención", info: "Información" };
+    const icons = { success: "✓", error: "×", warning: "!", info: "i" };
+    let viewport = document.querySelector("[data-sileo-viewport]");
+    if (!viewport) {
+        viewport = document.createElement("div");
+        viewport.className = "toast-container";
+        viewport.dataset.sileoViewport = "";
+        viewport.dataset.position = "top-right";
+        viewport.setAttribute("role", "region");
+        viewport.setAttribute("aria-label", "Notificaciones");
+        viewport.setAttribute("aria-live", "polite");
+        document.body.appendChild(viewport);
     }
+    const toast = document.createElement("button");
+    toast.type = "button";
+    toast.className = `toast toast-sileo toast-${toastType}`;
+    toast.dataset.state = toastType;
 
-    const existing = document.querySelector(".toast-container");
-    if (!existing) {
-        const container = document.createElement("div");
-        container.className = "toast-container";
-        document.body.appendChild(container);
-    }
+    const header = document.createElement("span");
+    header.className = "toast-sileo-header";
+    const badge = document.createElement("span");
+    badge.className = "toast-sileo-badge";
+    badge.textContent = icons[toastType];
+    badge.setAttribute("aria-hidden", "true");
+    const title = document.createElement("span");
+    title.className = "toast-sileo-title";
+    title.textContent = labels[toastType];
+    header.append(badge, title);
 
-    const toast = document.createElement("div");
-    toast.className = `toast toast-${toastType}`;
-    toast.textContent = message;
-    document.querySelector(".toast-container").appendChild(toast);
+    const description = document.createElement("span");
+    description.className = "toast-sileo-description";
+    description.textContent = String(message ?? "");
+    toast.append(header, description);
+    viewport.appendChild(toast);
+    requestAnimationFrame(() => toast.classList.add("toast-ready"));
 
-    setTimeout(() => {
+    const dismiss = () => {
+        toast.classList.remove("toast-ready");
         toast.classList.add("toast-hide");
-        setTimeout(() => toast.remove(), 300);
-    }, 3500);
+        setTimeout(() => toast.remove(), 220);
+    };
+    toast.addEventListener("click", dismiss, { once: true });
+    setTimeout(dismiss, 3500);
 }
 
 export function openModalAccesible(overlay, { initialFocus = null } = {}) {
