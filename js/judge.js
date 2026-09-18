@@ -64,6 +64,7 @@ export async function bootstrapJudgePage() {
   let draftLoadToken = 0;
   let rubricLoadToken = 0;
   let draftStatusTimer = null;
+  let lastDraftErrorToastAt = 0;
 
   function setDraftStatus(message, kind = "") {
     const status = document.querySelector("[data-evaluation-draft-status]");
@@ -116,6 +117,11 @@ export async function bootstrapJudgePage() {
     } catch {
       // Draft persistence must never interrupt the judge's evaluation flow.
       setDraftStatus("No se pudo guardar el borrador", "error");
+      const now = Date.now();
+      if (now - lastDraftErrorToastAt > 5000) {
+        showToast("No se pudo guardar el borrador. Revisa tu conexión.", "error");
+        lastDraftErrorToastAt = now;
+      }
     }
   }
 
@@ -164,9 +170,13 @@ export async function bootstrapJudgePage() {
       }
       const textarea = document.querySelector("[data-observacion-input]");
       if (!options.skipObservation && textarea && draftData.observation !== undefined) textarea.value = draftData.observation ?? "";
-      if (rows.length) setDraftStatus("Borrador recuperado", "success");
+      if (rows.length) {
+        setDraftStatus("Borrador recuperado", "success");
+        showToast("Borrador recuperado correctamente.", "success");
+      }
     } catch {
       // Missing/expired drafts are equivalent to an empty draft.
+      showToast("No se pudo recuperar el borrador.", "error");
     }
   }
 
