@@ -3326,6 +3326,28 @@ body[data-page="judge"] .btn-sm:hover {
         left: auto;
         align-items: flex-end;
     }
+
+    .toast {
+        width: min(300px, calc(100vw - 2rem));
+        min-height: 36px;
+        padding: 0.5rem 0.65rem;
+    }
+
+    .toast-sileo-badge {
+        width: 21px;
+        height: 21px;
+        font-size: 0.78rem;
+    }
+
+    .toast-sileo-title {
+        font-size: 0.76rem;
+    }
+
+    .toast-sileo-description {
+        padding-left: 1.75rem;
+        font-size: 0.78rem;
+        line-height: 1.1rem;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
