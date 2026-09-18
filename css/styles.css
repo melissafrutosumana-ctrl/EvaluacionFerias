@@ -1288,8 +1288,10 @@ body[data-page="admin"] .quick-nav-link.active:focus-visible {
     background: var(--surface-alt);
 }
 
-.results-table tbody tr:not(.category-group-row):hover td {
-    background: rgba(13, 42, 91, 0.05);
+@media (hover: hover) and (pointer: fine) {
+    .results-table tbody tr:not(.category-group-row):hover td {
+        background: rgba(13, 42, 91, 0.05);
+    }
 }
 
 .results-table td[colspan] {
