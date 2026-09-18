@@ -1,5 +1,5 @@
 import { supabase } from "./supabase.js";
-import { normalizeRoleName, showToast, setMessage, setupHideOnScroll, openModalAccesible, closeModalAccesible, fetchAllRpc } from "./utils.js";
+import { normalizeRoleName, showToast, setupHideOnScroll, openModalAccesible, closeModalAccesible, fetchAllRpc } from "./utils.js";
 import { generateJudgePDF } from "./pdf.js";
 
 export const SESSION_KEY = "ef_user_session";
@@ -209,8 +209,6 @@ export async function bootstrapLoginPage() {
   }
 
   const form = document.querySelector("[data-login-form]");
-  const status = document.querySelector("[data-login-status]");
-
   if (!form) {
     return;
   }
@@ -225,7 +223,7 @@ export async function bootstrapLoginPage() {
     const password = String(formData.get("password") ?? "");
 
     if (!usuario || !password) {
-      setMessage(status, "Completa usuario y contrasena.", "error");
+      showToast("Completa usuario y contrasena.", "error");
       return;
     }
 
@@ -241,7 +239,7 @@ export async function bootstrapLoginPage() {
       });
 
       if (error) {
-        setMessage(status, "Error de conexion. Recarga la pagina e intenta de nuevo.", "error");
+        showToast("Error de conexion. Recarga la pagina e intenta de nuevo.", "error");
         btn.disabled = false;
         btn.textContent = originalText;
         return;
@@ -250,7 +248,7 @@ export async function bootstrapLoginPage() {
       const result = Array.isArray(data) ? data[0] : data;
 
       if (!result?.user_id) {
-        setMessage(status, "Usuario o contrasena incorrectos.", "error");
+        showToast("Usuario o contrasena incorrectos.", "error");
         btn.disabled = false;
         btn.textContent = originalText;
         return;
@@ -274,9 +272,9 @@ export async function bootstrapLoginPage() {
         return;
       }
 
-      setMessage(status, `Rol no soportado para redireccion: ${result.user_role}.`, "error");
+      showToast(`Rol no soportado para redireccion: ${result.user_role}.`, "error");
     } catch {
-      setMessage(status, "No se pudo iniciar sesion.", "error");
+      showToast("No se pudo iniciar sesion.", "error");
     }
 
     btn.disabled = false;
