@@ -61,6 +61,11 @@ AS $function$
 DECLARE
   v_user_id BIGINT;
   v_tipo TEXT := NULLIF(btrim(p_tipo_evaluacion), '');
+  v_proyecto_id BIGINT;
+  v_tipo_evaluacion TEXT;
+  v_draft_data JSONB;
+  v_updated_at TIMESTAMPTZ;
+  v_expires_at TIMESTAMPTZ;
 BEGIN
   SELECT s.user_id
     INTO v_user_id
@@ -97,13 +102,27 @@ BEGIN
   VALUES
     (v_user_id, p_project_id, v_tipo, COALESCE(p_draft_data, '{}'::JSONB), now(),
      now() + INTERVAL '24 hours')
-  ON CONFLICT (juez_id, proyecto_id, tipo_evaluacion)
+  ON CONFLICT ON CONSTRAINT judge_evaluation_drafts_unique_judge_project_type
   DO UPDATE SET
     draft_data = EXCLUDED.draft_data,
     updated_at = now(),
-    expires_at = now() + INTERVAL '24 hours'
-  RETURNING d.proyecto_id, d.tipo_evaluacion, d.draft_data, d.updated_at, d.expires_at
-       INTO proyecto_id, tipo_evaluacion, draft_data, updated_at, expires_at;
+    expires_at = now() + INTERVAL '24 hours';
+
+  -- Carga el registro actualizado en las variables de salida. Separar el
+  -- INSERT del SELECT evita la ambigüedad entre nombres de columnas y
+  -- variables OUT generadas por RETURNS TABLE.
+  SELECT d.proyecto_id, d.tipo_evaluacion, d.draft_data, d.updated_at, d.expires_at
+    INTO v_proyecto_id, v_tipo_evaluacion, v_draft_data, v_updated_at, v_expires_at
+    FROM public.judge_evaluation_drafts d
+   WHERE d.juez_id = v_user_id
+     AND d.proyecto_id = p_project_id
+     AND d.tipo_evaluacion = v_tipo;
+
+  proyecto_id := v_proyecto_id;
+  tipo_evaluacion := v_tipo_evaluacion;
+  draft_data := v_draft_data;
+  updated_at := v_updated_at;
+  expires_at := v_expires_at;
 
   RETURN NEXT;
 END;
