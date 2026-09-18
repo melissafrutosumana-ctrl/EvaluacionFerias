@@ -1,4 +1,4 @@
-import { bootstrapLoginPage } from "./auth.js";
+import { bootstrapLoginPage } from "./auth.js?v=3.9";
 import { bootstrapJudgePage } from "./judge.js";
 import { bootstrapAdminPage } from "./admin.js";
 
