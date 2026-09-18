@@ -1242,16 +1242,49 @@ export async function bootstrapAdminPage() {
     const feriaFilter = document.querySelector("[data-observaciones-feria-filter]");
     const proyectoFilter = document.querySelector("[data-observaciones-proyecto-filter]");
     const juezFilter = document.querySelector("[data-observaciones-juez-filter]");
+    const proyectoSearch = document.querySelector("[data-observaciones-proyecto-search]");
+    const juezSearch = document.querySelector("[data-observaciones-juez-search]");
+    const clearFilters = document.querySelector("[data-observaciones-clear]");
+    let observationsCache = null;
+    let observationsVisibleLimit = 20;
 
     async function refreshObservaciones() {
-      await renderAdminObservaciones(feriaFilter?.value ?? "", proyectoFilter, juezFilter);
+      await renderAdminObservaciones(
+        feriaFilter?.value ?? "",
+        proyectoFilter,
+        juezFilter,
+        proyectoSearch?.value ?? "",
+        juezSearch?.value ?? "",
+        observationsCache,
+        (data) => { observationsCache = data; },
+        observationsVisibleLimit,
+        () => {
+          observationsVisibleLimit += 20;
+          refreshObservaciones();
+        }
+      );
+    }
+
+    function resetAndRefreshObservaciones() {
+      observationsVisibleLimit = 20;
+      refreshObservaciones();
     }
 
     await refreshObservaciones();
 
-    feriaFilter?.addEventListener("change", refreshObservaciones);
-    proyectoFilter?.addEventListener("change", refreshObservaciones);
-    juezFilter?.addEventListener("change", refreshObservaciones);
+    feriaFilter?.addEventListener("change", resetAndRefreshObservaciones);
+    proyectoFilter?.addEventListener("change", resetAndRefreshObservaciones);
+    juezFilter?.addEventListener("change", resetAndRefreshObservaciones);
+    proyectoSearch?.addEventListener("input", resetAndRefreshObservaciones);
+    juezSearch?.addEventListener("input", resetAndRefreshObservaciones);
+    clearFilters?.addEventListener("click", () => {
+      if (feriaFilter) feriaFilter.value = "";
+      if (proyectoFilter) proyectoFilter.value = "";
+      if (juezFilter) juezFilter.value = "";
+      if (proyectoSearch) proyectoSearch.value = "";
+      if (juezSearch) juezSearch.value = "";
+      resetAndRefreshObservaciones();
+    });
   }
 
   document.addEventListener("users-changed", () => refreshAdminDataView());
@@ -1260,7 +1293,7 @@ export async function bootstrapAdminPage() {
 }
 
 
-async function renderAdminObservaciones(feriaType = "", proyectoFilter, juezFilter) {
+async function renderAdminObservaciones(feriaType = "", proyectoFilter, juezFilter, proyectoSearchText = "", juezSearchText = "", cachedData = null, setCache = null, visibleLimit = 20, onLoadMore = null) {
   const container = document.querySelector("[data-observaciones-groups]");
   const status = document.querySelector("[data-observaciones-status]");
   const countBadge = document.querySelector("[data-observaciones-count]");
@@ -1288,17 +1321,22 @@ async function renderAdminObservaciones(feriaType = "", proyectoFilter, juezFilt
   let usersResult;
   let projectsResult;
   let observacionesResult;
-  try {
-    [usersResult, projectsResult, observacionesResult] = await Promise.all([
-      loadUsers(),
-      fetchAllRpc("get_projects", { p_session_token: getSession()?.session_token }),
-      fetchAllRpc("get_observations", { p_session_token: getSession()?.session_token })
-    ]);
-  } catch (error) {
-    console.error("Error loading observations:", error);
-    container.innerHTML = '<p class="form-status form-status--error">No se pudieron cargar las observaciones.</p>';
-    setMessage(status, "Error al cargar observaciones.", "error");
-    return;
+  if (cachedData) {
+    [usersResult, projectsResult, observacionesResult] = cachedData;
+  } else {
+    try {
+      [usersResult, projectsResult, observacionesResult] = await Promise.all([
+        loadUsers(),
+        fetchAllRpc("get_projects", { p_session_token: getSession()?.session_token }),
+        fetchAllRpc("get_observations", { p_session_token: getSession()?.session_token })
+      ]);
+      setCache?.([usersResult, projectsResult, observacionesResult]);
+    } catch (error) {
+      console.error("Error loading observations:", error);
+      container.innerHTML = '<p class="form-status form-status--error">No se pudieron cargar las observaciones.</p>';
+      setMessage(status, "Error al cargar observaciones.", "error");
+      return;
+    }
   }
 
   const allProjects = projectsResult.filter((p) => !feriaType || p.tipo_feria === feriaType);
@@ -1310,12 +1348,29 @@ async function renderAdminObservaciones(feriaType = "", proyectoFilter, juezFilt
 
   const selectedProjectId = proyectoFilter ? Number(proyectoFilter.value) : 0;
   const selectedJudgeId = juezFilter ? Number(juezFilter.value) : 0;
+  const normalizedProjectSearch = proyectoSearchText.trim().toLowerCase();
+  const normalizedJudgeSearch = juezSearchText.trim().toLowerCase();
 
   const filtered = rows.filter((r) => {
     if (selectedProjectId && Number(r.proyecto_id) !== selectedProjectId) return false;
     if (selectedJudgeId && Number(r.juez_id) !== selectedJudgeId) return false;
+    const projectTitle = String(projectsById.get(r.proyecto_id)?.titulo ?? "").toLowerCase();
+    const judgeName = String(usersById.get(r.juez_id)?.nombre ?? "").toLowerCase();
+    if (normalizedProjectSearch && !projectTitle.includes(normalizedProjectSearch)) return false;
+    if (normalizedJudgeSearch && !judgeName.includes(normalizedJudgeSearch)) return false;
     return true;
   });
+
+  const activeFilters = document.querySelector("[data-observaciones-active-filters]");
+  if (activeFilters) {
+    const labels = [];
+    if (feriaType) labels.push(`Feria: ${feriaType}`);
+    if (selectedProjectId) labels.push(`Proyecto: ${proyectoFilter?.selectedOptions[0]?.textContent ?? "seleccionado"}`);
+    if (selectedJudgeId) labels.push(`Juez: ${juezFilter?.selectedOptions[0]?.textContent ?? "seleccionado"}`);
+    if (normalizedProjectSearch) labels.push(`Proyecto: ${proyectoSearchText.trim()}`);
+    if (normalizedJudgeSearch) labels.push(`Juez: ${juezSearchText.trim()}`);
+    activeFilters.innerHTML = labels.map((label) => `<span class="observaciones-filter-chip">${escapeHTML(label)}</span>`).join("");
+  }
 
   // populate filter selects
   const projectOpts = allProjects.sort((a, b) => a.titulo.localeCompare(b.titulo));
@@ -1341,9 +1396,11 @@ async function renderAdminObservaciones(feriaType = "", proyectoFilter, juezFilt
     return;
   }
 
+  const visibleRows = filtered.slice(0, visibleLimit);
+
   // group by proyecto
   const grouped = new Map();
-  filtered.forEach((row) => {
+  visibleRows.forEach((row) => {
     const pid = row.proyecto_id;
     if (!grouped.has(pid)) {
       grouped.set(pid, { title: projectsById.get(pid)?.titulo ?? "Proyecto", rows: [] });
@@ -1356,16 +1413,26 @@ async function renderAdminObservaciones(feriaType = "", proyectoFilter, juezFilt
     const block = document.createElement("div");
     block.className = "observacion-group";
 
-    const heading = document.createElement("div");
+    const heading = document.createElement("button");
+    heading.type = "button";
     heading.className = "observacion-group-heading";
-    heading.textContent = data.title;
+    heading.setAttribute("aria-expanded", "true");
+    heading.innerHTML = `<span>${escapeHTML(data.title)}</span><span class="observacion-group-count">${data.rows.length}</span><span class="observacion-group-chevron" aria-hidden="true">⌄</span>`;
+
+    const body = document.createElement("div");
+    body.className = "observacion-group-body";
+    heading.addEventListener("click", () => {
+      const expanded = heading.getAttribute("aria-expanded") === "true";
+      heading.setAttribute("aria-expanded", String(!expanded));
+      body.hidden = expanded;
+    });
     block.appendChild(heading);
 
     data.rows.forEach((row) => {
       const judge = usersById.get(row.juez_id);
       const judgeName = judge?.nombre ?? `Juez #${row.juez_id}`;
       const tipo = row.tipo_evaluacion ?? "Exposición";
-      const fecha = row.created_at ? new Date(row.created_at).toLocaleDateString("es-CR") : "";
+      const fecha = row.created_at ? new Date(row.created_at).toLocaleString("es-CR", { dateStyle: "medium", timeStyle: "short" }) : "";
 
       const item = document.createElement("div");
       item.className = "observacion-item";
@@ -1384,10 +1451,20 @@ async function renderAdminObservaciones(feriaType = "", proyectoFilter, juezFilt
 
       item.appendChild(meta);
       item.appendChild(texto);
-      block.appendChild(item);
+      body.appendChild(item);
     });
 
+    block.appendChild(body);
     container.appendChild(block);
+  }
+
+  if (filtered.length > visibleLimit && onLoadMore) {
+    const loadMore = document.createElement("button");
+    loadMore.type = "button";
+    loadMore.className = "btn-secondary observaciones-load-more";
+    loadMore.textContent = `Mostrar más (${filtered.length - visibleLimit} restantes)`;
+    loadMore.addEventListener("click", onLoadMore, { once: true });
+    container.appendChild(loadMore);
   }
 
   if (countBadge) { countBadge.textContent = `${filtered.length} obs.`; countBadge.hidden = false; }

@@ -3793,6 +3793,53 @@ body[data-page="judge"] .btn-sm:hover {
     flex: 1;
 }
 
+.feria-filter-bar .observaciones-search-field {
+    gap: 0.35rem;
+}
+
+.observaciones-search-field input {
+    width: 100%;
+    min-height: 44px;
+    padding: 0.65rem 0.8rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--ink);
+    font: inherit;
+}
+
+.observaciones-search-field input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(13, 42, 91, 0.1);
+}
+
+.observaciones-filter-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    flex: 1 1 100%;
+}
+
+.observaciones-active-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+
+.observaciones-filter-chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    background: rgba(212, 175, 55, 0.14);
+    color: var(--primary);
+    font-size: var(--text-xs);
+    font-weight: 600;
+}
+
 .feria-filter-bar svg {
     flex-shrink: 0;
     color: var(--secondary);
@@ -3844,12 +3891,61 @@ body[data-page="judge"] .btn-sm:hover {
 }
 
 .observacion-group-heading {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    border: 0;
+    border-bottom: 1px solid var(--border);
+    padding: 0.65rem 0.75rem;
+    background: rgba(13, 42, 91, 0.035);
+    color: var(--primary);
+    font: inherit;
     font-weight: 700;
     font-size: var(--text-base);
-    color: var(--primary);
-    padding: 0.75rem 0 0.5rem;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 0.5rem;
+    text-align: left;
+    cursor: pointer;
+}
+
+.observacion-group-heading:hover {
+    background: rgba(13, 42, 91, 0.07);
+}
+
+.observacion-group-heading > span:first-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.observacion-group-count {
+    margin-left: auto;
+    min-width: 1.5rem;
+    padding: 0.15rem 0.4rem;
+    border-radius: 999px;
+    background: rgba(13, 42, 91, 0.1);
+    font-size: var(--text-xs);
+    text-align: center;
+}
+
+.observacion-group-chevron {
+    transition: transform 0.2s ease;
+}
+
+.observacion-group-heading[aria-expanded="false"] .observacion-group-chevron {
+    transform: rotate(-90deg);
+}
+
+.observacion-group-body {
+    padding: 0 0.75rem;
+}
+
+.observacion-group-heading + .observacion-group-body[hidden] {
+    display: none;
+}
+
+.observaciones-load-more {
+    display: block;
+    margin: 1rem auto 0;
 }
 
 .observacion-item {

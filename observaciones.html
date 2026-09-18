@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/styles.css?v=15.9">
+    <link rel="stylesheet" href="/css/styles.css?v=16.0">
 </head>
 <body data-page="admin">
 
@@ -49,7 +49,7 @@
             </a>
         </nav>
 
-        <section class="card feria-filter-bar">
+        <section class="card feria-filter-bar" data-observaciones-filters>
             <label>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></svg>
                 Filtrar por feria:
@@ -67,14 +67,29 @@
                     <option value="">Todos los proyectos</option>
                 </select>
             </label>
-            <label>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-                Por juez:
-                <select data-observaciones-juez-filter>
-                    <option value="">Todos los jueces</option>
-                </select>
-            </label>
-        </section>
+            <label>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                Por juez:
+                <select data-observaciones-juez-filter>
+                    <option value="">Todos los jueces</option>
+                </select>
+            </label>
+
+            <label class="observaciones-search-field">
+                <span>Buscar proyecto</span>
+                <input type="search" data-observaciones-proyecto-search placeholder="Escribe un proyecto…" autocomplete="off">
+            </label>
+
+            <label class="observaciones-search-field">
+                <span>Buscar juez</span>
+                <input type="search" data-observaciones-juez-search placeholder="Escribe un juez…" autocomplete="off">
+            </label>
+
+            <div class="observaciones-filter-actions">
+                <button type="button" class="btn-secondary btn-sm" data-observaciones-clear>Limpiar filtros</button>
+                <div class="observaciones-active-filters" data-observaciones-active-filters aria-live="polite"></div>
+            </div>
+        </section>
 
         <section class="card">
             <div class="card-header">
@@ -90,7 +105,7 @@
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/toastify-js@1.12.0"></script>
-    <script type="module" src="/js/main.js?v=3.1"></script>
+    <script type="module" src="/js/main.js?v=3.3"></script>
 </body>
 
 </html>
