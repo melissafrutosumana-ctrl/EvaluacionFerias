@@ -4230,9 +4230,36 @@ body[data-page="judge"] .btn-sm:hover {
     }
 
     body[data-page="admin"] .logout-link {
-        max-width: 70px;
+        /* Keep the complete action readable on narrow phones. The previous
+           fixed max-width clipped "Cerrar sesion" while the header still had
+           enough room for a content-sized touch target. */
+        flex: 0 0 auto;
+        width: auto;
+        max-width: none;
+        min-width: max-content;
+        min-height: 44px;
+        padding-inline: 0.55rem;
+        overflow: visible;
+        text-overflow: clip;
+        white-space: nowrap;
+    }
+
+    body[data-page="admin"] .feria-filter-bar,
+    body[data-page="admin"] .feria-filter-bar[data-observaciones-filters] {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
         overflow: hidden;
-        text-overflow: ellipsis;
+    }
+
+    body[data-page="admin"] .feria-filter-bar label,
+    body[data-page="admin"] .feria-filter-bar[data-observaciones-filters] label,
+    body[data-page="admin"] .feria-filter-bar select,
+    body[data-page="admin"] .feria-filter-bar[data-observaciones-filters] select {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        overflow-wrap: anywhere;
     }
 
     body[data-page="admin"] .quick-nav-link {
