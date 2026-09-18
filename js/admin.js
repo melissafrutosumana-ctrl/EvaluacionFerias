@@ -567,7 +567,7 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
             const winnerText = winner ?
                 `Ganador: ${escapeHTML(winner.projectName)} (${winner.finalScore.toFixed(0)} pts)` :
                 "Ganador pendiente de evaluacion";
-            html.push(`<tr class="category-group-row"><td colspan="4"><span>${escapeHTML(cat)}</span><span class="category-winner">${winnerText}</span></td></tr>`);
+            html.push(`<tr class="category-group-row"><td colspan="5"><span class="category-group-title">${escapeHTML(cat)}</span><span class="category-winner">${winnerText}</span></td></tr>`);
             items.forEach((r) => html.push(buildProjectRow(r)));
         }
         tbody.innerHTML = html.join("");
