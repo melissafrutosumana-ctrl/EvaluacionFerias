@@ -963,10 +963,13 @@ export async function bootstrapAdminPage() {
 
   if (userForm) {
     const userRoleSelect = userForm.querySelector('[name="role_id"]');
+    let userFormSubmitting = false;
     userRoleSelect?.addEventListener("change", () => updateUserFeriaField(userForm, rolesCache));
 
     userForm.addEventListener("submit", async (event) => {
       event.preventDefault();
+      if (userFormSubmitting) return;
+      userFormSubmitting = true;
       const btn = userForm.querySelector("button[type=submit]");
       const originalText = btn.textContent;
 
@@ -979,6 +982,7 @@ export async function bootstrapAdminPage() {
 
       if (!nombre || !contrasena || !roleId || (!isAdmin && !tipoFeria)) {
         showToast("Completa todos los campos del usuario.", "error");
+        userFormSubmitting = false;
         return;
       }
 
@@ -1008,6 +1012,7 @@ export async function bootstrapAdminPage() {
 
       btn.disabled = false;
       btn.textContent = originalText;
+      userFormSubmitting = false;
     });
   }
 
