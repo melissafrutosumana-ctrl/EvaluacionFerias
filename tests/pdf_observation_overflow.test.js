@@ -44,18 +44,21 @@ test("autoTable observación columna respeta cellWidth y no recorta (45+15+80 <=
   let warned = "";
   const origWarn = console.warn;
   console.warn = (msg) => { warned += String(msg); };
-  autoTable(doc, {
-    head: [["Proyecto", "Tipo", "Observación"]],
-    body: [["P1", "Expo", "Obs ".repeat(100)]],
-    margin: { left: 14, right: 14, bottom: 15 },
-    tableWidth: "wrap",
-    columnStyles: {
-      0: { cellWidth: 45, overflow: "linebreak" },
-      1: { cellWidth: 15, overflow: "linebreak" },
-      2: { cellWidth: 80, overflow: "linebreak" }
-    },
-    styles: { overflow: "linebreak", minCellHeight: 0, cellWidth: "wrap" }
-  });
-  console.warn = origWarn;
+  try {
+    autoTable(doc, {
+      head: [["Proyecto", "Tipo", "Observación"]],
+      body: [["P1", "Expo", "Obs ".repeat(100)]],
+      margin: { left: 14, right: 14, bottom: 15 },
+      tableWidth: "wrap",
+      columnStyles: {
+        0: { cellWidth: 45, overflow: "linebreak" },
+        1: { cellWidth: 15, overflow: "linebreak" },
+        2: { cellWidth: 80, overflow: "linebreak" }
+      },
+      styles: { overflow: "linebreak", minCellHeight: 0, cellWidth: "wrap" }
+    });
+  } finally {
+    console.warn = origWarn;
+  }
   assert.ok(!warned.includes("could not fit page"), `no debe advertir overflow, pero advirtió: ${warned}`);
 });

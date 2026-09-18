@@ -313,7 +313,7 @@ function renderAdminProjectsTable(rows, projectsById) {
     tbody.innerHTML = projectIds
         .map((projectId) => {
             const projectName = projectsById.get(projectId) ?.titulo ?? "Proyecto";
-            return `<tr><td>${escapeHTML(projectName)}</td><td>${projectId}</td></tr>`;
+            return `<tr><td>${escapeHTML(projectName)}</td><td>${escapeHTML(String(projectId))}</td></tr>`;
         })
         .join("");
 }
@@ -926,18 +926,17 @@ export async function bootstrapAdminPage() {
     if (usersTbody) showSkeleton(usersTbody, 4);
     if (assignmentsTbody) showSkeleton(assignmentsTbody, 3);
 
-    const [roles, judgesResult, projectsResult, assignmentsResult, usersResult, allProjectsResult] = await Promise.all([
+    const [roles, judgesResult, projectsResult, assignmentsResult, usersResult] = await Promise.all([
       fetchAllRpc("get_roles", { p_session_token: getSession()?.session_token }),
       loadJudges(""),
       loadProjects(""),
       loadJudgeAssignments(),
-      loadUsers(),
-      fetchAllRpc("get_projects", { p_session_token: getSession()?.session_token })
+      loadUsers()
     ]);
 
     const judges = judgesResult;
     rolesCache = roles;
-    allProjectsCache = allProjectsResult;
+    allProjectsCache = projectsResult;
     allAssignmentsCache = assignmentsResult;
     const projects = projectsResult;
     const assignments = assignmentsResult;
@@ -1276,13 +1275,17 @@ async function renderAdminObservaciones(feriaType = "", proyectoFilter, juezFilt
   `).join("");
   if (countBadge) countBadge.hidden = true;
 
-  const [usersResult, projectsResult, observacionesResult] = await Promise.all([
-    loadUsers(),
-    fetchAllRpc("get_projects", { p_session_token: getSession()?.session_token }),
-    fetchAllRpc("get_observations", { p_session_token: getSession()?.session_token })
-  ]);
-
-  if (observacionesResult.error) {
+  let usersResult;
+  let projectsResult;
+  let observacionesResult;
+  try {
+    [usersResult, projectsResult, observacionesResult] = await Promise.all([
+      loadUsers(),
+      fetchAllRpc("get_projects", { p_session_token: getSession()?.session_token }),
+      fetchAllRpc("get_observations", { p_session_token: getSession()?.session_token })
+    ]);
+  } catch (error) {
+    console.error("Error loading observations:", error);
     container.innerHTML = '<p class="form-status form-status--error">No se pudieron cargar las observaciones.</p>';
     setMessage(status, "Error al cargar observaciones.", "error");
     return;
@@ -1398,7 +1401,7 @@ function showEditUserModal(user, roles) {
   });
 
   const roleOptions = uniqueRoles
-    .map((r) => `<option value="${r.id}" ${Number(r.id) === Number(user.role_id) ? "selected" : ""}>${normalizeRoleName(r.nombre)}</option>`)
+    .map((r) => `<option value="${escapeHTML(String(r.id))}" ${Number(r.id) === Number(user.role_id) ? "selected" : ""}>${escapeHTML(normalizeRoleName(r.nombre))}</option>`)
     .join("");
 
   const feriaOptions = buildFeriaOptions(user.tipo_feria);
@@ -1412,7 +1415,7 @@ function showEditUserModal(user, roles) {
       <button type="button" class="modal-close-btn" id="edit-user-close" aria-label="Cerrar">&times;</button>
     </div>
     <form id="edit-user-form" class="edit-modal-form">
-      <input type="hidden" name="user_id" value="${user.id}">
+      <input type="hidden" name="user_id" value="${escapeHTML(String(user.id))}">
       <label class="edit-modal-field">
         Nombre
         <input name="nombre" type="text" required value="${escapeHTML(user.nombre)}">
@@ -1553,7 +1556,7 @@ function showEditProjectModal(project) {
 
         <div class="field-group">
           <label class="field-label">
-            <span>Fecha de evaluación</span>
+          <span>Fecha de evaluación</span>
             <input name="fecha_evaluacion" type="date" value="${escapeHTML(String(project.fecha_evaluacion ?? ""))}">
           </label>
         </div>
