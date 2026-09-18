@@ -3211,6 +3211,13 @@ body[data-page="judge"] .btn-sm:hover {
 
 /* Toastify: avisos tipo iPhone, sin iconos ni boton decorativo. */
 .toastify.toast-toastify {
+    position: fixed !important;
+    top: 1rem !important;
+    right: 1rem !important;
+    bottom: auto !important;
+    left: auto !important;
+    z-index: 9999 !important;
+    transform: none !important;
     width: min(360px, calc(100vw - 2rem));
     min-height: 48px;
     box-sizing: border-box;
@@ -3246,6 +3253,8 @@ body[data-page="judge"] .btn-sm:hover {
     .toastify.toast-toastify {
         margin: 0.75rem;
         width: calc(100vw - 1.5rem);
+        top: 0.75rem !important;
+        right: 0.75rem !important;
     }
 }
 
