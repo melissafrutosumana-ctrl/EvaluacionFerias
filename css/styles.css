@@ -3797,6 +3797,16 @@ body[data-page="judge"] .btn-sm:hover {
     gap: 0.35rem;
 }
 
+.observaciones-search-field > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.observaciones-search-field svg {
+    color: var(--primary-light);
+}
+
 .observaciones-search-field input {
     width: 100%;
     min-height: 44px;
@@ -3946,6 +3956,22 @@ body[data-page="judge"] .btn-sm:hover {
 .observaciones-load-more {
     display: block;
     margin: 1rem auto 0;
+}
+
+.observaciones-empty-state {
+    display: grid;
+    justify-items: center;
+    gap: 0.35rem;
+    padding: 1rem 0.5rem;
+    text-align: center;
+}
+
+.observaciones-empty-state > svg {
+    color: var(--secondary);
+}
+
+.observaciones-empty-state .form-status {
+    margin: 0;
 }
 
 .observacion-item {
