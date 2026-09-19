@@ -96,6 +96,7 @@ export async function loadMEPLogo() {
 export const PDF = {
     MARGIN: 14,
     PAGE_W: 210,
+    PAGE_H: 297,
     PAGE_LIMIT: 270,
     PRIMARY: [13, 42, 91],
     GOLD: [201, 168, 106],
