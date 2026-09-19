@@ -23,6 +23,14 @@ test("calcAverage devuelve 0 si nadie votó", () => {
   assert.strictEqual(calcAverage([{ voted: false, sum: 50 }]), 0);
 });
 
+test("calcAverage ignora notas no numericas y convierte strings numericos", () => {
+  assert.strictEqual(calcAverage([
+    { voted: true, sum: "30" },
+    { voted: true, sum: "invalida" },
+    { voted: false, sum: 90 }
+  ]), 30);
+});
+
 test("calcFinalScore hace 50/50 cuando hay expo y escrito", () => {
   assert.strictEqual(calcFinalScore(1, 40, 1, 80), 60);
 });

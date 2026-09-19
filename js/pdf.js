@@ -709,9 +709,8 @@ export async function generateAdminPDF(sessionToken) {
       }
     });
     const results = [];
-    for (const [projectId, assignedJudges] of assignmentsByProject) {
-      if (!projectsById.has(projectId)) continue;
-      const projData = projectsById.get(projectId);
+    for (const [projectId, projData] of projectsById) {
+      const assignedJudges = assignmentsByProject.get(projectId) ?? [];
       const expoJudges = [], escritoJudges = [];
       let expoVoted = 0, expoTotal = 0, escritoVoted = 0, escritoTotal = 0;
       assignedJudges.forEach((aj) => {
@@ -772,9 +771,13 @@ export async function generateAdminPDF(sessionToken) {
     let y = pdfHeader(doc, "Reporte de Resultados", logoData);
     const feriaNamesInReport = [...new Set(filteredProjects.map((project) => project.tipo_feria).filter(Boolean))];
     const feriaLabel = selectedFeria || (feriaNamesInReport.length === 1 ? feriaNamesInReport[0] : "Todas las ferias");
-    const participatingJudgeIds = new Set(filteredEvals.map((evaluation) => evaluation.juez_id));
+    const assignedJudgeIds = new Set(
+      assignmentsResult
+        .filter((assignment) => projectIds.has(assignment.proyecto_id))
+        .map((assignment) => assignment.juez_id)
+    );
     const isFEA = selectedFeria === FESTIVAL_FERIA_NAME || (results.length > 0 && results.every(r => projectsById.get(r.projectId)?.tipo_feria === FESTIVAL_FERIA_NAME));
-    const infoLines = [`Feria: ${feriaLabel}`, `Total de proyectos: ${results.length}`, `Total de jueces participantes: ${participatingJudgeIds.size}`, `Total evaluaciones: ${filteredEvals.length}`, `Generado: ${now.toLocaleDateString("es-CR")} ${now.toLocaleTimeString("es-CR")}`];
+    const infoLines = [`Feria: ${feriaLabel}`, `Total de proyectos: ${results.length}`, `Total de jueces asignados: ${assignedJudgeIds.size}`, `Total evaluaciones: ${filteredEvals.length}`, `Generado: ${now.toLocaleDateString("es-CR")} ${now.toLocaleTimeString("es-CR")}`];
     y = pdfInfoBox(doc, infoLines, y);
     y = pdfSubHeader(doc, "Ranking de proyectos", y);
     const dualCols = !isFEA;

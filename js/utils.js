@@ -726,8 +726,10 @@ export function renderJudgeRubric(indicators, scoreOptions = null) {
 }
 
 export function calcAverage(judges) {
-    const voted = judges.filter(j => j.voted);
-    return voted.length ? voted.reduce((a, b) => a + b.sum, 0) / voted.length : 0;
+    const voted = judges
+        .map((judge) => ({ ...judge, sum: Number(judge.sum) }))
+        .filter((judge) => judge.voted && Number.isFinite(judge.sum));
+    return voted.length ? voted.reduce((total, judge) => total + judge.sum, 0) / voted.length : 0;
 }
 
 export function calcFinalScore(expoVoted, expoAvg, escritoVoted, escritoAvg) {
