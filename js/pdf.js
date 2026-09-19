@@ -758,7 +758,8 @@ export async function generateAdminPDF(sessionToken) {
       if (feria === FESTIVAL_FERIA_NAME) {
         if (tipo === "Escrito") return 0;
         const rubric = getFestivalRubricBySubcategory(p.subcategoria_festival);
-        return rubric?.length ? rubric.length * 3 : 0;
+        const indicatorCount = rubric?.indicators?.length ?? 0;
+        return indicatorCount * 3;
       }
       return 0;
     }
