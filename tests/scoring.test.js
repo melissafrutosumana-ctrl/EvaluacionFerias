@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert";
 import { calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore, PRONAFECYT_BY_NIVEL, PRONAFECYT_EDUCATIONAL_CATEGORIES } from "../js/utils.js";
-import { PRONAFECYT_CODE_MAX, getFestivalAdvancedScoreOptions, getPronatecytRubricByCategory } from "../js/rubrics.js";
+import { PRONAFECYT_CODE_MAX, getFestivalAdvancedScoreOptions, getFestivalRubricBySubcategory, getPronatecytRubricByCategory } from "../js/rubrics.js";
 
 test("la escala avanzada del Festival conserva el orden 3, 2, 1", () => {
   assert.deepStrictEqual(getFestivalAdvancedScoreOptions(), [
@@ -9,6 +9,12 @@ test("la escala avanzada del Festival conserva el orden 3, 2, 1", () => {
     { value: 2, label: "2 Intermedio" },
     { value: 1, label: "1 Basico" }
   ]);
+});
+
+test("la rubrica del Festival expone sus indicadores para calcular el maximo del PDF", () => {
+  const rubric = getFestivalRubricBySubcategory("COREOGRAFIA DE BAILE");
+  assert.strictEqual(rubric.indicators.length, 10);
+  assert.strictEqual(rubric.indicators.length * 3, 30);
 });
 test("calcAverage promedia solo los jueces que votaron", () => {
   const judges = [
