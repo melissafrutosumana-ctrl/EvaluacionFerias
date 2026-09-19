@@ -449,8 +449,8 @@ export async function generateJudgePDF(user) {
     // y ya está en doc.lastAutoTable.finalY+4, pero ajustamos
     y = Math.max(y, doc.lastAutoTable.finalY + 15);
 
-    // Evita dejar el título de la sección aislado al final de una página.
-    y = pdfCheckPage(doc, y, 48);
+    // El detalle es una sección larga: empieza completa en una página nueva.
+    y = pdfNewPage(doc);
     y = pdfSubHeader(doc, "Detalle por proyecto", y);
     function getJudgeMax(pd, tipo, cnt) {
         if (!pd) return cnt * 3;
