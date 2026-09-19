@@ -1,6 +1,6 @@
 import { supabase } from "./supabase.js";
 import { normalizeRoleName, showToast, setupHideOnScroll, openModalAccesible, closeModalAccesible, fetchAllRpc } from "./utils.js?v=16.8";
-import { generateJudgePDF } from "./pdf.js?v=3.17";
+import { generateJudgePDF } from "./pdf.js?v=3.18";
 
 export const SESSION_KEY = "ef_user_session";
 

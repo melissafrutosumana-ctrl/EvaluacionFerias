@@ -766,9 +766,11 @@ export async function generateAdminPDF(sessionToken) {
     const now = new Date();
     const M = PDF.MARGIN, W = PDF.PAGE_W;
     let y = pdfHeader(doc, "Reporte de Resultados", logoData);
-    const feriaLabel = selectedFeria || "Todas las ferias";
+    const feriaNamesInReport = [...new Set(filteredProjects.map((project) => project.tipo_feria).filter(Boolean))];
+    const feriaLabel = selectedFeria || (feriaNamesInReport.length === 1 ? feriaNamesInReport[0] : "Todas las ferias");
+    const participatingJudgeIds = new Set(filteredEvals.map((evaluation) => evaluation.juez_id));
     const isFEA = selectedFeria === FESTIVAL_FERIA_NAME || (results.length > 0 && results.every(r => projectsById.get(r.projectId)?.tipo_feria === FESTIVAL_FERIA_NAME));
-    const infoLines = [`Feria: ${feriaLabel}`, `Total de proyectos: ${results.length}`, `Total de jueces participantes: ${usersById.size}`, `Total evaluaciones: ${evaluations.length}`, `Generado: ${now.toLocaleDateString("es-CR")} ${now.toLocaleTimeString("es-CR")}`];
+    const infoLines = [`Feria: ${feriaLabel}`, `Total de proyectos: ${results.length}`, `Total de jueces participantes: ${participatingJudgeIds.size}`, `Total evaluaciones: ${filteredEvals.length}`, `Generado: ${now.toLocaleDateString("es-CR")} ${now.toLocaleTimeString("es-CR")}`];
     y = pdfInfoBox(doc, infoLines, y);
     y = pdfSubHeader(doc, "Ranking de proyectos", y);
     const dualCols = !isFEA;
@@ -951,7 +953,8 @@ export async function generateAdminPDF(sessionToken) {
     y+=22;
     y = pdfSignatureBlock(doc, y, ["Firma responsable", "Sello institucional"]);
     pdfFooter(doc, now);
-    const fileName = selectedFeria ? `resultados_${selectedFeria.replace(/\s+/g, "_")}.pdf` : "resultados_generales.pdf";
+    const fileNameFeria = selectedFeria || (feriaNamesInReport.length === 1 ? feriaNamesInReport[0] : "");
+    const fileName = fileNameFeria ? `resultados_${fileNameFeria.replace(/\s+/g, "_")}.pdf` : "resultados_generales.pdf";
     doc.save(fileName);
     showToast("PDF exportado correctamente.", "success");
   } catch (err) {
