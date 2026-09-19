@@ -1,6 +1,7 @@
 import { supabase } from "./supabase.js?v=1";
 import { normalizeRoleName, showToast, setupHideOnScroll, openModalAccesible, closeModalAccesible, fetchAllRpc } from "./utils.js?v=16.8";
 import { generateJudgePDF } from "./pdf.js?v=3.22";
+import { clearSessionCache } from "./cache.js?v=3.26";
 
 export const SESSION_KEY = "ef_user_session";
 
@@ -25,6 +26,7 @@ export async function clearSession() {
         } catch { /* ignore */ }
     }
     sessionStorage.removeItem(SESSION_KEY);
+    clearSessionCache();
 }
 
 export async function restoreAppSession() {
@@ -254,6 +256,7 @@ export async function bootstrapLoginPage() {
         return;
       }
 
+      clearSessionCache();
       saveSession({
         id: result.user_id,
         nombre: result.user_name,

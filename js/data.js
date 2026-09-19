@@ -1,10 +1,85 @@
 import { normalizeRoleName, fetchAllRpc } from "./utils.js";
-import { getSession } from "./auth.js";
+import { getSession } from "./auth.js?v=3.26";
+import { mergeRowsById, readSessionCache, writeSessionCache } from "./cache.js?v=3.26";
 
 export { fetchAllRpc } from "./utils.js";
 
+const EVALUATIONS_CACHE_KEY = "admin:evaluations";
+const EVALUATIONS_SYNC_INTERVAL_MS = 15000;
+let evaluationsSyncTimer = null;
+let evaluationsVisibilityHandler = null;
+let evaluationsSyncPromise = null;
+
 function sessionToken() {
     return getSession()?.session_token ?? "";
+}
+
+function readEvaluationsCache() {
+    const cache = readSessionCache(EVALUATIONS_CACHE_KEY);
+    if (!cache || !Array.isArray(cache.rows)) return null;
+    return cache;
+}
+
+function getLatestEvaluationTimestamp(rows) {
+    const timestamps = (rows ?? [])
+        .map((row) => row?.updated_at ?? row?.created_at)
+        .map((value) => Date.parse(value))
+        .filter(Number.isFinite);
+
+    return timestamps.length ? new Date(Math.max(...timestamps)).toISOString() : new Date().toISOString();
+}
+
+function saveEvaluationsCache(rows, previousCache = null) {
+    const nextCache = {
+        version: 1,
+        rows,
+        syncedAt: Date.now(),
+        cursor: getLatestEvaluationTimestamp(rows) ?? previousCache?.cursor
+    };
+    writeSessionCache(EVALUATIONS_CACHE_KEY, nextCache);
+    return nextCache;
+}
+
+async function fetchAllEvaluationsFromServer() {
+    const rows = await fetchAllRpc("get_evaluations", {
+        p_session_token: sessionToken()
+    });
+    return saveEvaluationsCache(rows).rows;
+}
+
+async function syncEvaluationsFromServer() {
+    if (evaluationsSyncPromise) return evaluationsSyncPromise;
+
+    evaluationsSyncPromise = (async() => {
+        const cache = readEvaluationsCache();
+        if (!cache) {
+            const rows = await fetchAllEvaluationsFromServer();
+            return { rows, changed: true };
+        }
+
+        const changedRows = await fetchAllRpc("get_evaluations_since", {
+            p_session_token: sessionToken(),
+            p_since: cache.cursor ?? new Date(0).toISOString()
+        });
+
+        if (!changedRows.length) {
+            writeSessionCache(EVALUATIONS_CACHE_KEY, { ...cache, syncedAt: Date.now() });
+            return { rows: cache.rows, changed: false };
+        }
+
+        const rows = mergeRowsById(cache.rows, changedRows)
+            .sort((left, right) => {
+                const leftDate = Date.parse(left.updated_at ?? left.created_at ?? "") || 0;
+                const rightDate = Date.parse(right.updated_at ?? right.created_at ?? "") || 0;
+                return rightDate - leftDate || Number(right.id) - Number(left.id);
+            });
+
+        return { rows: saveEvaluationsCache(rows, cache).rows, changed: true };
+    })().finally(() => {
+        evaluationsSyncPromise = null;
+    });
+
+    return evaluationsSyncPromise;
 }
 
 export async function loadProjects(feriaType = "") {
@@ -58,7 +133,41 @@ export async function loadUsers() {
 }
 
 export async function fetchAllEvaluations() {
-    return fetchAllRpc("get_evaluations", {
-        p_session_token: sessionToken()
-    });
+    const cache = readEvaluationsCache();
+    if (cache) return cache.rows;
+    return fetchAllEvaluationsFromServer();
+}
+
+export function startEvaluationsSync(onUpdate) {
+    stopEvaluationsSync();
+
+    const sync = async() => {
+        if (document.visibilityState === "hidden") return;
+
+        try {
+            const result = await syncEvaluationsFromServer();
+            if (result.changed) onUpdate?.(result.rows);
+        } catch (error) {
+            console.warn("No se pudo sincronizar el caché de evaluaciones.", error);
+        }
+    };
+
+    void sync();
+    evaluationsSyncTimer = window.setInterval(sync, EVALUATIONS_SYNC_INTERVAL_MS);
+    evaluationsVisibilityHandler = () => {
+        if (document.visibilityState === "visible") void sync();
+    };
+    document.addEventListener("visibilitychange", evaluationsVisibilityHandler);
+}
+
+export function stopEvaluationsSync() {
+    if (evaluationsSyncTimer) {
+        window.clearInterval(evaluationsSyncTimer);
+        evaluationsSyncTimer = null;
+    }
+
+    if (evaluationsVisibilityHandler) {
+        document.removeEventListener("visibilitychange", evaluationsVisibilityHandler);
+        evaluationsVisibilityHandler = null;
+    }
 }
