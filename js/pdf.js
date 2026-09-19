@@ -1,6 +1,6 @@
 import { supabase } from "./supabase.js";
 import { showToast, FESTIVAL_FERIA_NAME, PRONAFECYT_CODE_MAX, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore } from "./utils.js";
-import { getExpotecnicaRubricByCategory } from "./rubrics.js";
+import { getExpotecnicaRubricByCategory, getFestivalRubricBySubcategory } from "./rubrics.js";
 import { loadUsers, fetchAllEvaluations, fetchAllRpc } from "./data.js";
 
 let jspdfPromise = null;
@@ -756,7 +756,11 @@ export async function generateAdminPDF(sessionToken) {
         if (rubric?.sections) { const count = rubric.sections.reduce((s, sec) => s + sec.indicators.length, 0); if (count) return count * 3; }
       }
       if (feria === "Feria Cientifica y Tecnologica") { let code = String(p.categoria_pronatecyt || "").split(" ")[0]; if (tipo === "Escrito") code = code.replace("B", "C"); return PRONAFECYT_CODE_MAX[code] || (tipo === "Escrito" ? 78 : 40); }
-      if (feria === FESTIVAL_FERIA_NAME) return tipo === "Escrito" ? 0 : 12;
+      if (feria === FESTIVAL_FERIA_NAME) {
+        if (tipo === "Escrito") return 0;
+        const rubric = getFestivalRubricBySubcategory(p.subcategoria_festival);
+        return rubric?.length ? rubric.length * 3 : 0;
+      }
       return 0;
     }
     const { jsPDF } = window.jspdf;
