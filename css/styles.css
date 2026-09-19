@@ -3987,6 +3987,82 @@ body[data-page="judge"] .btn-sm:hover {
     cursor: pointer;
 }
 
+/* --- Sistema compartido para las pantallas administrativas --- */
+.admin-page-intro {
+    align-items: flex-end;
+    background: linear-gradient(135deg, #102f68 0%, #173f82 72%, #24569a 100%);
+    border: 1px solid rgba(16, 47, 104, 0.18);
+    border-radius: 18px;
+    box-shadow: 0 14px 30px rgba(16, 47, 104, 0.12);
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    margin: 1.15rem 0 1rem;
+    overflow: hidden;
+    padding: 1.35rem 1.5rem;
+    position: relative;
+}
+
+.admin-page-intro::after {
+    background: rgba(220, 177, 78, 0.92);
+    border-radius: 999px;
+    content: "";
+    height: 4px;
+    left: 1.5rem;
+    position: absolute;
+    top: 0;
+    width: 4.4rem;
+}
+
+.admin-page-intro .eyebrow {
+    color: #efd287;
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+    margin-bottom: 0.35rem;
+    text-transform: uppercase;
+}
+
+.admin-page-intro h2 {
+    color: #fff;
+    font-size: clamp(1.35rem, 2.5vw, 1.9rem);
+    line-height: 1.12;
+    margin: 0;
+}
+
+.admin-page-intro p {
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 0.9rem;
+    margin: 0.45rem 0 0;
+    max-width: 42rem;
+}
+
+.admin-content-card {
+    border-color: rgba(16, 47, 104, 0.14);
+}
+
+.admin-content-card .card-header h2 {
+    letter-spacing: -0.01em;
+}
+
+@media (max-width: 700px) {
+    .admin-page-intro {
+        align-items: flex-start;
+        margin-top: 0.8rem;
+        padding: 1.15rem 1rem 1.2rem;
+    }
+
+    .admin-page-intro::after {
+        left: 1rem;
+    }
+
+    .admin-page-intro .page-intro-mark {
+        font-size: 3rem;
+        margin-top: 0.15rem;
+    }
+}
+
 /* --- Jerarquia visual renovada para resultados y juez --- */
 .page-intro {
     align-items: flex-end;
