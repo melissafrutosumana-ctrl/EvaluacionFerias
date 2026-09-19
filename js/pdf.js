@@ -865,7 +865,11 @@ export async function generateAdminPDF(sessionToken) {
       const hdrLines = doc.splitTextToSize(r.projectName, W-2*M-6);
       const hdrDisplay = hdrLines.length > 2 ? [hdrLines[0], hdrLines[1].slice(0,-3)+"…"] : hdrLines;
       const hdrH = Math.max(12, hdrDisplay.length*4.8 + 6);
-      const catH = cat ? 7 : 0;
+      doc.setFont("helvetica", "italic");
+      doc.setFontSize(6);
+      const catLines = cat ? doc.splitTextToSize(cat.slice(0, 120), W-2*M-14) : [];
+      const catBoxH = cat ? Math.max(7.2, catLines.length * 3.4 + 4.8) : 0;
+      const catH = cat ? catBoxH + 4 : 0;
       const rowsNeeded = (r.expoJudges.length + r.escritoJudges.length)*7 + 8;
       const blockH = hdrH + catH + 7 + rowsNeeded + 8;
       if(blockH < PDF.PAGE_LIMIT - PDF.MARGIN*2 && y + blockH > PDF.PAGE_LIMIT){
@@ -879,15 +883,15 @@ export async function generateAdminPDF(sessionToken) {
       doc.text(hdrDisplay, M+3, y+ (hdrDisplay.length>1?6:7));
       y+=hdrH+2;
       if(cat){
-        const cl = doc.splitTextToSize(cat.slice(0,80), W-2*M-4);
+        y = pdfCheckPage(doc, y, catBoxH + 2);
         doc.setFillColor(...PDF.GOLD_LIGHT);
         doc.setDrawColor(...PDF.GOLD);
-        doc.roundedRect(M+2, y, W-2*M-4, 6, 1.2,1.2,"FD");
+        doc.roundedRect(M+2, y, W-2*M-4, catBoxH, 1.2,1.2,"FD");
         doc.setFont("helvetica","italic");
         doc.setFontSize(6);
         doc.setTextColor(...PDF.MUTED);
-        doc.text(cl[0], M+4, y+4);
-        y+=8;
+        doc.text(catLines, M+5, y + (catLines.length === 1 ? 4.6 : 4.1));
+        y+=catBoxH+4;
       }
       y = pdfCheckPage(doc, y, 6);
       doc.setFillColor(...PDF.PRIMARY);
