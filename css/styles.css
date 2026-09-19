@@ -4731,16 +4731,25 @@ body[data-page="login"] .login-form button:active {
 
 @media (max-width: 560px) {
     .login-header {
-        padding: 1rem 1.1rem;
+        padding: 0.75rem 1rem;
     }
 
     .login-header .brand-block {
         gap: 0.65rem;
+        justify-content: center;
+    }
+
+    .login-header .brand-row {
+        justify-content: center;
+    }
+
+    .login-header .brand-copy {
+        display: none;
     }
 
     .login-header .logo-image {
-        width: 132px;
-        max-height: 50px;
+        width: 118px;
+        max-height: 44px;
     }
 
     .login-header .brand-copy {
@@ -4748,7 +4757,7 @@ body[data-page="login"] .login-form button:active {
     }
 
     .login-header .brand-copy strong {
-        font-size: 0.78rem;
+        font-size: 0.72rem;
     }
 
     .brand-context {
@@ -4756,30 +4765,59 @@ body[data-page="login"] .login-form button:active {
     }
 
     .login-shell {
-        gap: 2rem;
-        padding: 7.4rem 1.1rem 2.25rem;
+        gap: 1.1rem;
+        padding: 4.2rem 1rem 1rem;
     }
 
     .login-eyebrow {
-        margin-bottom: 1rem;
+        margin-bottom: 0.75rem;
+        font-size: 0.65rem;
     }
 
     .login-intro h1 {
-        font-size: clamp(2.6rem, 13vw, 3.65rem);
+        max-width: 13ch;
+        font-size: clamp(2.2rem, 11vw, 3rem);
     }
 
     .login-lead {
-        margin-top: 1.2rem;
-        font-size: 0.98rem;
+        display: none;
     }
 
     .login-divider {
-        margin: 1.8rem 0 1rem;
+        display: none;
+    }
+
+    .login-caption {
+        display: none;
     }
 
     .login-card {
-        padding: 1.45rem 1.15rem 1.25rem;
+        width: min(100%, 390px);
+        margin-inline: auto;
+        padding: 1.05rem 1rem 0.95rem;
         border-radius: 18px;
+    }
+
+    .login-card-heading {
+        margin-bottom: 0.8rem;
+    }
+
+    .login-card-heading > p:last-child {
+        margin-top: 0.35rem;
+        font-size: 0.82rem;
+    }
+
+    .login-form {
+        gap: 0.65rem;
+    }
+
+    .login-form input,
+    .login-form button {
+        min-height: 44px;
+    }
+
+    .login-footnote {
+        display: none;
     }
 }
 
