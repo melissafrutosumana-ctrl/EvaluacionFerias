@@ -5394,6 +5394,36 @@ body[data-page="judge"] .rubric-table thead th {
         font-weight: 600;
         color: var(--primary);
     }
+    body[data-page="judge"] .judge-history-card .card-header {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 0.7rem;
+    }
+    body[data-page="judge"] .judge-history-card .card-header h2 {
+        font-size: 1rem;
+    }
+    body[data-page="judge"] .judge-history-card .btn-sm {
+        width: 100%;
+        justify-content: center;
+        min-height: 44px;
+        font-size: 0.8rem;
+    }
+    body[data-page="judge"] .judge-history-card [data-my-evaluations] td:nth-child(2)::before,
+    body[data-page="judge"] .judge-history-card [data-my-evaluations] td:last-child::before {
+        display: block;
+        margin-bottom: 0.12rem;
+        color: var(--ink-secondary);
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+    body[data-page="judge"] .judge-history-card [data-my-evaluations] td:nth-child(2)::before {
+        content: "Indicadores";
+    }
+    body[data-page="judge"] .judge-history-card [data-my-evaluations] td:last-child::before {
+        content: "Puntaje total";
+    }
     [data-my-evaluations] td:last-child {
         font-weight: 700;
         font-size: 1.1rem;

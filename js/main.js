@@ -1,5 +1,5 @@
 import { bootstrapLoginPage } from "./auth.js?v=3.22";
-import { bootstrapJudgePage } from "./judge.js?v=3.22";
+import { bootstrapJudgePage } from "./judge.js?v=3.23";
 import { bootstrapAdminPage } from "./admin.js?v=3.22";
 
 document.addEventListener("DOMContentLoaded", async () => {
