@@ -196,19 +196,22 @@ export function pdfFooter(doc, now) {
 
 export function pdfContinuationHeader(doc) {
     const title = doc.__reportTitle ?? "Reporte institucional";
+    const x = PDF.MARGIN;
+    const y = 7;
+    const w = PDF.PAGE_W - 2 * PDF.MARGIN;
     doc.setFillColor(...PDF.PRIMARY);
-    doc.rect(0, 0, PDF.PAGE_W, 10, "F");
+    doc.roundedRect(x, y, w, 13, 2.5, 2.5, "F");
     doc.setFont("helvetica", "bold");
     doc.setFontSize(6.2);
     doc.setTextColor(...PDF.WHITE);
-    doc.text("MINISTERIO DE EDUCACIÓN PÚBLICA · DIRECCIÓN REGIONAL PACÍFICO CENTRAL", PDF.MARGIN, 6.2);
+    doc.text("MINISTERIO DE EDUCACIÓN PÚBLICA · DIRECCIÓN REGIONAL PACÍFICO CENTRAL", x + 3, y + 7.2);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(5.8);
     doc.setTextColor(210, 224, 240);
-    doc.text(title, PDF.PAGE_W - PDF.MARGIN, 6.2, { align: "right" });
+    doc.text(title, PDF.PAGE_W - PDF.MARGIN - 3, y + 7.2, { align: "right" });
     doc.setDrawColor(...PDF.GOLD);
     doc.setLineWidth(0.45);
-    doc.line(PDF.MARGIN, 11.8, PDF.PAGE_W - PDF.MARGIN, 11.8);
+    doc.line(x + 2, y + 15.5, PDF.PAGE_W - PDF.MARGIN - 2, y + 15.5);
 }
 
 export function pdfNewPage(doc) {
@@ -216,7 +219,7 @@ export function pdfNewPage(doc) {
     doc.setFillColor(253, 253, 253);
     doc.rect(0, 0, PDF.PAGE_W, PDF.PAGE_H, "F");
     pdfContinuationHeader(doc);
-    return PDF.MARGIN + 3;
+    return PDF.MARGIN + 13;
 }
 
 export function pdfInfoBox(doc, lines, y) {
@@ -446,6 +449,8 @@ export async function generateJudgePDF(user) {
     // y ya está en doc.lastAutoTable.finalY+4, pero ajustamos
     y = Math.max(y, doc.lastAutoTable.finalY + 15);
 
+    // Evita dejar el título de la sección aislado al final de una página.
+    y = pdfCheckPage(doc, y, 48);
     y = pdfSubHeader(doc, "Detalle por proyecto", y);
     function getJudgeMax(pd, tipo, cnt) {
         if (!pd) return cnt * 3;
