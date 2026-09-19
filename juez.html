@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/styles.css?v=16.8">
+    <link rel="stylesheet" href="/css/styles.css?v=16.9">
 </head>
 <body data-page="judge">
 
@@ -45,7 +45,16 @@
             </div>
         </section>
 
-        <section class="card" data-judge-progress hidden>
+        <section class="page-intro judge-page-intro">
+            <div>
+                <span class="eyebrow">Panel de evaluacion</span>
+                <h2>Evalua con claridad y sin perder el avance</h2>
+                <p>Selecciona un proyecto, marca cada indicador y guarda tu evaluacion cuando este completa.</p>
+            </div>
+            <span class="page-intro-mark" aria-hidden="true">02</span>
+        </section>
+
+        <section class="card" data-judge-progress hidden>
             <div class="card-header">
                 <h2>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
@@ -116,17 +125,19 @@
             <p class="filter-status" data-judge-category-status role="alert" aria-live="polite"></p>
         </section>
 
-        <section class="card form-card">
+        <section class="card form-card judge-form-card">
             <div class="card-header">
                 <h2>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg>
-                    Evaluacion de proyectos asignados
+                    Evaluacion del proyecto asignado
                 </h2>
-            </div>
+            </div>
+
+            <p class="section-lead">Completa todos los indicadores visibles para registrar un resultado consistente.</p>
             <form data-evaluation-form class="project-form" novalidate>
                 <div class="field-group">
                     <label class="field-label">
-                        <span>Proyecto a evaluar</span>
+                        <span>Proyecto seleccionado</span>
                         <select name="proyecto_id" data-project-select required></select>
                     </label>
                     <span class="evaluation-type-badge" data-evaluation-type-badge hidden></span>
@@ -149,7 +160,7 @@
 
                 <div class="field-group">
                     <label class="field-label">
-                        <span>Observacion del proyecto (opcional)</span>
+                        <span>Observacion del proyecto <small>(opcional)</small></span>
                         <textarea name="observacion" rows="3" class="textarea-observacion" data-observacion-input placeholder="Notas o comentarios generales sobre este proyecto. Se guarda junto con la evaluacion y la ve el admin."></textarea>
                     </label>
                 </div>
@@ -169,14 +180,15 @@
             <div class="card-header">
                 <h2>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg>
-                    Mis evaluaciones registradas
+                    Evaluaciones registradas
                 </h2>
                 <button class="btn-primary btn-sm" data-pdf-btn hidden>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg>
                     PDF
                 </button>
             </div>
-            <p class="form-status" data-my-evaluations-status role="alert" aria-live="polite"></p>
+            <p class="section-lead">Consulta lo que ya registraste y descarga tu reporte cuando lo necesites.</p>
+            <p class="form-status" data-my-evaluations-status role="alert" aria-live="polite"></p>
             <div class="table-wrap">
                     <table class="results-table">
                         <thead>
