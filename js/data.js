@@ -1,8 +1,8 @@
-import { normalizeRoleName, fetchAllRpc } from "./utils.js";
-import { getSession } from "./auth.js?v=3.26";
-import { mergeRowsById, readSessionCache, writeSessionCache } from "./cache.js?v=3.26";
+import { normalizeRoleName, fetchAllRpc } from "./utils.js?v=16.9";
+import { getSession } from "./auth.js?v=3.28";
+import { mergeRowsById, readSessionCache, writeSessionCache } from "./cache.js?v=3.28";
 
-export { fetchAllRpc } from "./utils.js";
+export { fetchAllRpc } from "./utils.js?v=16.9";
 
 const EVALUATIONS_CACHE_KEY = "admin:evaluations";
 const EVALUATIONS_SYNC_INTERVAL_MS = 15000;
@@ -16,7 +16,7 @@ function sessionToken() {
 
 function readEvaluationsCache() {
     const cache = readSessionCache(EVALUATIONS_CACHE_KEY);
-    if (!cache || !Array.isArray(cache.rows)) return null;
+    if (!cache || cache.version !== 2 || cache.complete !== true || !Array.isArray(cache.rows)) return null;
     return cache;
 }
 
@@ -31,7 +31,9 @@ function getLatestEvaluationTimestamp(rows) {
 
 function saveEvaluationsCache(rows, previousCache = null) {
     const nextCache = {
-        version: 1,
+        version: 2,
+        complete: true,
+        rowCount: rows.length,
         rows,
         syncedAt: Date.now(),
         cursor: getLatestEvaluationTimestamp(rows) ?? previousCache?.cursor

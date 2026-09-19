@@ -1,8 +1,10 @@
 import { supabase } from "./supabase.js?v=1";
-import { escapeHTML, showToast, setMessage, normalizeRoleName, fillSelect, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, buildFeriaOptions, FESTIVAL_FERIA_NAME, FESTIVAL_CATEGORIES, FESTIVAL_SUBCATEGORIES, EXPOTECNICA_CATEGORIES, EXPOTECNICA_EJES, PRONAFECYT_CATEGORIES, PRONAFECYT_EDUCATIONAL_CATEGORIES, PRONAFECYT_C_RAW_MAX, updateProjectFormFieldsByFeria, showSkeleton, confirmDialog, PRONAFECYT_BY_NIVEL, getNivelFromPronatecyt, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore, openModalAccesible, closeModalAccesible } from "./utils.js";
-import { getSession, enforceRole, hashPassword, bindLogout } from "./auth.js?v=3.26";
-import { loadProjects, loadJudges, loadJudgeAssignments, loadUsers, fetchAllEvaluations, fetchAllRpc, startEvaluationsSync } from "./data.js?v=3.26";
+import { escapeHTML, showToast, setMessage, normalizeRoleName, fillSelect, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, buildFeriaOptions, FESTIVAL_FERIA_NAME, FESTIVAL_CATEGORIES, FESTIVAL_SUBCATEGORIES, EXPOTECNICA_CATEGORIES, EXPOTECNICA_EJES, PRONAFECYT_CATEGORIES, PRONAFECYT_EDUCATIONAL_CATEGORIES, PRONAFECYT_C_RAW_MAX, updateProjectFormFieldsByFeria, showSkeleton, confirmDialog, PRONAFECYT_BY_NIVEL, getNivelFromPronatecyt, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore, openModalAccesible, closeModalAccesible } from "./utils.js?v=16.9";
+import { getSession, enforceRole, hashPassword, bindLogout } from "./auth.js?v=3.28";
+import { loadProjects, loadJudgeAssignments, loadUsers, fetchAllEvaluations, fetchAllRpc, startEvaluationsSync } from "./data.js?v=3.28";
 import { generateAdminPDF } from "./pdf.js?v=3.22";
+
+let latestAdminReportData = null;
 
 function formatEvaluationDate(value) {
     if (!value) return "Sin programar";
@@ -518,7 +520,7 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
                 return;
             }
             showToast(num === null ? "Puntaje manual eliminado." : "Puntaje manual guardado.", "success");
-            await renderAdminReportsByFeria();
+            await renderAdminReportsByFeria(await loadAdminReportData());
         }
 
         cell.querySelector(".manual-escrito-form").addEventListener("submit", async (ev) => {
@@ -577,7 +579,18 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
 }
 
 
-async function renderAdminReportsByFeria() {
+async function loadAdminReportData() {
+    const [users, projects, allEvals, assignments] = await Promise.all([
+        loadUsers(),
+        loadProjects(""),
+        fetchAllEvaluations(),
+        loadJudgeAssignments()
+    ]);
+
+    return { users, projects, allEvals, assignments };
+}
+
+async function renderAdminReportsByFeria(reportData = latestAdminReportData) {
     const hasAnyReportTarget =
         document.querySelector("[data-admin-evaluations]") ||
         document.querySelector("[data-admin-projects]") ||
@@ -590,14 +603,11 @@ async function renderAdminReportsByFeria() {
     const filterEl = document.querySelector("[data-feria-results-filter]");
     const selectedFeria = filterEl ? filterEl.value : "";
 
-    const [users, projectsResult, allEvals, assignmentsResult] = await Promise.all([
-        loadUsers(),
-        fetchAllRpc("get_projects", { p_session_token: getSession()?.session_token }),
-        fetchAllEvaluations(),
-        fetchAllRpc("get_assignments", { p_session_token: getSession()?.session_token })
-    ]);
+    const data = reportData ?? await loadAdminReportData();
+    latestAdminReportData = data;
 
-    const allProjects = projectsResult;
+    const { users, projects: allProjects, allEvals, assignments: assignmentsResult } = data;
+
     const filteredProjects = selectedFeria ?
         allProjects.filter((p) => p.tipo_feria === selectedFeria) :
         allProjects;
@@ -932,36 +942,39 @@ export async function bootstrapAdminPage() {
     if (usersTbody) showSkeleton(usersTbody, 4);
     if (assignmentsTbody) showSkeleton(assignmentsTbody, 3);
 
-    const [roles, judgesResult, projectsResult, assignmentsResult, usersResult] = await Promise.all([
+    const [roles, reportData] = await Promise.all([
       fetchAllRpc("get_roles", { p_session_token: getSession()?.session_token }),
-      loadJudges(""),
-      loadProjects(""),
-      loadJudgeAssignments(),
-      loadUsers()
+      loadAdminReportData()
     ]);
 
-    const judges = judgesResult;
+    const { users, projects, assignments } = reportData;
+    const roleNamesById = new Map(roles.map((role) => [role.id, normalizeRoleName(role.nombre)]));
+    const judges = users.filter((item) => roleNamesById.get(item.role_id) === "Juez");
     rolesCache = roles;
-    allProjectsCache = projectsResult;
-    allAssignmentsCache = assignmentsResult;
-    const projects = projectsResult;
-    const assignments = assignmentsResult;
-    const users = usersResult;
+    latestAdminReportData = reportData;
+    allProjectsCache = projects;
+    allAssignmentsCache = assignments;
 
     fillSelect(document.querySelector("[data-user-role-select]"), getAllowedRolesForUserForm(roles), "Selecciona un rol");
     updateUserFeriaField(userForm, rolesCache);
     renderUsersTable(users, roles);
     renderProjectsManagementTable(projects);
     renderJudgeAssignmentsTable(judges, allProjectsCache, assignments);
-    await renderAdminReportsByFeria();
+    await renderAdminReportsByFeria(reportData);
   }
 
   try {
     await refreshAdminDataView();
     const hasEvaluationView = document.querySelector("[data-admin-evaluations], [data-admin-projects], [data-project-results]");
     if (hasEvaluationView) {
-      startEvaluationsSync(() => {
-        void renderAdminReportsByFeria();
+      startEvaluationsSync((rows) => {
+        if (latestAdminReportData) {
+          latestAdminReportData = {
+            ...latestAdminReportData,
+            allEvals: rows
+          };
+        }
+        void renderAdminReportsByFeria(latestAdminReportData);
       });
     }
   } catch {
@@ -1236,7 +1249,7 @@ export async function bootstrapAdminPage() {
   const feriaResultsFilter = document.querySelector("[data-feria-results-filter]");
   if (feriaResultsFilter) {
     feriaResultsFilter.addEventListener("change", () => {
-      renderAdminReportsByFeria();
+      void renderAdminReportsByFeria(latestAdminReportData);
     });
   }
 

@@ -1,4 +1,4 @@
-const CACHE_PREFIX = "ef_cache_v1:";
+const CACHE_PREFIX = "ef_cache_v2:";
 
 function getStorage() {
   try {

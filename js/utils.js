@@ -761,7 +761,6 @@ export function calcExpotecnicaFinalScore(category, expoPts, escritoPts) {
 // PostgREST puede limitar silenciosamente una respuesta a 1000 filas. Mantener
 // este tamaño evita saltos de offset cuando alguien solicita un rango mayor.
 const RPC_PAGE_SIZE = 1000;
-const MAX_RPC_PAGES = 100;
 
 export async function fetchAllRpc(functionName, params = {}, pageSize = RPC_PAGE_SIZE, client) {
     if (!Number.isInteger(pageSize) || pageSize <= 0) {
@@ -771,13 +770,9 @@ export async function fetchAllRpc(functionName, params = {}, pageSize = RPC_PAGE
     const sb = client ?? (await import("./supabase.js?v=1")).supabase;
     const rows = [];
     let offset = 0;
-    let pages = 0;
+    let previousPageFingerprint = null;
 
     while (true) {
-        if (++pages > MAX_RPC_PAGES) {
-            throw new Error(`fetchAllRpc(${functionName}): superado el maximo de ${MAX_RPC_PAGES} paginas, el servidor no respeta el rango`);
-        }
-
         const { data, error } = await sb
             .rpc(functionName, params)
             .range(offset, offset + effectivePageSize - 1);
@@ -787,12 +782,25 @@ export async function fetchAllRpc(functionName, params = {}, pageSize = RPC_PAGE
         }
 
         const page = data ?? [];
+        if (!page.length) {
+            return rows;
+        }
+
+        // Si el servidor ignora el rango, evita repetir indefinidamente la misma página.
+        const firstRow = page[0];
+        const lastRow = page[page.length - 1];
+        const pageFingerprint = `${page.length}:${JSON.stringify(firstRow)}:${JSON.stringify(lastRow)}`;
+        if (pageFingerprint === previousPageFingerprint) {
+            throw new Error(`fetchAllRpc(${functionName}): superado el maximo de progreso; el servidor repitio una pagina y no respeta el rango`);
+        }
+        previousPageFingerprint = pageFingerprint;
+
         rows.push(...page);
 
         if (page.length < effectivePageSize) {
             return rows;
         }
 
-        offset += effectivePageSize;
+        offset += page.length;
     }
 }
