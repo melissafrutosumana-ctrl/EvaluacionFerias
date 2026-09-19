@@ -3,7 +3,7 @@ import { escapeHTML, showToast, setMessage, fillSelectGroupedByTipo, setupHambur
 import { enforceRole, bindLogout } from "./auth.js";
 import { loadAssignedProjectsForJudge, fetchAllRpc } from "./data.js";
 import { getRubricIndicatorsByFeria, getExpotecnicaRubricByCategory, getPronatecytRubricByCategory, getFestivalRubricBySubcategory, getFestivalRubricByCategory } from "./rubrics.js";
-import { generateJudgePDF } from "./pdf.js";
+import { generateJudgePDF } from "./pdf.js?v=3.11";
 
 export async function bootstrapJudgePage() {
   bindLogout();
@@ -580,7 +580,8 @@ export async function bootstrapJudgePage() {
     try {
       await generateJudgePDF(user);
       showToast("PDF descargado correctamente.", "success");
-    } catch {
+    } catch (error) {
+      console.error("Error generating judge PDF:", error);
       showToast("No se pudo generar el PDF.", "error");
     }
     btn.disabled = false;
