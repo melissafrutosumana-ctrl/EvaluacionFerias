@@ -491,7 +491,9 @@ export async function generateJudgePDF(user) {
         const hdrH = Math.min(16, hdrLines.length > 2 ? 14 : hdrLines.length * 4.8 + 6);
         doc.setFont("helvetica", "italic");
         doc.setFontSize(6.2);
-        const catH = catText ? doc.splitTextToSize(catText, innerW).length * 3.8 + 7 : 0;
+        const catLines = catText ? doc.splitTextToSize(catText, innerW - 10) : [];
+        const catBoxH = catText ? Math.max(7.2, catLines.length * 3.4 + 4.8) : 0;
+        const catH = catText ? catBoxH + 4 : 0;
         // Use autoTable for criteria to get perfect pagination
         const bodyForAuto = g.items.map(it => [it.criterio, String(it.nota)]);
         const obsLines = g.observacion ? doc.splitTextToSize(g.observacion, innerW - 6) : [];
@@ -526,17 +528,15 @@ export async function generateJudgePDF(user) {
         doc.text(hdrDisplay, cardX + 3, y + 5);
         y += hdrH + 2;
         if (catText) {
-            const cl = doc.splitTextToSize(catText, innerW);
-            const ch = cl.length * 3.8 + 6;
-            y = pdfCheckPage(doc, y, ch + 2);
+            y = pdfCheckPage(doc, y, catBoxH + 2);
             doc.setFillColor(...PDF.GOLD_LIGHT);
             doc.setDrawColor(...PDF.GOLD);
-            doc.roundedRect(cardX + 2, y, cardW - 4, ch, 1.3, 1.3, "FD");
+            doc.roundedRect(cardX + 2, y, cardW - 4, catBoxH, 1.3, 1.3, "FD");
             doc.setFont("helvetica", "italic");
             doc.setFontSize(6.2);
             doc.setTextColor(...PDF.MUTED);
-            doc.text(cl, cardX + 5, y + 4.2);
-            y += ch + 4;
+            doc.text(catLines, cardX + 5, y + (catLines.length === 1 ? 4.6 : 4.1));
+            y += catBoxH + 4;
         }
         // Use autoTable for criterios - FIX 2: cellWidth explícito + overflow linebreak + margin.bottom
         doc.autoTable({
