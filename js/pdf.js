@@ -94,7 +94,7 @@ export async function loadMEPLogo() {
 }
 
 export const PDF = {
-    MARGIN: 14,
+    MARGIN: 10,
     PAGE_W: 210,
     PAGE_H: 297,
     PAGE_LIMIT: 270,
@@ -224,13 +224,14 @@ export function pdfNewPage(doc) {
 
 export function pdfInfoBox(doc, lines, y) {
     const boxW = PDF.PAGE_W - 2 * PDF.MARGIN;
+    const labelW = 42;
     const entries = lines.map((line) => {
         const sep = line.indexOf(":");
         const label = sep > 0 ? line.slice(0, sep + 1) : "";
         const value = sep > 0 ? line.slice(sep + 1).trim() : line;
         doc.setFont("helvetica", sep > 0 ? "bold" : "normal");
         doc.setFontSize(sep > 0 ? 7.2 : 7);
-        return { label, value, lines: doc.splitTextToSize(value, boxW - (sep > 0 ? 33 : 10)) };
+        return { label, value, lines: doc.splitTextToSize(value, boxW - (sep > 0 ? labelW + 10 : 10)) };
     });
     const boxH = entries.reduce((sum, entry) => sum + Math.max(5.2, entry.lines.length * 3.8), 0) + 10;
     y = pdfCheckPage(doc, y, boxH + 4);
@@ -249,7 +250,7 @@ export function pdfInfoBox(doc, lines, y) {
             doc.setFont("helvetica", "bold");
             doc.setFontSize(7.2);
             doc.setTextColor(...PDF.INK);
-            doc.text(entry.lines, PDF.MARGIN + 28, ly);
+            doc.text(entry.lines, PDF.MARGIN + labelW + 5, ly);
         } else {
             doc.setFont("helvetica", "normal");
             doc.setFontSize(7);
@@ -416,7 +417,7 @@ export async function generateJudgePDF(user) {
         margin: { left: M, right: M },
         headStyles: { fillColor: PDF.PRIMARY, textColor: 255, fontStyle: "bold", fontSize: 6.3, halign: "center", valign: "middle", cellPadding: {top:2,bottom:2,left:2,right:2} },
         columnStyles: {
-            0: { cellWidth: 110, fontStyle: "bold", fontSize: 6.8, textColor: PDF.INK, cellPadding: {top:2,bottom:2,left:2,right:2} },
+            0: { cellWidth: tableW - 22 - 16 - 24, fontStyle: "bold", fontSize: 6.8, textColor: PDF.INK, cellPadding: {top:2,bottom:2,left:2,right:2} },
             1: { cellWidth: 22, halign: "center", fontSize: 5.5, textColor: PDF.MUTED },
             2: { cellWidth: 16, halign: "center", fontSize: 6.8, textColor: PDF.MUTED },
             3: { cellWidth: 24, halign: "center", fontStyle: "bold", fontSize: 8, textColor: PDF.PRIMARY }

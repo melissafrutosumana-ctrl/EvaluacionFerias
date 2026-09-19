@@ -3,7 +3,7 @@ import { escapeHTML, showToast, setMessage, fillSelectGroupedByTipo, setupHambur
 import { enforceRole, bindLogout } from "./auth.js";
 import { loadAssignedProjectsForJudge, fetchAllRpc } from "./data.js";
 import { getRubricIndicatorsByFeria, getExpotecnicaRubricByCategory, getPronatecytRubricByCategory, getFestivalRubricBySubcategory, getFestivalRubricByCategory } from "./rubrics.js";
-import { generateJudgePDF } from "./pdf.js?v=3.14";
+import { generateJudgePDF } from "./pdf.js?v=3.15";
 
 export async function bootstrapJudgePage() {
   bindLogout();
