@@ -2810,7 +2810,7 @@ body[data-page="judge"] .btn-sm:hover {
         min-height: 0;
         padding: 0 0.75rem 2rem;
     }
-    body[data-page="login"] .login-card {
+    body[data-page="login"] .login-card-hover-zone {
         margin-top: 1.5rem;
     }
     .brand-row {
@@ -4373,9 +4373,15 @@ body[data-page="login"] main {
     display: none;
 }
 
-.login-card {
-    width: min(100%, 430px);
+.login-card-hover-zone {
+    width: min(100%, 442px);
     margin: 0 auto;
+    padding: 6px;
+}
+
+.login-card {
+    width: 100%;
+    margin: 0;
     padding: clamp(1.65rem, 4vw, 2.35rem);
     position: relative;
     overflow: hidden;
@@ -4525,7 +4531,7 @@ body[data-page="login"] main {
         width: 100%;
     }
 
-    .login-card {
+    .login-card-hover-zone {
         margin-inline: 0;
     }
 }
@@ -4632,7 +4638,7 @@ body[data-page="login"] .login-caption {
 body[data-page="login"] .login-card {
     opacity: 0;
     animation: login-card-in 760ms var(--ease-out) 240ms both;
-    transition: box-shadow 220ms ease;
+    transition: transform 180ms var(--ease-out), box-shadow 180ms ease;
 }
 
 body[data-page="login"] .login-card::after {
@@ -4676,7 +4682,8 @@ body[data-page="login"] .login-footnote {
 }
 
 @media (hover: hover) and (pointer: fine) {
-    body[data-page="login"] .login-card:hover {
+    body[data-page="login"] .login-card-hover-zone:hover .login-card {
+        transform: translateY(-4px);
         box-shadow: 0 36px 82px rgba(2, 15, 36, 0.34), 0 8px 18px rgba(2, 15, 36, 0.14);
     }
 
@@ -4700,7 +4707,7 @@ body[data-page="login"] .login-form button:active {
         box-shadow: 0 10px 20px rgba(13, 42, 91, 0.2);
     }
 
-    body[data-page="login"] .login-card:hover,
+    body[data-page="login"] .login-card-hover-zone:hover .login-card,
     body[data-page="login"] .login-form input:focus {
         transform: none;
     }
@@ -4790,9 +4797,13 @@ body[data-page="login"] .login-form button:active {
         display: none;
     }
 
-    .login-card {
-        width: min(100%, 390px);
+    body[data-page="login"] .login-card-hover-zone {
+        width: min(100%, 402px);
         margin-inline: auto;
+        padding: 6px;
+    }
+
+    .login-card {
         padding: 1.05rem 1rem 0.95rem;
         border-radius: 18px;
     }
