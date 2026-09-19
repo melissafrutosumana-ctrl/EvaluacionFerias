@@ -22,18 +22,48 @@ export function loadJSPDF() {
 }
 
 let autoTablePromise = null;
+
+function hasAutoTable() {
+    const jsPDF = window.jspdf?.jsPDF;
+    return typeof jsPDF?.API?.autoTable === "function" || typeof jsPDF?.prototype?.autoTable === "function";
+}
+
 export function loadAutoTable() {
-    if (window.jspdf?.jsPDF?.API?.autoTable || window.jspdf?.jsPDF?.prototype?.autoTable) return Promise.resolve();
+    if (hasAutoTable()) return Promise.resolve();
     if (autoTablePromise) return autoTablePromise;
-    // jsPDF 2.5.1 autoTable plugin attaches to window.jspdf.jsPDF.API
+
     autoTablePromise = new Promise((resolve, reject) => {
-        if (document.querySelector('script[data-autotable]')) return resolve();
-        const s = document.createElement("script");
-        s.dataset.autotable = "1";
-        s.src = "https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/5.0.8/jspdf.plugin.autotable.min.js";
-        s.onload = () => resolve();
-        s.onerror = () => reject(new Error("Failed to load jspdf-autotable"));
-        document.head.appendChild(s);
+        const script = document.querySelector("script[data-autotable]") ?? document.createElement("script");
+        const finish = () => {
+            script.dataset.autotableStatus = "loaded";
+            if (hasAutoTable()) {
+                resolve();
+            } else {
+                reject(new Error("jspdf-autotable cargo, pero no se conecto a jsPDF"));
+            }
+        };
+
+        if (script.dataset.autotableStatus === "loaded") {
+            finish();
+            return;
+        }
+
+        script.addEventListener("load", finish, { once: true });
+        script.addEventListener("error", () => {
+            script.dataset.autotableStatus = "error";
+            reject(new Error("Failed to load jspdf-autotable"));
+        }, { once: true });
+
+        if (!script.parentNode) {
+            script.dataset.autotable = "1";
+            script.dataset.autotableStatus = "loading";
+            script.src = "https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/5.0.8/jspdf.plugin.autotable.min.js";
+            document.head.appendChild(script);
+        } else if (hasAutoTable()) {
+            finish();
+        } else if (script.dataset.autotableStatus === "error") {
+            reject(new Error("Failed to load jspdf-autotable"));
+        }
     });
     return autoTablePromise;
 }
@@ -299,6 +329,7 @@ export function pdfSignatureBlock(doc, y, labels = ["Firma", "Nombre y cargo"]) 
 
 export async function generateJudgePDF(user) {
     await loadJSPDF();
+    await loadAutoTable();
     const logoData = await loadMEPLogo();
     const [evalResult, projectsData] = await Promise.all([
         fetchAllRpc("get_judge_evaluations_with_titles", { p_session_token: user.session_token }),
@@ -364,7 +395,6 @@ export async function generateJudgePDF(user) {
 
     // Resumen premium con autoTable (paginación automática, sin cortes)
     y = pdfSubHeader(doc, "Resumen — Puntajes por proyecto", y);
-    await loadAutoTable();
     const tableW = W - 2 * M;
     // Pre-calcula grandTotal para total general
     let grandTotal = 0;
