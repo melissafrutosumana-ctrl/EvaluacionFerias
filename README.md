@@ -21,13 +21,13 @@ Sistema de evaluación de ferias institucionales del MEP (Colegio Técnico Profe
 
 ## Configuración
 
-Las credenciales de Supabase viven en `js/supabase.js` (publishable key, hardcodeada). No se usan variables de entorno de Vercel.
+La URL y la publishable key de Supabase se administran como variables de entorno del proyecto en Vercel. El frontend las obtiene mediante `/api/config`; nunca se agregan valores reales al repositorio.
 
 ## Relación con CTPQ
 
 Este proyecto es gemelo de `evaluaciones-CTPQ` (Colegio Técnico Profesional de Quepos). Comparten todo el código salvo:
 
-- `js/supabase.js` (URL y key de Supabase propias de cada colegio)
+- `api/config.js` y `js/supabase.js` (carga de configuración pública de Supabase desde Vercel)
 - Logo e imágenes institucionales
 - Repo y despliegue de Vercel
 
