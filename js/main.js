@@ -2,7 +2,7 @@ import { bootstrapLoginPage } from "./auth.js?v=3.24";
 import { bootstrapJudgePage } from "./judge.js?v=3.24";
 import { bootstrapAdminPage } from "./admin.js?v=3.24";
 
-document.addEventListener("DOMContentLoaded", async () => {
+async function bootstrapApp() {
   const page = document.body.dataset.page;
 
   if (page === "login") {
@@ -12,4 +12,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   } else if (page === "admin") {
     await bootstrapAdminPage();
   }
-});
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", bootstrapApp, { once: true });
+} else {
+  void bootstrapApp();
+}
