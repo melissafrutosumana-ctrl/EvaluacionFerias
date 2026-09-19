@@ -4048,19 +4048,19 @@ body[data-page="judge"] .btn-sm:hover {
     user-select: none;
 }
 
-body[data-page="admin"] #main-content {
+body[data-page="admin"][data-admin-view="results"] #main-content {
     display: flex;
     flex-direction: column;
 }
 
-body[data-page="admin"] #main-content > .identity-bar { order: 1; }
-body[data-page="admin"] #main-content > .quick-nav { order: 2; }
-body[data-page="admin"] #main-content > .results-page-intro { order: 3; }
-body[data-page="admin"] #main-content > .results-filter-card { order: 4; }
-body[data-page="admin"] #main-content > .results-summary { order: 5; }
-body[data-page="admin"] #main-content > .results-section-scores { order: 6; }
-body[data-page="admin"] #main-content > .results-section-evaluations { order: 7; }
-body[data-page="admin"] #main-content > .results-section-projects { order: 8; }
+body[data-page="admin"][data-admin-view="results"] #main-content > .identity-bar { order: 1; }
+body[data-page="admin"][data-admin-view="results"] #main-content > .quick-nav { order: 2; }
+body[data-page="admin"][data-admin-view="results"] #main-content > .results-page-intro { order: 3; }
+body[data-page="admin"][data-admin-view="results"] #main-content > .results-filter-card { order: 4; }
+body[data-page="admin"][data-admin-view="results"] #main-content > .results-summary { order: 5; }
+body[data-page="admin"][data-admin-view="results"] #main-content > .results-section-scores { order: 6; }
+body[data-page="admin"][data-admin-view="results"] #main-content > .results-section-evaluations { order: 7; }
+body[data-page="admin"][data-admin-view="results"] #main-content > .results-section-projects { order: 8; }
 
 .results-filter-card {
     margin-bottom: 1rem;
