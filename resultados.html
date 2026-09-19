@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/styles.css?v=16.8">
+    <link rel="stylesheet" href="/css/styles.css?v=16.9">
 </head>
 <body data-page="admin">
 
@@ -50,7 +50,16 @@
 
         </nav>
 
-        <section class="card feria-filter-bar">
+        <section class="page-intro results-page-intro">
+            <div>
+                <span class="eyebrow">Control y seguimiento</span>
+                <h2>Resultados de evaluacion</h2>
+                <p>Consulta el avance de las evaluaciones y el puntaje consolidado por feria.</p>
+            </div>
+            <span class="page-intro-mark" aria-hidden="true">01</span>
+        </section>
+
+        <section class="card feria-filter-bar results-filter-card">
             <label>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></svg>
                 Filtrar por feria:
@@ -69,7 +78,7 @@
             </div>
             <div class="summary-card">
                 <div class="value" data-total-judges>0</div>
-                <div class="label">Jueces</div>
+                <div class="label">Jueces asignados</div>
             </div>
             <div class="summary-card">
                 <div class="value" data-total-evaluations>0</div>
@@ -81,25 +90,25 @@
             </div>
         </section>
 
-        <section class="card">
+        <section class="card results-section results-section-evaluations">
             <div class="card-header">
                 <h2>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg>
-                    Evaluaciones
+                    Detalle de evaluaciones
                 </h2>
             </div>
-            <p>Listado de evaluaciones registradas para la feria asignada.</p>
+            <p>Revisa cada criterio calificado y detecta rápidamente qué falta por completar.</p>
             <div data-admin-evaluations></div>
         </section>
 
-        <section class="card">
+        <section class="card results-section results-section-projects">
             <div class="card-header">
                 <h2>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>
                     Proyectos
                 </h2>
             </div>
-            <p>Proyectos con evaluaciones en la feria asignada.</p>
+            <p>Listado de proyectos incluidos en la feria seleccionada.</p>
             <div class="table-wrap">
                 <table class="results-table">
                     <thead>
@@ -113,14 +122,14 @@
             </div>
         </section>
 
-        <section class="card">
+        <section class="card results-section results-section-scores">
             <div class="card-header">
                 <h2>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
                     Puntajes
                 </h2>
             </div>
-            <p>Resultado final por proyecto con detalle de cada juez.</p>
+            <p>Resultado consolidado por proyecto, con avance de jueces y puntaje final.</p>
             <p class="form-status" data-project-results-status role="alert" aria-live="polite"></p>
             <div class="table-wrap">
                 <table class="results-table">
@@ -135,7 +144,7 @@
                     <tbody data-project-results></tbody>
                 </table>
             </div>
-            <div class="form-actions" style="margin-top: 1rem;">
+            <div class="form-actions results-export-actions">
                 <button class="btn-primary" id="export-pdf-btn">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg>
                     Exportar PDF

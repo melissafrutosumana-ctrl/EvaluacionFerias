@@ -3987,6 +3987,244 @@ body[data-page="judge"] .btn-sm:hover {
     cursor: pointer;
 }
 
+/* --- Jerarquia visual renovada para resultados y juez --- */
+.page-intro {
+    align-items: flex-end;
+    background: linear-gradient(135deg, #102f68 0%, #173f82 72%, #24569a 100%);
+    border: 1px solid rgba(16, 47, 104, 0.18);
+    border-radius: 18px;
+    box-shadow: 0 14px 30px rgba(16, 47, 104, 0.12);
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    margin: 1.15rem 0 1rem;
+    overflow: hidden;
+    padding: 1.35rem 1.5rem;
+    position: relative;
+}
+
+.page-intro::after {
+    background: rgba(220, 177, 78, 0.92);
+    border-radius: 999px;
+    content: "";
+    height: 4px;
+    left: 1.5rem;
+    position: absolute;
+    top: 0;
+    width: 4.4rem;
+}
+
+.page-intro .eyebrow {
+    color: #efd287;
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+    margin-bottom: 0.35rem;
+    text-transform: uppercase;
+}
+
+.page-intro h2 {
+    color: #fff;
+    font-size: clamp(1.35rem, 2.5vw, 1.9rem);
+    line-height: 1.12;
+    margin: 0;
+}
+
+.page-intro p {
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 0.9rem;
+    margin: 0.45rem 0 0;
+    max-width: 42rem;
+}
+
+.page-intro-mark {
+    color: rgba(255, 255, 255, 0.16);
+    font-size: clamp(3rem, 8vw, 5.5rem);
+    font-weight: 700;
+    letter-spacing: -0.08em;
+    line-height: 0.8;
+    margin-right: 0.1rem;
+    user-select: none;
+}
+
+body[data-page="admin"] #main-content {
+    display: flex;
+    flex-direction: column;
+}
+
+body[data-page="admin"] #main-content > .identity-bar { order: 1; }
+body[data-page="admin"] #main-content > .quick-nav { order: 2; }
+body[data-page="admin"] #main-content > .results-page-intro { order: 3; }
+body[data-page="admin"] #main-content > .results-filter-card { order: 4; }
+body[data-page="admin"] #main-content > .results-summary { order: 5; }
+body[data-page="admin"] #main-content > .results-section-scores { order: 6; }
+body[data-page="admin"] #main-content > .results-section-evaluations { order: 7; }
+body[data-page="admin"] #main-content > .results-section-projects { order: 8; }
+
+.results-filter-card {
+    margin-bottom: 1rem;
+}
+
+.results-filter-card label {
+    align-items: center;
+    display: flex;
+    gap: 0.7rem;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.results-filter-card select {
+    max-width: 25rem;
+}
+
+.results-summary {
+    gap: 0.8rem;
+    margin-bottom: 1.25rem;
+}
+
+.summary-card {
+    border: 1px solid rgba(16, 47, 104, 0.1);
+    border-top: 3px solid #dcb14e;
+    min-height: 6.3rem;
+    padding: 1rem 0.8rem;
+}
+
+.summary-card .value {
+    font-size: clamp(1.55rem, 3vw, 2rem);
+}
+
+.summary-card .label {
+    letter-spacing: 0.04em;
+}
+
+.results-section {
+    margin-bottom: 1rem;
+}
+
+.results-section-scores {
+    border-color: rgba(16, 47, 104, 0.22);
+    box-shadow: 0 10px 24px rgba(16, 47, 104, 0.1);
+}
+
+.results-section-scores .card-header {
+    border-bottom-color: rgba(220, 177, 78, 0.45);
+}
+
+.results-export-actions {
+    justify-content: flex-end;
+    margin-top: 1rem;
+}
+
+.section-lead {
+    color: var(--muted, #697589);
+    font-size: 0.9rem;
+    line-height: 1.55;
+    margin: -0.25rem 0 1rem;
+}
+
+.judge-form-card {
+    border-color: rgba(16, 47, 104, 0.18);
+    box-shadow: 0 12px 28px rgba(16, 47, 104, 0.1);
+}
+
+.judge-form-card .card-header,
+body[data-page="judge"] .card-header {
+    gap: 0.75rem;
+}
+
+.judge-form-card .card-header h2 {
+    font-size: clamp(1.05rem, 2vw, 1.25rem);
+}
+
+.judge-form-card .field-group {
+    background: #f7f9fc;
+    border: 1px solid rgba(16, 47, 104, 0.1);
+    border-radius: 14px;
+    padding: 0.9rem;
+}
+
+.judge-form-card .textarea-observacion {
+    background: #fff;
+}
+
+.judge-form-card .form-actions {
+    border-top: 1px solid rgba(16, 47, 104, 0.1);
+    margin-top: 1.15rem;
+    padding-top: 1.15rem;
+}
+
+body[data-page="judge"] .rubric-table {
+    border-color: rgba(16, 47, 104, 0.14);
+    overflow: hidden;
+}
+
+body[data-page="judge"] .rubric-table thead th {
+    background: #102f68;
+}
+
+@media (max-width: 700px) {
+    .page-intro {
+        align-items: flex-start;
+        margin-top: 0.8rem;
+        padding: 1.15rem 1rem 1.2rem;
+    }
+
+    .page-intro::after {
+        left: 1rem;
+    }
+
+    .page-intro-mark {
+        font-size: 3rem;
+        margin-top: 0.15rem;
+    }
+
+    .results-filter-card label {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 0.45rem;
+    }
+
+    .results-filter-card select {
+        max-width: none;
+        width: 100%;
+    }
+
+    .results-export-actions .btn-primary {
+        width: 100%;
+    }
+
+    body[data-page="judge"] .rubric-table {
+        min-width: 0;
+        table-layout: fixed;
+    }
+
+    body[data-page="judge"] .rubric-table th:first-child,
+    body[data-page="judge"] .rubric-table td:first-child {
+        min-width: 0;
+        width: auto;
+    }
+
+    body[data-page="judge"] .rubric-table th:not(:first-child),
+    body[data-page="judge"] .rubric-table td:not(:first-child) {
+        padding-left: 0.15rem;
+        padding-right: 0.15rem;
+        width: 2.55rem;
+    }
+
+    body[data-page="judge"] .rubric-table td > .rubric-radio-inline > span {
+        display: block;
+        font-size: 0.62rem;
+        line-height: 1;
+        margin-top: 0.18rem;
+    }
+
+    body[data-page="judge"] .rubric-table input[type="radio"] {
+        height: 1.25rem;
+        width: 1.25rem;
+    }
+}
+
 .observacion-group-heading:hover {
     background: rgba(13, 42, 91, 0.07);
 }
