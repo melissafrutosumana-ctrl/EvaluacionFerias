@@ -768,7 +768,7 @@ export async function fetchAllRpc(functionName, params = {}, pageSize = RPC_PAGE
         throw new TypeError("fetchAllRpc: pageSize debe ser un entero positivo");
     }
     const effectivePageSize = Math.min(pageSize, RPC_PAGE_SIZE);
-    const sb = client ?? (await import("./supabase.js")).supabase;
+    const sb = client ?? (await import("./supabase.js?v=1")).supabase;
     const rows = [];
     let offset = 0;
     let pages = 0;

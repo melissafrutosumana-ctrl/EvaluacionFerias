@@ -29,7 +29,7 @@
 ## Supabase, despliegue y contribuciones
 
 - Tratar `sql/` como cambios revisables: explicar impacto, orden de aplicación y ajustes de RLS. No debilitar la CSP de `vercel.json` sin justificación.
-- La clave publishable y URL de Supabase viven en `js/supabase.js`; nunca agregar claves secretas ni de servicio.
+- La URL y la clave publishable de Supabase viven en las variables de entorno de Vercel y se exponen al frontend únicamente mediante `/api/config`; nunca agregar claves secretas ni de servicio.
 - Mantener las correcciones compatibles con el repositorio gemelo CTPQ cuando corresponda. Los commits siguen habitualmente Conventional Commits (`feat:`, `fix:`, `refactor:`, `test:`, `chore:`); las PR deben describir alcance, validación, SQL aplicado y capturas para cambios visuales.
 
 ## Atribución de commits
