@@ -1,6 +1,6 @@
-import { bootstrapLoginPage } from "./auth.js?v=3.21";
-import { bootstrapJudgePage } from "./judge.js?v=3.21";
-import { bootstrapAdminPage } from "./admin.js?v=3.21";
+import { bootstrapLoginPage } from "./auth.js?v=3.22";
+import { bootstrapJudgePage } from "./judge.js?v=3.22";
+import { bootstrapAdminPage } from "./admin.js?v=3.22";
 
 document.addEventListener("DOMContentLoaded", async () => {
   const page = document.body.dataset.page;
