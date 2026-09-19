@@ -2,7 +2,7 @@ import { supabase } from "./supabase.js";
 import { escapeHTML, showToast, setMessage, normalizeRoleName, fillSelect, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, buildFeriaOptions, FESTIVAL_FERIA_NAME, FESTIVAL_CATEGORIES, FESTIVAL_SUBCATEGORIES, EXPOTECNICA_CATEGORIES, EXPOTECNICA_EJES, PRONAFECYT_CATEGORIES, PRONAFECYT_EDUCATIONAL_CATEGORIES, PRONAFECYT_C_RAW_MAX, updateProjectFormFieldsByFeria, showSkeleton, confirmDialog, PRONAFECYT_BY_NIVEL, getNivelFromPronatecyt, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore, openModalAccesible, closeModalAccesible } from "./utils.js";
 import { getSession, enforceRole, hashPassword, bindLogout } from "./auth.js";
 import { loadProjects, loadJudges, loadJudgeAssignments, loadUsers, fetchAllEvaluations, fetchAllRpc } from "./data.js";
-import { generateAdminPDF } from "./pdf.js?v=3.19";
+import { generateAdminPDF } from "./pdf.js?v=3.20";
 
 function formatEvaluationDate(value) {
     if (!value) return "Sin programar";
@@ -629,8 +629,12 @@ async function renderAdminReportsByFeria() {
     renderAdminScoresTable(filteredRows, projectsById, assignmentsByProject, selectedFeria);
 
     // Update summary cards
-    const uniqueProjects = new Set(filteredRows.map((r) => r.proyecto_id));
-    const uniqueJudges = new Set(filteredRows.map((r) => r.juez_id));
+    const uniqueProjects = new Set(filteredProjects.map((project) => project.id));
+    const uniqueJudges = new Set(
+        assignmentsResult
+            .filter((assignment) => projectIdsInFeria.has(assignment.proyecto_id))
+            .map((assignment) => assignment.juez_id)
+    );
     const totalEval = filteredRows.length;
 
     const totalProjEl = document.querySelector("[data-total-projects]");
