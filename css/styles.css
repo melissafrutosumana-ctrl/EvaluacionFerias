@@ -4869,11 +4869,14 @@ body[data-page="login"] main {
     }
 
     .modal-project-control {
+        width: 100%;
         padding-top: 0.75rem;
         border-top: 1px solid rgba(13, 42, 91, 0.1);
     }
 
     .assignment-tipo-select {
+        align-self: stretch;
+        margin-left: 0;
         min-height: 44px;
         font-size: 0.86rem;
     }
