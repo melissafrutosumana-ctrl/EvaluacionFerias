@@ -5646,11 +5646,7 @@ body[data-page="admin"][data-admin-view="results"] #main-content > .results-sect
 }
 
 .results-filter-card label > svg {
-    background: rgba(220, 177, 78, 0.15);
-    border-radius: 0.65rem;
-    box-sizing: content-box;
-    color: var(--primary);
-    padding: 0.45rem;
+    color: var(--secondary);
 }
 
 .results-filter-label {
