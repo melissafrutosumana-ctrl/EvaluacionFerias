@@ -3837,7 +3837,9 @@ body.modal-open {
     margin: 0;
     min-width: 0;
     font-size: 1.15rem;
-    font-family: var(--font-heading);
+    font-family: var(--font-body);
+    font-weight: 700;
+    letter-spacing: -0.025em;
     color: var(--primary);
     line-height: 1.25;
 }
@@ -4756,6 +4758,113 @@ body[data-page="login"] main {
     }
 }
 
+/* ===== ASSIGNMENT MODAL LAYOUT =====
+   Keep project identity and evaluation type in separate responsive regions. */
+.modal-project-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(10rem, 11.5rem);
+    align-items: center;
+    gap: 1rem;
+    min-height: 4.25rem;
+    opacity: 1;
+}
+
+.modal-project-label {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+        "checkbox title"
+        "checkbox feria";
+    align-items: center;
+    column-gap: 0.75rem;
+    row-gap: 0.22rem;
+    width: 100%;
+}
+
+.modal-project-label input[type="checkbox"] {
+    grid-area: checkbox;
+    margin: 0;
+}
+
+.modal-project-title {
+    grid-area: title;
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+    line-height: 1.3;
+}
+
+.modal-project-feria {
+    grid-area: feria;
+    justify-self: start;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.modal-project-control {
+    display: flex;
+    flex-direction: column;
+    gap: 0.28rem;
+    min-width: 0;
+}
+
+.modal-project-control-label {
+    color: var(--ink-secondary);
+    font-size: 0.64rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    line-height: 1.1;
+    text-transform: uppercase;
+}
+
+.assignment-tipo-select {
+    width: 100%;
+    min-height: 42px;
+    padding: 0.55rem 2rem 0.55rem 0.7rem;
+    border: 1px solid rgba(13, 42, 91, 0.16);
+    border-radius: 10px;
+    background-color: #ffffff;
+    color: var(--primary);
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.assignment-tipo-select:disabled {
+    opacity: 0.72;
+    color: var(--ink-secondary);
+    background: #f1f4f8;
+    cursor: not-allowed;
+}
+
+.assignment-tipo-select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(13, 42, 91, 0.1);
+}
+
+@media (max-width: 700px) {
+    .modal-project-row {
+        grid-template-columns: minmax(0, 1fr);
+        align-items: stretch;
+        gap: 0.8rem;
+        min-height: 0;
+        padding: 0.85rem;
+    }
+
+    .modal-project-control {
+        padding-top: 0.75rem;
+        border-top: 1px solid rgba(13, 42, 91, 0.1);
+    }
+
+    .assignment-tipo-select {
+        min-height: 44px;
+        font-size: 0.86rem;
+    }
+}
+
 /* ===== MODAL POLISH =====
    Shared visual language for assignment, edit and destructive-action modals. */
 .modal-overlay {
@@ -4833,6 +4942,26 @@ body[data-page="login"] main {
     box-shadow: 0 0 0 4px rgba(13, 42, 91, 0.1);
 }
 
+.modal-list-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin: 0 0 0.55rem;
+    color: var(--primary);
+}
+
+.modal-list-heading strong {
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.modal-list-heading span {
+    color: var(--ink-secondary);
+    font-size: 0.72rem;
+}
+
 .modal-project-list {
     gap: 0.6rem;
 }
@@ -4908,7 +5037,7 @@ body[data-page="login"] main {
 .modal-confirm-content .modal-title {
     margin-bottom: 0.55rem;
     color: var(--primary);
-    font-family: var(--font-heading);
+    font-family: var(--font-body);
     font-size: 1.35rem;
     line-height: 1.15;
 }
@@ -5011,6 +5140,12 @@ body[data-page="judge"] .judge-workflow-number {
 
     .modal-form-lead {
         padding-bottom: 0.7rem;
+    }
+
+    .modal-list-heading {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 0.15rem;
     }
 
     .page-intro-mark {

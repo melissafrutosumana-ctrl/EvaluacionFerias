@@ -723,9 +723,17 @@ function openAssignmentModal(judgeId, judgeName, allProjects, currentAssignments
     if (!overlay) return;
 
     const searchEl = document.querySelector("[data-modal-search]");
+    const setButtonLabel = (button, selector, label) => {
+        const labelEl = button?.querySelector(selector);
+        if (labelEl) {
+            labelEl.textContent = label;
+        } else if (button) {
+            button.textContent = label;
+        }
+    };
     nameEl.textContent = `Juez: ${judgeName}`;
     searchEl.value = "";
-    if (selectAllBtn) selectAllBtn.textContent = "Seleccionar todos";
+    setButtonLabel(selectAllBtn, "[data-select-all-label]", "Seleccionar todos");
     if (emptyEl) emptyEl.hidden = true;
     openModalAccesible(overlay, { initialFocus: searchEl });
 
@@ -753,22 +761,8 @@ function openAssignmentModal(judgeId, judgeName, allProjects, currentAssignments
         counterEl.textContent = `${checkedCount}/${allProjects.length} seleccionados`;
 
         if (selectAllBtn) {
-            selectAllBtn.textContent = checkedCount >= allProjects.length ? "Quitar todos" : "Seleccionar todos";
+            setButtonLabel(selectAllBtn, "[data-select-all-label]", checkedCount >= allProjects.length ? "Quitar todos" : "Seleccionar todos");
         }
-
-        listEl.querySelectorAll("[data-project-checkbox]").forEach((cb) => {
-            const parent = cb.closest("[data-project-row]");
-            if (cb.checked) {
-                parent.removeAttribute("data-disabled");
-            } else {
-                parent.setAttribute("data-disabled", "");
-            }
-        });
-
-        listEl.querySelectorAll("[data-project-checkbox]:not(:checked)").forEach((cb) => {
-            const parent = cb.closest("[data-project-row]");
-            parent.setAttribute("data-disabled", "");
-        });
 
         if (checkedCount >= allProjects.length) {
             listEl.querySelectorAll("[data-project-checkbox]:not(:checked)").forEach((cb) => {
@@ -795,10 +789,13 @@ function openAssignmentModal(judgeId, judgeName, allProjects, currentAssignments
           <span class="modal-project-title">${escapeHTML(project.titulo)}</span>
           <span class="modal-project-feria">${escapeHTML(project.tipo_feria ?? "")}</span>
         </label>
-        <select data-tipo-select class="assignment-tipo-select"${!supportsDualEval ? " disabled" : ""}>
-          <option value="Exposición">Exposición</option>
-          ${supportsDualEval ? `<option value="Escrito" ${tipoVal === "Escrito" ? "selected" : ""}>Escrito</option>` : ""}
-        </select>
+        <div class="modal-project-control">
+          <span class="modal-project-control-label">Tipo de evaluación</span>
+          <select data-tipo-select class="assignment-tipo-select" aria-label="Tipo de evaluación para ${escapeHTML(project.titulo)}"${!supportsDualEval ? " disabled" : ""}>
+            <option value="Exposición">Exposición</option>
+            ${supportsDualEval ? `<option value="Escrito" ${tipoVal === "Escrito" ? "selected" : ""}>Escrito</option>` : ""}
+          </select>
+        </div>
       </div>
     `;
   }).join("");
@@ -848,7 +845,7 @@ function openAssignmentModal(judgeId, judgeName, allProjects, currentAssignments
     }
 
     saveBtn.disabled = true;
-    saveBtn.textContent = "Guardando...";
+    setButtonLabel(saveBtn, "[data-save-label]", "Guardando...");
 
     try {
       const assignmentsPayload = assignments.map((a) => ({
@@ -874,7 +871,7 @@ function openAssignmentModal(judgeId, judgeName, allProjects, currentAssignments
     }
 
     saveBtn.disabled = false;
-    saveBtn.textContent = "Guardar asignaciones";
+    setButtonLabel(saveBtn, "[data-save-label]", "Guardar asignaciones");
   };
 
   document.querySelector("[data-modal-cancel]").onclick = () => closeAssignmentModal();
