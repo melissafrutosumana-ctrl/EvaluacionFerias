@@ -1562,6 +1562,11 @@ body[data-page="admin"] .quick-nav-link.active:focus-visible {
     }
 }
 
+/* Las tarjetas de usuarios mantienen un fondo limpio, sin zebra gris. */
+body[data-page="admin"] [data-users-table] tr td {
+    background: var(--surface);
+}
+
 .results-table td[colspan] {
     text-align: center;
     color: var(--ink-secondary);
