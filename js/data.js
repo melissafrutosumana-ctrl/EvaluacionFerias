@@ -5,6 +5,7 @@ import { mergeRowsById, readSessionCache, writeSessionCache } from "./cache.js?v
 export { fetchAllRpc } from "./utils.js?v=16.11";
 
 const EVALUATIONS_CACHE_KEY = "admin:evaluations";
+const EVALUATIONS_CACHE_VERSION = 3;
 const EVALUATIONS_SYNC_INTERVAL_MS = 15000;
 let evaluationsSyncTimer = null;
 let evaluationsVisibilityHandler = null;
@@ -16,7 +17,7 @@ function sessionToken() {
 
 function readEvaluationsCache() {
     const cache = readSessionCache(EVALUATIONS_CACHE_KEY);
-    if (!cache || cache.version !== 2 || cache.complete !== true || !Array.isArray(cache.rows)) return null;
+    if (!cache || cache.version !== EVALUATIONS_CACHE_VERSION || cache.complete !== true || !Array.isArray(cache.rows)) return null;
     return cache;
 }
 
@@ -31,7 +32,7 @@ function getLatestEvaluationTimestamp(rows) {
 
 function saveEvaluationsCache(rows, previousCache = null) {
     const nextCache = {
-        version: 2,
+        version: EVALUATIONS_CACHE_VERSION,
         complete: true,
         rowCount: rows.length,
         rows,

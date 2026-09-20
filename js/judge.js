@@ -2,7 +2,7 @@ import { supabase } from "./supabase.js?v=1";
 import { escapeHTML, showToast, setMessage, fillSelectGroupedByTipo, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, FESTIVAL_FERIA_NAME, renderJudgeRubric } from "./utils.js?v=16.11";
 import { enforceRole, bindLogout } from "./auth.js?v=3.32";
 import { icon } from "./icons.js?v=1";
-import { loadAssignedProjectsForJudge, fetchAllRpc } from "./data.js?v=3.28";
+import { loadAssignedProjectsForJudge, fetchAllRpc } from "./data.js?v=3.29";
 import { getRubricIndicatorsByFeria, getExpotecnicaRubricByCategory, getPronatecytRubricByCategory, getFestivalRubricBySubcategory, getFestivalRubricByCategory } from "./rubrics.js";
 import { generateJudgePDF } from "./pdf.js?v=3.22";
 
