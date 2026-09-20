@@ -1501,6 +1501,10 @@ body[data-page="admin"] .quick-nav-link.active:focus-visible {
     font-size: var(--text-base);
 }
 
+[data-users-table] td:last-child {
+    text-align: center;
+}
+
 /* Detalles de proyectos: separar cada dato para facilitar el escaneo. */
 .project-detail-list {
     display: grid;
@@ -6884,6 +6888,7 @@ body[data-page="judge"] .rubric-table thead th {
     [data-projects-table] td:last-child,
     [data-judge-assignments] td:last-child {
         display: flex;
+        justify-content: center;
         gap: 0.4rem;
         flex-wrap: wrap;
         padding-top: 0.5rem !important;
