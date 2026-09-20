@@ -1555,6 +1555,11 @@ body[data-page="admin"] .quick-nav-link.active:focus-visible {
     .results-table tbody tr:not(.category-group-row):hover td {
         background: rgba(13, 42, 91, 0.05);
     }
+
+    /* Las filas de usuarios no necesitan un cambio de fondo al pasar el cursor. */
+    body[data-page="admin"] [data-users-table] tr:hover td {
+        background: var(--surface);
+    }
 }
 
 .results-table td[colspan] {
