@@ -4,6 +4,7 @@ import { getSession, enforceRole, hashPassword, bindLogout } from "./auth.js?v=3
 import { loadProjects, loadJudgeAssignments, loadUsers, fetchAllEvaluations, fetchAllRpc, startEvaluationsSync } from "./data.js?v=3.28";
 import { generateAdminPDF } from "./pdf.js?v=3.22";
 import { icon } from "./icons.js?v=1";
+import { clearSessionCache } from "./cache.js?v=3.28";
 
 let latestAdminReportData = null;
 
@@ -1184,6 +1185,7 @@ export async function bootstrapAdminPage() {
         });
         if (ok) {
           await deleteUser(userId);
+          clearSessionCache();
           await refreshAdminDataView();
         }
       }
@@ -1237,6 +1239,7 @@ export async function bootstrapAdminPage() {
         }
 
         showToast("Proyecto eliminado correctamente.", "success");
+        clearSessionCache();
         await refreshAdminDataView();
       } catch (err) {
         showToast(err?.message || "No se pudo eliminar el proyecto.", "error");
