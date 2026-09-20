@@ -1,5 +1,5 @@
 import { supabase } from "./supabase.js?v=1";
-import { escapeHTML, showToast, setMessage, normalizeRoleName, fillSelect, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, buildFeriaOptions, FESTIVAL_FERIA_NAME, FESTIVAL_CATEGORIES, FESTIVAL_SUBCATEGORIES, EXPOTECNICA_CATEGORIES, EXPOTECNICA_EJES, PRONAFECYT_CATEGORIES, PRONAFECYT_EDUCATIONAL_CATEGORIES, PRONAFECYT_C_RAW_MAX, updateProjectFormFieldsByFeria, showSkeleton, confirmDialog, PRONAFECYT_BY_NIVEL, getNivelFromPronatecyt, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore, openModalAccesible, closeModalAccesible } from "./utils.js?v=16.10";
+import { escapeHTML, showToast, setMessage, normalizeRoleName, fillSelect, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, buildFeriaOptions, FESTIVAL_FERIA_NAME, FESTIVAL_CATEGORIES, FESTIVAL_SUBCATEGORIES, EXPOTECNICA_CATEGORIES, EXPOTECNICA_EJES, PRONAFECYT_CATEGORIES, PRONAFECYT_EDUCATIONAL_CATEGORIES, PRONAFECYT_C_RAW_MAX, updateProjectFormFieldsByFeria, showSkeleton, confirmDialog, PRONAFECYT_BY_NIVEL, getNivelFromPronatecyt, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore, openModalAccesible, closeModalAccesible } from "./utils.js?v=16.11";
 import { getSession, enforceRole, hashPassword, bindLogout } from "./auth.js?v=3.32";
 import { loadProjects, loadJudgeAssignments, loadUsers, fetchAllEvaluations, fetchAllRpc, startEvaluationsSync } from "./data.js?v=3.28";
 import { generateAdminPDF } from "./pdf.js?v=3.22";
@@ -1183,7 +1183,7 @@ export async function bootstrapAdminPage() {
         const userId = Number(deleteBtn.dataset.deleteUserId);
         const ok = await confirmDialog({
           title: "Eliminar usuario",
-          message: "Esta accion no se puede deshacer."
+          message: "Esta acción no se puede deshacer."
         });
         if (ok) {
           await deleteUser(userId);
@@ -1222,7 +1222,7 @@ export async function bootstrapAdminPage() {
 
       const ok = await confirmDialog({
         title: "Eliminar proyecto",
-        message: "Tambien se eliminaran sus asignaciones y evaluaciones. Esta accion no se puede deshacer."
+        message: "También se eliminarán sus asignaciones y evaluaciones. Esta acción no se puede deshacer."
       });
 
       if (!ok) {
@@ -1519,7 +1519,7 @@ function showEditUserModal(user, roles) {
   const feriaOptions = buildFeriaOptions(user.tipo_feria);
 
   const modal = document.createElement("div");
-  modal.className = "edit-modal-box";
+  modal.className = "modal-dialog edit-modal-box";
   modal.setAttribute("role", "dialog");
   modal.setAttribute("aria-modal", "true");
   modal.setAttribute("aria-labelledby", "edit-user-modal-title");
@@ -1536,6 +1536,7 @@ function showEditUserModal(user, roles) {
       <button type="button" class="modal-close-btn" id="edit-user-close" aria-label="Cerrar ventana">${icon("x", 18)}</button>
     </div>
     <form id="edit-user-form" class="edit-modal-form">
+      <p class="modal-form-lead">Actualiza los datos de acceso y el rol de esta cuenta.</p>
       <input type="hidden" name="user_id" value="${escapeHTML(String(user.id))}">
       <label class="edit-modal-field">
         Nombre
@@ -1554,8 +1555,8 @@ function showEditUserModal(user, roles) {
         <select name="role_id" required>${roleOptions}</select>
       </label>
       <div class="edit-modal-actions">
-        <button type="submit" class="btn-primary">Guardar</button>
-        <button type="button" id="edit-user-cancel" class="btn-secondary">Cancelar</button>
+        <button type="submit" class="btn-primary">${icon("floppy-disk", 16)}<span>Guardar cambios</span></button>
+        <button type="button" id="edit-user-cancel" class="btn-secondary">${icon("x", 16)}<span>Cancelar</span></button>
       </div>
       <p id="edit-user-status" class="edit-modal-status" role="status" aria-live="polite"></p>
     </form>
@@ -1652,7 +1653,7 @@ function showEditProjectModal(project) {
   const overlay = document.createElement("div");
   overlay.className = "modal-overlay";
   overlay.innerHTML = `
-    <div class="modal-content edit-project-modal" role="dialog" aria-modal="true" aria-labelledby="edit-project-modal-title">
+    <div class="modal-dialog edit-project-modal" role="dialog" aria-modal="true" aria-labelledby="edit-project-modal-title">
       <div class="modal-header">
         <div class="modal-heading">
           <span class="modal-heading-icon" aria-hidden="true">${icon("folder", 20)}</span>
@@ -1664,6 +1665,7 @@ function showEditProjectModal(project) {
         <button type="button" class="modal-close-btn" data-close-modal aria-label="Cerrar ventana">${icon("x", 18)}</button>
       </div>
       <form data-edit-project-form>
+        <p class="modal-form-lead">Corrige la información del proyecto sin perder sus asignaciones.</p>
         <input type="hidden" name="project_id" value="${escapeHTML(String(project.id))}">
         <input type="hidden" name="tipo_feria" value="${escapeHTML(String(project.tipo_feria ?? ""))}">
 
@@ -1791,8 +1793,8 @@ function showEditProjectModal(project) {
         </div>
 
         <div class="form-actions">
-          <button type="button" class="btn-secondary" data-cancel-edit>Cancelar</button>
-          <button type="submit" class="btn-primary">Guardar cambios</button>
+          <button type="button" class="btn-secondary" data-cancel-edit>${icon("x", 16)}<span>Cancelar</span></button>
+          <button type="submit" class="btn-primary">${icon("floppy-disk", 16)}<span>Guardar cambios</span></button>
         </div>
       </form>
     </div>

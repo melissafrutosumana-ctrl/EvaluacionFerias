@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/styles.css?v=17.8">
+    <link rel="stylesheet" href="/css/styles.css?v=17.10">
 </head>
 <body data-page="admin">
 
@@ -56,7 +56,7 @@
                 <h2>Asignacion de proyectos</h2>
                 <p>Distribuye los proyectos entre los jueces y revisa el avance de cada asignacion.</p>
             </div>
-            <span class="page-intro-mark" aria-hidden="true">03</span>
+            <span class="page-intro-mark" aria-hidden="true"><span>0</span><span>3</span></span>
         </section>
 
         <section class="card admin-content-card">
@@ -84,7 +84,7 @@
     </main>
 
     <div class="modal-overlay" data-assignment-modal hidden>
-      <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="assignment-modal-description">
         <div class="modal-header">
           <div class="modal-heading">
             <span class="modal-heading-icon" aria-hidden="true"><span data-icon="clipboard-text" data-icon-size="20"></span></span>
@@ -96,12 +96,13 @@
           <button type="button" class="modal-close" data-modal-close aria-label="Cerrar ventana"><span data-icon="x" data-icon-size="18"></span></button>
         </div>
         <div class="modal-body">
-          <p class="modal-judge-name" data-modal-judge-name></p>
+          <p class="modal-judge-name" data-modal-judge-name></p>
+          <p class="modal-description" id="assignment-modal-description">Selecciona los proyectos y el tipo de evaluación que realizará este juez.</p>
           <div class="modal-toolbar">
 
             <p class="modal-counter" data-modal-counter>0/0 seleccionados</p>
 
-            <button type="button" class="btn-secondary btn-sm" data-modal-select-all>Seleccionar todos</button>
+            <button type="button" class="btn-secondary btn-sm" data-modal-select-all><span data-icon="list-checks" data-icon-size="16" aria-hidden="true"></span><span>Seleccionar todos</span></button>
 
           </div>
           <input type="text" class="modal-search" data-modal-search placeholder="Buscar proyecto..." autocomplete="off" aria-label="Buscar proyecto por titulo">
@@ -110,14 +111,14 @@
           <p class="modal-empty" data-modal-empty hidden>No hay proyectos que coincidan con la busqueda.</p>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn-secondary" data-modal-cancel>Cancelar</button>
-          <button type="button" class="btn-primary" data-modal-save>Guardar asignaciones</button>
+          <button type="button" class="btn-secondary" data-modal-cancel><span data-icon="x" data-icon-size="16" aria-hidden="true"></span><span>Cancelar</span></button>
+          <button type="button" class="btn-primary" data-modal-save><span data-icon="floppy-disk" data-icon-size="16" aria-hidden="true"></span><span>Guardar asignaciones</span></button>
         </div>
       </div>
     </div>
 
     <script type="module" src="/js/icons.js?v=1"></script>
-    <script type="module" src="/js/main.js?v=3.32"></script>
+    <script type="module" src="/js/main.js?v=3.33"></script>
 </body>
 
 </html>

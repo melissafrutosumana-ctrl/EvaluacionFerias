@@ -319,15 +319,18 @@ export function confirmDialog({ title = "Confirmar acción", message = "", confi
         overlay.hidden = false;
 
         overlay.innerHTML = `
-            <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="confirm-dialog-title" aria-describedby="confirm-dialog-description">
-                <div class="modal-icon-wrap modal-icon-danger" aria-hidden="true">
-                    ${icon("trash", 28)}
+            <div class="modal-box modal-confirm-box" role="dialog" aria-modal="true" aria-labelledby="confirm-dialog-title" aria-describedby="confirm-dialog-description">
+                <div class="modal-confirm-content">
+                    <div class="modal-icon-wrap modal-icon-danger" aria-hidden="true">
+                        ${icon("trash", 28)}
+                    </div>
+                    <span class="modal-kicker">Confirmar acción</span>
+                    <h3 class="modal-title" id="confirm-dialog-title">${escapeHTML(title)}</h3>
+                    <p class="modal-desc" id="confirm-dialog-description">${escapeHTML(message)}</p>
                 </div>
-                <h3 class="modal-title" id="confirm-dialog-title">${escapeHTML(title)}</h3>
-                <p class="modal-desc" id="confirm-dialog-description">${escapeHTML(message)}</p>
                 <div class="modal-actions">
-                    <button type="button" class="btn-modal btn-modal-secondary" data-confirm-cancel>${escapeHTML(cancelLabel)}</button>
-                    <button type="button" class="btn-modal btn-modal-danger" data-confirm-ok>${escapeHTML(confirmLabel)}</button>
+                    <button type="button" class="btn-modal btn-modal-secondary" data-confirm-cancel>${icon("x", 16)}<span>${escapeHTML(cancelLabel)}</span></button>
+                    <button type="button" class="btn-modal btn-modal-danger" data-confirm-ok>${icon("trash", 16)}<span>${escapeHTML(confirmLabel)}</span></button>
                 </div>
             </div>
         `;

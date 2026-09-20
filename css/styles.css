@@ -4756,6 +4756,270 @@ body[data-page="login"] main {
     }
 }
 
+/* ===== MODAL POLISH =====
+   Shared visual language for assignment, edit and destructive-action modals. */
+.modal-overlay {
+    background: rgba(7, 20, 43, 0.64);
+    padding: clamp(0.75rem, 2vw, 1.25rem);
+}
+
+.modal-dialog,
+.modal-dialog.edit-modal-box,
+.modal-dialog.edit-project-modal {
+    border-radius: 20px;
+    border-color: rgba(13, 42, 91, 0.16);
+    box-shadow: 0 28px 80px rgba(7, 20, 43, 0.25), 0 8px 22px rgba(7, 20, 43, 0.1);
+}
+
+.modal-dialog .modal-header,
+.edit-modal-box .modal-header,
+.edit-project-modal .modal-header {
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafd 100%);
+}
+
+.modal-dialog .modal-heading-icon,
+.edit-modal-box .modal-heading-icon,
+.edit-project-modal .modal-heading-icon {
+    background: rgba(199, 154, 46, 0.12);
+    border-color: rgba(199, 154, 46, 0.3);
+    color: var(--secondary-dark);
+}
+
+.modal-dialog .modal-kicker,
+.edit-modal-box .modal-kicker,
+.edit-project-modal .modal-kicker {
+    color: var(--secondary-dark);
+}
+
+.modal-description,
+.modal-form-lead {
+    margin: 0 0 1rem;
+    color: var(--ink-secondary);
+    font-size: var(--text-sm);
+    line-height: 1.55;
+}
+
+.modal-judge-name {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2rem;
+    margin: 0 0 0.55rem;
+    padding: 0.35rem 0.7rem;
+    border: 1px solid rgba(13, 42, 91, 0.12);
+    border-radius: 999px;
+    background: rgba(13, 42, 91, 0.045);
+    color: var(--primary);
+}
+
+.modal-toolbar {
+    margin-top: 0.35rem;
+    padding: 0.65rem 0.75rem;
+    border: 1px solid rgba(13, 42, 91, 0.1);
+    border-radius: 12px;
+    background: #fbfcfe;
+}
+
+.modal-search {
+    min-height: 46px;
+    margin-bottom: 0.9rem;
+    border-color: rgba(13, 42, 91, 0.16);
+    background: #ffffff;
+    transition: border-color 160ms var(--ease-out), box-shadow 160ms var(--ease-out);
+}
+
+.modal-search:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(13, 42, 91, 0.1);
+}
+
+.modal-project-list {
+    gap: 0.6rem;
+}
+
+.modal-project-row {
+    min-height: 3.35rem;
+    padding: 0.65rem 0.85rem;
+    border-radius: 12px;
+    background: #ffffff;
+    transition: border-color 160ms var(--ease-out), background-color 160ms var(--ease-out), box-shadow 160ms var(--ease-out), transform 160ms var(--ease-out);
+}
+
+.modal-project-row:hover,
+.modal-project-row:focus-within {
+    border-color: rgba(26, 63, 122, 0.48);
+    box-shadow: 0 5px 14px rgba(13, 42, 91, 0.08);
+    transform: translateY(-1px);
+}
+
+.modal-project-row:has(input:checked) {
+    border-color: var(--primary);
+    box-shadow: inset 3px 0 0 var(--secondary), 0 4px 12px rgba(13, 42, 91, 0.06);
+}
+
+.modal-project-label input[type="checkbox"] {
+    width: 1.2rem;
+    height: 1.2rem;
+}
+
+.modal-footer {
+    gap: 0.6rem;
+    padding: 0.9rem 1.5rem;
+    background: #f8fafd;
+}
+
+.modal-footer .btn-primary,
+.modal-footer .btn-secondary,
+.edit-modal-actions .btn-primary,
+.edit-modal-actions .btn-secondary,
+.edit-project-modal .form-actions .btn-primary,
+.edit-project-modal .form-actions .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.modal-confirm-box {
+    width: min(100%, 430px);
+    padding: 0;
+    overflow: hidden;
+    text-align: left;
+}
+
+.modal-confirm-content {
+    padding: 1.7rem 1.7rem 1.25rem;
+    text-align: center;
+}
+
+.modal-confirm-content .modal-icon-wrap {
+    margin-bottom: 0.8rem;
+}
+
+.modal-confirm-content .modal-kicker {
+    display: block;
+    margin-bottom: 0.35rem;
+    color: #b42318;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.modal-confirm-content .modal-title {
+    margin-bottom: 0.55rem;
+    color: var(--primary);
+    font-family: var(--font-heading);
+    font-size: 1.35rem;
+    line-height: 1.15;
+}
+
+.modal-confirm-content .modal-desc {
+    max-width: 34ch;
+    margin: 0 auto;
+}
+
+.modal-confirm-box .modal-actions {
+    justify-content: flex-end;
+    padding: 0.9rem 1.25rem;
+    border-top: 1px solid var(--border);
+    background: #f8fafd;
+}
+
+.modal-confirm-box .btn-modal:active,
+.modal-dialog .btn-primary:active,
+.modal-dialog .btn-secondary:active,
+.edit-modal-actions .btn-primary:active,
+.edit-modal-actions .btn-secondary:active,
+.edit-project-modal .form-actions .btn-primary:active,
+.edit-project-modal .form-actions .btn-secondary:active {
+    transform: scale(0.98);
+}
+
+.modal-form-lead {
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid rgba(13, 42, 91, 0.1);
+}
+
+.page-intro-mark {
+    display: inline-flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 0.16em;
+    min-width: 3.1ch;
+    margin-right: 0;
+    padding: 0.12rem 0.25rem 0.08rem;
+    font-family: var(--font-heading);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0;
+    line-height: 0.92;
+    text-align: center;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.page-intro-mark > span {
+    display: inline-block;
+}
+
+body[data-page="judge"] .judge-workflow-number {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.08em;
+    padding-left: 0.08em;
+}
+
+@media (max-width: 640px) {
+    .modal-dialog,
+    .modal-dialog.edit-modal-box,
+    .modal-dialog.edit-project-modal,
+    .modal-confirm-box {
+        width: 100%;
+        max-height: calc(100dvh - 1.5rem);
+        border-radius: 16px;
+    }
+
+    .modal-dialog .modal-header,
+    .edit-modal-box .modal-header,
+    .edit-project-modal .modal-header {
+        padding: 1rem 1.1rem 0.9rem;
+    }
+
+    .modal-dialog .modal-body {
+        padding: 1rem 1.1rem;
+    }
+
+    .modal-footer,
+    .modal-confirm-box .modal-actions {
+        padding: 0.8rem 1.1rem;
+    }
+
+    .modal-confirm-content {
+        padding: 1.4rem 1.1rem 1rem;
+    }
+
+    .modal-confirm-box .modal-actions,
+    .edit-modal-actions,
+    .edit-project-modal .form-actions {
+        flex-direction: column;
+    }
+
+    .modal-footer > *,
+    .modal-confirm-box .modal-actions > *,
+    .edit-modal-actions > *,
+    .edit-project-modal .form-actions > * {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .modal-form-lead {
+        padding-bottom: 0.7rem;
+    }
+
+    .page-intro-mark {
+        min-width: 3.2ch;
+        padding-inline: 0.2rem;
+        gap: 0.18em;
+    }
+}
+
 /* ===== LOGIN MOTION POLISH ===== */
 
 @keyframes login-header-in {

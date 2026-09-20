@@ -1,8 +1,8 @@
-import { normalizeRoleName, fetchAllRpc } from "./utils.js?v=16.10";
+import { normalizeRoleName, fetchAllRpc } from "./utils.js?v=16.11";
 import { getSession } from "./auth.js?v=3.32";
 import { mergeRowsById, readSessionCache, writeSessionCache } from "./cache.js?v=3.28";
 
-export { fetchAllRpc } from "./utils.js?v=16.10";
+export { fetchAllRpc } from "./utils.js?v=16.11";
 
 const EVALUATIONS_CACHE_KEY = "admin:evaluations";
 const EVALUATIONS_SYNC_INTERVAL_MS = 15000;

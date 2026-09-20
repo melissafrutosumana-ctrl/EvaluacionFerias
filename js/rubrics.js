@@ -1,4 +1,4 @@
-import { FESTIVAL_FERIA_NAME } from "./utils.js?v=16.10";
+import { FESTIVAL_FERIA_NAME } from "./utils.js?v=16.11";
 
 export const PRONAFECYT_BY_NIVEL = {
     "Primaria unidocente I ciclo": ["F11B - Quehacer Científico y Tecnológico"],
