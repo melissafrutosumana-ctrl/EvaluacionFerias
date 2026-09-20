@@ -1,6 +1,6 @@
 import { supabase } from "./supabase.js?v=1";
-import { escapeHTML, showToast, setMessage, fillSelectGroupedByTipo, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, FESTIVAL_FERIA_NAME, renderJudgeRubric } from "./utils.js?v=16.9";
-import { enforceRole, bindLogout } from "./auth.js?v=3.30";
+import { escapeHTML, showToast, setMessage, fillSelectGroupedByTipo, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, FESTIVAL_FERIA_NAME, renderJudgeRubric } from "./utils.js?v=16.10";
+import { enforceRole, bindLogout } from "./auth.js?v=3.32";
 import { icon } from "./icons.js?v=1";
 import { loadAssignedProjectsForJudge, fetchAllRpc } from "./data.js?v=3.28";
 import { getRubricIndicatorsByFeria, getExpotecnicaRubricByCategory, getPronatecytRubricByCategory, getFestivalRubricBySubcategory, getFestivalRubricByCategory } from "./rubrics.js";
@@ -52,6 +52,50 @@ export async function bootstrapJudgePage() {
       { value: 0, label: "0" }
     ]
   };
+  let evaluatedKeys = new Set();
+
+  function updateJudgeWorkflow() {
+    const steps = [...document.querySelectorAll("[data-workflow-step]")];
+    if (!steps.length) return;
+
+    const projectId = Number(projectSelect?.value);
+    const hasProject = Boolean(projectId);
+    const indicatorCount = currentRubricModel.indicators.filter((item) => !(item && typeof item === "object" && item.section)).length;
+    const checkedCount = document.querySelectorAll('input[name^="indicador_"]:checked').length;
+    const hasAllScores = hasProject && indicatorCount > 0 && checkedCount >= indicatorCount;
+    const selectedProject = assignedProjectsCache.find((project) => Number(project.id) === projectId);
+    const evaluationType = selectedProject?.tipo_evaluacion ?? "Exposición";
+    const isSaved = hasProject && evaluatedKeys.has(String(projectId) + "-" + evaluationType);
+    const states = {
+      select: hasProject ? "complete" : "current",
+      qualify: !hasProject ? "upcoming" : (hasAllScores ? "complete" : "current"),
+      save: isSaved ? "complete" : (hasAllScores ? "current" : "upcoming")
+    };
+    const stateLabels = {
+      complete: "Completado",
+      current: "En curso",
+      upcoming: "Pendiente"
+    };
+
+    steps.forEach((step) => {
+      const state = states[step.dataset.workflowStep] ?? "upcoming";
+      const number = step.querySelector("[data-workflow-number]");
+      step.classList.remove("is-current", "is-complete", "is-upcoming");
+      step.classList.add("is-" + state);
+      step.setAttribute("aria-label", (step.querySelector("strong")?.textContent ?? "") + ": " + stateLabels[state]);
+      if (state === "current") step.setAttribute("aria-current", "step");
+      else step.removeAttribute("aria-current");
+      if (number) {
+        number.innerHTML = state === "complete"
+          ? icon("check-circle", 17, "workflow-check")
+          : number.dataset.stepNumber;
+      }
+    });
+
+    document.querySelectorAll("[data-workflow-line]").forEach((line, index) => {
+      line.classList.toggle("is-complete", states[["select", "qualify"][index]] === "complete");
+    });
+  }
 
   // The SQL migration exposes these draft RPCs. Keeping their names in one
   // place makes the client contract explicit and avoids scattering magic
@@ -274,9 +318,10 @@ export async function bootstrapJudgePage() {
     const selectionToken = ++rubricLoadToken;
     currentRubricModel = resolveRubricModelForProject(projectId);
     renderJudgeRubric(currentRubricModel.indicators, currentRubricModel.scoreOptions);
+    updateJudgeWorkflow();
     Promise.all([loadSavedEvaluations(projectId, selectionToken), loadSavedObservacion(projectId, selectionToken)]).then(([hasSavedEvaluation, hasSavedObservation]) => {
       if (selectionToken !== rubricLoadToken || Number(projectSelect?.value) !== Number(projectId)) return;
-      loadDraft(projectId, { skipEvaluations: hasSavedEvaluation, skipObservation: hasSavedObservation });
+      loadDraft(projectId, { skipEvaluations: hasSavedEvaluation, skipObservation: hasSavedObservation }).then(updateJudgeWorkflow);
     });
 
     const badge = document.querySelector("[data-evaluation-type-badge]");
@@ -494,7 +539,7 @@ export async function bootstrapJudgePage() {
         p_session_token: user.session_token
       });
 
-      const evaluatedKeys = new Set(data.map((e) => `${e.proyecto_id}-${e.tipo_evaluacion ?? "Exposición"}`));
+      evaluatedKeys = new Set(data.map((e) => String(e.proyecto_id) + "-" + (e.tipo_evaluacion ?? "Exposición")));
       const evaluatedProjectIds = new Set(data.map((e) => e.proyecto_id));
 
       const progressSection = document.querySelector("[data-judge-progress]");
@@ -518,6 +563,7 @@ export async function bootstrapJudgePage() {
       if (projectSelect && prevVal) {
         projectSelect.value = prevVal;
       }
+      updateJudgeWorkflow();
 
       const pdfBtn = document.querySelector("[data-pdf-btn]");
       if (!myEvaluationsList) {
@@ -591,6 +637,7 @@ export async function bootstrapJudgePage() {
 
   projectSelect?.addEventListener("change", () => {
     applyRubricForSelection(projectSelect.value);
+    updateJudgeWorkflow();
   });
 
   categorySelect?.addEventListener("change", () => {
@@ -689,7 +736,10 @@ export async function bootstrapJudgePage() {
   });
 
   evaluationForm.addEventListener("change", (event) => {
-    if (event.target.matches('input[type="radio"][name^="indicador_"]')) scheduleDraftSave();
+    if (event.target.matches('input[type="radio"][name^="indicador_"]')) {
+      scheduleDraftSave();
+      updateJudgeWorkflow();
+    }
   });
   evaluationForm.querySelector("[data-observacion-input]")?.addEventListener("input", scheduleDraftSave);
 }

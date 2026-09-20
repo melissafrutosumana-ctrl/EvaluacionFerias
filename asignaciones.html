@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/styles.css?v=17.7">
+    <link rel="stylesheet" href="/css/styles.css?v=17.8">
 </head>
 <body data-page="admin">
 
@@ -86,8 +86,14 @@
     <div class="modal-overlay" data-assignment-modal hidden>
       <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modal-title">
         <div class="modal-header">
-          <h3 id="modal-title">Asignar proyectos</h3>
-          <button type="button" class="modal-close" data-modal-close aria-label="Cerrar">&times;</button>
+          <div class="modal-heading">
+            <span class="modal-heading-icon" aria-hidden="true"><span data-icon="clipboard-text" data-icon-size="20"></span></span>
+            <div>
+              <span class="modal-kicker">Gestión de jueces</span>
+              <h3 id="modal-title">Asignar proyectos</h3>
+            </div>
+          </div>
+          <button type="button" class="modal-close" data-modal-close aria-label="Cerrar ventana"><span data-icon="x" data-icon-size="18"></span></button>
         </div>
         <div class="modal-body">
           <p class="modal-judge-name" data-modal-judge-name></p>
@@ -111,7 +117,7 @@
     </div>
 
     <script type="module" src="/js/icons.js?v=1"></script>
-    <script type="module" src="/js/main.js?v=3.30"></script>
+    <script type="module" src="/js/main.js?v=3.32"></script>
 </body>
 
 </html>

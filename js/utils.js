@@ -1,3 +1,5 @@
+import { icon } from "./icons.js?v=1";
+
 export const FERIA_TYPES = ["Feria Cientifica y Tecnologica", "Feria Expotecnica", "Festival Estudiantil de las Artes"];
 export const FESTIVAL_FERIA_NAME = "Festival Estudiantil de las Artes";
 export const FESTIVAL_CATEGORIES = ["Artes Visuales", "Artes Literarias", "Artes Digitales", "Artes Musicales", "Artes Escenicas"];
@@ -258,11 +260,12 @@ export function showToast(message, type = "info") {
     setTimeout(dismiss, 3500);
 }
 
-export function openModalAccesible(overlay, { initialFocus = null } = {}) {
+export function openModalAccesible(overlay, { initialFocus = null, onEscape = null } = {}) {
     if (!overlay) return;
 
     overlay._restoreFocus = document.activeElement;
     overlay.hidden = false;
+    document.body.classList.add("modal-open");
 
     const target = initialFocus || overlay.querySelector("[autofocus], input, select, textarea, button, [tabindex]:not([tabindex='-1'])");
     (target || overlay).focus();
@@ -290,7 +293,11 @@ export function openModalAccesible(overlay, { initialFocus = null } = {}) {
     overlay._onEscape = (e) => {
         if (e.key === "Escape") {
             e.preventDefault();
-            closeModalAccesible(overlay);
+            if (onEscape) {
+                onEscape();
+            } else {
+                closeModalAccesible(overlay);
+            }
         }
     };
     document.addEventListener("keydown", overlay._onEscape, true);
@@ -299,39 +306,43 @@ export function openModalAccesible(overlay, { initialFocus = null } = {}) {
 export function closeModalAccesible(overlay) {
     if (!overlay) return;
     overlay.hidden = true;
+    document.body.classList.remove("modal-open");
     overlay.removeEventListener("keydown", overlay._onTab);
     document.removeEventListener("keydown", overlay._onEscape, true);
     overlay._restoreFocus?.focus?.();
 }
 
-export function confirmDialog({ title = "Confirmar accion", message = "", confirmLabel = "Eliminar", cancelLabel = "Cancelar" } = {}) {
+export function confirmDialog({ title = "Confirmar acción", message = "", confirmLabel = "Eliminar", cancelLabel = "Cancelar" } = {}) {
     return new Promise((resolve) => {
         const overlay = document.createElement("div");
         overlay.className = "modal-overlay";
         overlay.hidden = false;
 
         overlay.innerHTML = `
-            <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="confirm-dialog-title">
-                <div class="modal-icon-wrap">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+            <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="confirm-dialog-title" aria-describedby="confirm-dialog-description">
+                <div class="modal-icon-wrap modal-icon-danger" aria-hidden="true">
+                    ${icon("trash", 28)}
                 </div>
                 <h3 class="modal-title" id="confirm-dialog-title">${escapeHTML(title)}</h3>
-                <p class="modal-desc">${escapeHTML(message)}</p>
+                <p class="modal-desc" id="confirm-dialog-description">${escapeHTML(message)}</p>
                 <div class="modal-actions">
-                    <button type="button" class="btn-secondary" data-confirm-cancel>${escapeHTML(cancelLabel)}</button>
+                    <button type="button" class="btn-modal btn-modal-secondary" data-confirm-cancel>${escapeHTML(cancelLabel)}</button>
                     <button type="button" class="btn-modal btn-modal-danger" data-confirm-ok>${escapeHTML(confirmLabel)}</button>
                 </div>
             </div>
         `;
 
         document.body.appendChild(overlay);
-        openModalAccesible(overlay, { initialFocus: overlay.querySelector("[data-confirm-ok]") });
-
         function close(result) {
             closeModalAccesible(overlay);
             overlay.remove();
             resolve(result);
         }
+
+        openModalAccesible(overlay, {
+            initialFocus: overlay.querySelector("[data-confirm-ok]"),
+            onEscape: () => close(false)
+        });
 
         overlay.addEventListener("click", (e) => {
             if (e.target === overlay) close(false);
@@ -598,22 +609,27 @@ export function setupHamburgerMenu() {
     const header = document.querySelector("header");
     if (!hamburger || !header) return;
 
+    const setMenuState = (isOpen) => {
+        header.classList.toggle("nav-open", isOpen);
+        document.body.classList.toggle("nav-open", isOpen);
+        hamburger.setAttribute("aria-expanded", String(isOpen));
+        hamburger.setAttribute("aria-label", isOpen ? "Cerrar menú" : "Abrir menú");
+    };
+
+    setMenuState(false);
     hamburger.addEventListener("click", () => {
-        header.classList.toggle("nav-open");
-        document.body.classList.toggle("nav-open");
+        setMenuState(!header.classList.contains("nav-open"));
     });
 
     document.addEventListener("click", (e) => {
         if (!header.contains(e.target)) {
-            header.classList.remove("nav-open");
-            document.body.classList.remove("nav-open");
+            setMenuState(false);
         }
     });
 
-    document.querySelectorAll("[data-nav-link]").forEach((link) => {
+    document.querySelectorAll("[data-nav-link], [data-logout-link]").forEach((link) => {
         link.addEventListener("click", () => {
-            header.classList.remove("nav-open");
-            document.body.classList.remove("nav-open");
+            setMenuState(false);
         });
     });
 }

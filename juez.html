@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/styles.css?v=17.3">
+    <link rel="stylesheet" href="/css/styles.css?v=17.8">
 </head>
 <body data-page="judge">
 
@@ -22,13 +22,19 @@
             </span>
             <span>Panel de Juez</span>
         </h1>
-        <button class="hamburger" data-hamburger aria-label="Menu">
+        <button type="button" class="hamburger" data-hamburger aria-label="Abrir menú" aria-expanded="false" aria-controls="judge-navigation">
             <span></span>
             <span></span>
             <span></span>
         </button>
-        <nav>
-            <a href="juez.html" data-nav-link>Mis evaluaciones</a>
+        <nav id="judge-navigation" aria-label="Menú del juez">
+            <div class="judge-menu-context" aria-hidden="true">
+                <span class="judge-menu-context-icon"><span data-icon="shield" data-icon-size="17"></span></span>
+                <span>
+                    <small>Sesión activa</small>
+                    <strong>Panel de evaluación</strong>
+                </span>
+            </div>
             <a href="#" data-logout-link class="logout-link"><span data-icon="sign-out" data-icon-size="17" aria-hidden="true"></span><span>Cerrar sesión</span></a>
         </nav>
     </header>
@@ -55,18 +61,18 @@
         </section>
 
         <div class="judge-workflow" aria-label="Flujo de evaluación">
-            <div class="judge-workflow-step is-current">
-                <span class="judge-workflow-number">01</span>
+            <div class="judge-workflow-step is-current" data-workflow-step="select">
+                <span class="judge-workflow-number" data-workflow-number data-step-number="01">01</span>
                 <span><strong>Selecciona</strong><small>el proyecto asignado</small></span>
             </div>
-            <div class="judge-workflow-line" aria-hidden="true"></div>
-            <div class="judge-workflow-step">
-                <span class="judge-workflow-number">02</span>
+            <div class="judge-workflow-line" data-workflow-line aria-hidden="true"></div>
+            <div class="judge-workflow-step" data-workflow-step="qualify">
+                <span class="judge-workflow-number" data-workflow-number data-step-number="02">02</span>
                 <span><strong>Califica</strong><small>cada indicador</small></span>
             </div>
-            <div class="judge-workflow-line" aria-hidden="true"></div>
-            <div class="judge-workflow-step">
-                <span class="judge-workflow-number">03</span>
+            <div class="judge-workflow-line" data-workflow-line aria-hidden="true"></div>
+            <div class="judge-workflow-step" data-workflow-step="save">
+                <span class="judge-workflow-number" data-workflow-number data-step-number="03">03</span>
                 <span><strong>Guarda</strong><small>el resultado final</small></span>
             </div>
         </div>
@@ -232,7 +238,7 @@
     </main>
 
     <script type="module" src="/js/icons.js?v=1"></script>
-    <script type="module" src="/js/main.js?v=3.30"></script>
+    <script type="module" src="/js/main.js?v=3.32"></script>
 </body>
 
 </html>

@@ -1,8 +1,9 @@
 import { supabase } from "./supabase.js?v=1";
-import { escapeHTML, showToast, setMessage, normalizeRoleName, fillSelect, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, buildFeriaOptions, FESTIVAL_FERIA_NAME, FESTIVAL_CATEGORIES, FESTIVAL_SUBCATEGORIES, EXPOTECNICA_CATEGORIES, EXPOTECNICA_EJES, PRONAFECYT_CATEGORIES, PRONAFECYT_EDUCATIONAL_CATEGORIES, PRONAFECYT_C_RAW_MAX, updateProjectFormFieldsByFeria, showSkeleton, confirmDialog, PRONAFECYT_BY_NIVEL, getNivelFromPronatecyt, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore, openModalAccesible, closeModalAccesible } from "./utils.js?v=16.9";
-import { getSession, enforceRole, hashPassword, bindLogout } from "./auth.js?v=3.30";
+import { escapeHTML, showToast, setMessage, normalizeRoleName, fillSelect, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, buildFeriaOptions, FESTIVAL_FERIA_NAME, FESTIVAL_CATEGORIES, FESTIVAL_SUBCATEGORIES, EXPOTECNICA_CATEGORIES, EXPOTECNICA_EJES, PRONAFECYT_CATEGORIES, PRONAFECYT_EDUCATIONAL_CATEGORIES, PRONAFECYT_C_RAW_MAX, updateProjectFormFieldsByFeria, showSkeleton, confirmDialog, PRONAFECYT_BY_NIVEL, getNivelFromPronatecyt, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore, openModalAccesible, closeModalAccesible } from "./utils.js?v=16.10";
+import { getSession, enforceRole, hashPassword, bindLogout } from "./auth.js?v=3.32";
 import { loadProjects, loadJudgeAssignments, loadUsers, fetchAllEvaluations, fetchAllRpc, startEvaluationsSync } from "./data.js?v=3.28";
 import { generateAdminPDF } from "./pdf.js?v=3.22";
+import { icon } from "./icons.js?v=1";
 
 let latestAdminReportData = null;
 
@@ -1519,11 +1520,20 @@ function showEditUserModal(user, roles) {
 
   const modal = document.createElement("div");
   modal.className = "edit-modal-box";
+  modal.setAttribute("role", "dialog");
+  modal.setAttribute("aria-modal", "true");
+  modal.setAttribute("aria-labelledby", "edit-user-modal-title");
 
   modal.innerHTML = `
     <div class="modal-header">
-      <h2>Editar usuario</h2>
-      <button type="button" class="modal-close-btn" id="edit-user-close" aria-label="Cerrar">&times;</button>
+      <div class="modal-heading">
+        <span class="modal-heading-icon" aria-hidden="true">${icon("pencil", 20)}</span>
+        <div>
+          <span class="modal-kicker">Cuenta de usuario</span>
+          <h2 id="edit-user-modal-title">Editar usuario</h2>
+        </div>
+      </div>
+      <button type="button" class="modal-close-btn" id="edit-user-close" aria-label="Cerrar ventana">${icon("x", 18)}</button>
     </div>
     <form id="edit-user-form" class="edit-modal-form">
       <input type="hidden" name="user_id" value="${escapeHTML(String(user.id))}">
@@ -1642,10 +1652,16 @@ function showEditProjectModal(project) {
   const overlay = document.createElement("div");
   overlay.className = "modal-overlay";
   overlay.innerHTML = `
-    <div class="modal-content edit-project-modal">
+    <div class="modal-content edit-project-modal" role="dialog" aria-modal="true" aria-labelledby="edit-project-modal-title">
       <div class="modal-header">
-        <h2>Editar Proyecto</h2>
-        <button class="modal-close-btn" data-close-modal aria-label="Cerrar">&times;</button>
+        <div class="modal-heading">
+          <span class="modal-heading-icon" aria-hidden="true">${icon("folder", 20)}</span>
+          <div>
+            <span class="modal-kicker">Información del proyecto</span>
+            <h2 id="edit-project-modal-title">Editar proyecto</h2>
+          </div>
+        </div>
+        <button type="button" class="modal-close-btn" data-close-modal aria-label="Cerrar ventana">${icon("x", 18)}</button>
       </div>
       <form data-edit-project-form>
         <input type="hidden" name="project_id" value="${escapeHTML(String(project.id))}">

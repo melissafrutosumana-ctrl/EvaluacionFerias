@@ -1,5 +1,5 @@
 import { supabase } from "./supabase.js?v=1";
-import { normalizeRoleName, showToast, setupHideOnScroll, openModalAccesible, closeModalAccesible, fetchAllRpc } from "./utils.js?v=16.9";
+import { normalizeRoleName, showToast, setupHideOnScroll, openModalAccesible, closeModalAccesible, fetchAllRpc } from "./utils.js?v=16.10";
 import { generateJudgePDF } from "./pdf.js?v=3.22";
 import { clearSessionCache } from "./cache.js?v=3.28";
 import { icon } from "./icons.js?v=1";
@@ -104,8 +104,8 @@ export function showLogoutModal(user) {
       <p class="modal-desc" id="logout-modal-description">${description}</p>
       <div class="modal-actions">
         ${downloadAction}
-        <button class="btn-modal btn-modal-secondary" id="modal-cancel-btn">Cancelar</button>
         <button class="btn-modal btn-modal-danger" id="modal-logout-btn">Cerrar sesión</button>
+        <button class="btn-modal btn-modal-secondary" id="modal-cancel-btn">Cancelar</button>
       </div>
     </div>
   `;
