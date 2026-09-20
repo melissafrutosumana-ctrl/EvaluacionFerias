@@ -5630,19 +5630,41 @@ body[data-page="admin"][data-admin-view="results"] #main-content > .results-sect
 body[data-page="admin"][data-admin-view="results"] #main-content > .results-section-projects { order: 8; }
 
 .results-filter-card {
+    border: 1px solid rgba(16, 47, 104, 0.13);
+    border-top: 3px solid var(--secondary);
+    box-shadow: 0 8px 20px rgba(16, 47, 104, 0.07);
     margin-bottom: 1rem;
+    padding: 0.8rem 1rem;
 }
 
 .results-filter-card label {
     align-items: center;
-    display: flex;
-    gap: 0.7rem;
-    justify-content: space-between;
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: auto minmax(9rem, 1fr) minmax(15rem, 26rem);
     width: 100%;
 }
 
+.results-filter-card label > svg {
+    background: rgba(220, 177, 78, 0.15);
+    border-radius: 0.65rem;
+    box-sizing: content-box;
+    color: var(--primary);
+    padding: 0.45rem;
+}
+
+.results-filter-label {
+    color: var(--ink-secondary);
+    font-size: var(--text-xs);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
 .results-filter-card select {
-    max-width: 25rem;
+    max-width: none;
+    min-height: 2.7rem;
+    width: 100%;
 }
 
 .results-summary {
@@ -5748,11 +5770,12 @@ body[data-page="judge"] .rubric-table thead th {
 
     .results-filter-card label {
         align-items: stretch;
-        flex-direction: column;
+        grid-template-columns: auto 1fr;
         gap: 0.45rem;
     }
 
     .results-filter-card select {
+        grid-column: 1 / -1;
         max-width: none;
         width: 100%;
     }
