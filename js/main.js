@@ -1,8 +1,10 @@
-import { bootstrapLoginPage } from "./auth.js?v=3.28";
-import { bootstrapJudgePage } from "./judge.js?v=3.28";
-import { bootstrapAdminPage } from "./admin.js?v=3.28";
+import { initIcons } from "./icons.js?v=1";
+import { bootstrapLoginPage } from "./auth.js?v=3.30";
+import { bootstrapJudgePage } from "./judge.js?v=3.30";
+import { bootstrapAdminPage } from "./admin.js?v=3.30";
 
 async function bootstrapApp() {
+  initIcons();
   const page = document.body.dataset.page;
 
   if (page === "login") {

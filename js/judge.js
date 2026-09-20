@@ -1,6 +1,7 @@
 import { supabase } from "./supabase.js?v=1";
 import { escapeHTML, showToast, setMessage, fillSelectGroupedByTipo, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, FESTIVAL_FERIA_NAME, renderJudgeRubric } from "./utils.js?v=16.9";
-import { enforceRole, bindLogout } from "./auth.js?v=3.28";
+import { enforceRole, bindLogout } from "./auth.js?v=3.30";
+import { icon } from "./icons.js?v=1";
 import { loadAssignedProjectsForJudge, fetchAllRpc } from "./data.js?v=3.28";
 import { getRubricIndicatorsByFeria, getExpotecnicaRubricByCategory, getPronatecytRubricByCategory, getFestivalRubricBySubcategory, getFestivalRubricByCategory } from "./rubrics.js";
 import { generateJudgePDF } from "./pdf.js?v=3.22";
@@ -585,7 +586,7 @@ export async function bootstrapJudgePage() {
       showToast("No se pudo generar el PDF.", "error");
     }
     btn.disabled = false;
-    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg> Descargar PDF';
+    btn.innerHTML = `${icon("file-arrow-down", 16)}<span>Descargar PDF</span>`;
   });
 
   projectSelect?.addEventListener("change", () => {

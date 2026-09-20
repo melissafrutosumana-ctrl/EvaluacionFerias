@@ -2,6 +2,7 @@ import { supabase } from "./supabase.js?v=1";
 import { normalizeRoleName, showToast, setupHideOnScroll, openModalAccesible, closeModalAccesible, fetchAllRpc } from "./utils.js?v=16.9";
 import { generateJudgePDF } from "./pdf.js?v=3.22";
 import { clearSessionCache } from "./cache.js?v=3.28";
+import { icon } from "./icons.js?v=1";
 
 export const SESSION_KEY = "ef_user_session";
 
@@ -74,12 +75,7 @@ export function bindLogout() {
         event.preventDefault();
         const user = getSession();
 
-        if (user && normalizeRoleName(user.role) === "Juez") {
-            showLogoutModal(user);
-        } else {
-            await clearSession();
-            window.location.href = "/index.html";
-        }
+        showLogoutModal(user);
     });
 }
 
@@ -87,22 +83,29 @@ export function showLogoutModal(user) {
     const existing = document.getElementById("logout-modal");
     if (existing) existing.remove();
 
+    const isJudge = normalizeRoleName(user?.role) === "Juez";
+    const title = isJudge ? "¿Quieres cerrar tu sesión?" : "¿Cerrar sesión de administración?";
+    const description = isJudge
+        ? "Descarga tu reporte de evaluaciones antes de salir o cierra sesión directamente."
+        : "Tu sesión se cerrará y tendrás que iniciar sesión de nuevo para volver al panel.";
+    const downloadAction = isJudge
+        ? `<button class="btn-modal btn-modal-pdf" id="modal-download-btn">${icon("file-arrow-down", 16)}<span>Descargar reporte</span></button>`
+        : "";
+
     const overlay = document.createElement("div");
     overlay.id = "logout-modal";
     overlay.className = "modal-overlay";
     overlay.innerHTML = `
-    <div class="modal-box">
-      <div class="modal-icon-wrap">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="logout-modal-title" aria-describedby="logout-modal-description">
+      <div class="modal-icon-wrap" aria-hidden="true">
+        ${icon("sign-out", 28)}
       </div>
-      <h3 class="modal-title">Cerrar sesion</h3>
-      <p class="modal-desc">Descarga tu reporte de evaluaciones antes de salir o cierra sesion directamente.</p>
+      <h3 class="modal-title" id="logout-modal-title">${title}</h3>
+      <p class="modal-desc" id="logout-modal-description">${description}</p>
       <div class="modal-actions">
-        <button class="btn-modal btn-modal-pdf" id="modal-download-btn">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg>
-          Descargar PDF
-        </button>
-        <button class="btn-modal btn-modal-danger" id="modal-logout-btn">Salir sin descargar</button>
+        ${downloadAction}
+        <button class="btn-modal btn-modal-secondary" id="modal-cancel-btn">Cancelar</button>
+        <button class="btn-modal btn-modal-danger" id="modal-logout-btn">Cerrar sesión</button>
       </div>
     </div>
   `;
@@ -110,19 +113,26 @@ export function showLogoutModal(user) {
     document.body.appendChild(overlay);
     openModalAccesible(overlay);
 
+    const dismiss = () => {
+        closeModalAccesible(overlay);
+        overlay.remove();
+    };
+
     overlay.addEventListener("click", (e) => {
         if (e.target === overlay) {
-            closeModalAccesible(overlay);
-            overlay.remove();
+            dismiss();
         }
     });
 
+    document.getElementById("modal-cancel-btn").addEventListener("click", dismiss);
+
     document.getElementById("modal-logout-btn").addEventListener("click", async() => {
-        closeModalAccesible(overlay);
-        overlay.remove();
+        dismiss();
         await clearSession();
         window.location.href = "/index.html";
     });
+
+    if (!isJudge) return;
 
     document.getElementById("modal-download-btn").addEventListener("click", async() => {
         const btn = document.getElementById("modal-download-btn");
@@ -134,9 +144,9 @@ export function showLogoutModal(user) {
         });
 
         if (!evalCheck || evalCheck.length === 0) {
-            showToast("No tienes evaluaciones guardadas para exportar. Cierra sesion sin descargar.", "info");
+            showToast("No tienes evaluaciones guardadas para exportar. Puedes cerrar sesión sin descargar.", "info");
             btn.disabled = false;
-            btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg> Descargar PDF';
+            btn.innerHTML = `${icon("file-arrow-down", 16)}<span>Descargar reporte</span>`;
             return;
         }
 
@@ -145,13 +155,12 @@ export function showLogoutModal(user) {
             await generateJudgePDF(user);
         } catch (e) {
             console.error("Error generating PDF:", e);
-            showToast("No se pudo generar el PDF. Revisa la conexion e intenta de nuevo.", "error");
+            showToast("No se pudo generar el PDF. Revisa la conexión e intenta de nuevo.", "error");
             btn.disabled = false;
-            btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg> Descargar PDF';
+            btn.innerHTML = `${icon("file-arrow-down", 16)}<span>Descargar reporte</span>`;
             return;
         }
-        closeModalAccesible(overlay);
-        overlay.remove();
+        dismiss();
         await clearSession();
         window.location.href = "/index.html";
     });

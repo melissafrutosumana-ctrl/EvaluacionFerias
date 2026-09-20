@@ -668,24 +668,41 @@ nav a.active::after {
 a[data-logout-link] {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 0.4rem;
     background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(240, 202, 98, 0.38);
     border-radius: var(--radius-sm);
-    padding: 0.45rem 1rem;
+    min-height: 44px;
+    padding: 0.5rem 0.85rem 0.5rem 0.75rem;
     font-size: var(--text-sm);
     margin-left: auto;
-    font-weight: 500;
+    font-weight: 600;
+    letter-spacing: 0.01em;
     color: #fff;
     text-decoration: none;
-    transition: color 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease;
+    transition: transform 0.2s ease, color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
     white-space: nowrap;
 }
 
+a[data-logout-link] .app-icon {
+    opacity: 0.92;
+}
+
 a[data-logout-link]:hover {
-    background: rgba(220, 53, 69, 0.25);
-    border-color: rgba(220, 53, 69, 0.5);
-    box-shadow: 0 2px 12px rgba(220, 53, 69, 0.25);
+    background: rgba(240, 202, 98, 0.16);
+    border-color: rgba(240, 202, 98, 0.72);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
+    transform: translateY(-1px);
+}
+
+a[data-logout-link]:active {
+    transform: translateY(0) scale(0.98);
+}
+
+a[data-logout-link]:focus-visible {
+    outline: 3px solid rgba(240, 202, 98, 0.62);
+    outline-offset: 3px;
 }
 
 
@@ -1055,6 +1072,20 @@ body[data-page="admin"] .quick-nav-link.active:focus-visible {
 
 .quick-nav-link svg {
     flex-shrink: 0;
+}
+
+/* Phosphor Regular: una sola familia para iconos estáticos y dinámicos. */
+[data-icon] {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    line-height: 0;
+}
+
+.app-icon {
+    display: block;
+    flex: 0 0 auto;
 }
 
 /* Móvil: la navegación admin se acomoda en varias filas para no cortar items */
@@ -3346,8 +3377,8 @@ body[data-page="judge"] .btn-sm:hover {
 .modal-box {
     background: #fff;
     border-radius: 16px;
-    padding: 2rem;
-    max-width: 380px;
+    padding: 2rem 1.75rem 1.75rem;
+    max-width: 420px;
     width: 90%;
     box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
     text-align: center;
@@ -3361,8 +3392,9 @@ body[data-page="judge"] .btn-sm:hover {
     width: 56px;
     height: 56px;
     border-radius: 50%;
-    background: rgba(220, 53, 69, 0.08);
-    color: #dc2626;
+    background: rgba(13, 42, 91, 0.08);
+    border: 1px solid rgba(13, 42, 91, 0.12);
+    color: #0d2a5b;
     margin-bottom: 0.75rem;
 }
 
@@ -3384,23 +3416,29 @@ body[data-page="judge"] .btn-sm:hover {
     display: flex;
     gap: 0.75rem;
     justify-content: center;
+    align-items: stretch;
+    flex-wrap: wrap;
 }
 
 .btn-modal {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
     padding: 0.65rem 1.25rem;
+    min-height: 44px;
     border-radius: 10px;
     font-weight: 600;
     font-size: 0.88rem;
     cursor: pointer;
-    transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.2s ease, color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
     font-family: inherit;
-    color: #fff;
 }
 
 .btn-modal-danger {
     background: #dc2626;
     color: #fff;
-    border: none;
+    border: 1px solid #dc2626;
 }
 
 .btn-modal-danger:hover {
@@ -3412,13 +3450,31 @@ body[data-page="judge"] .btn-sm:hover {
 .btn-modal-pdf {
     background: #0d2a5b;
     color: #fff;
-    border: none;
+    border: 1px solid #0d2a5b;
 }
 
 .btn-modal-pdf:hover {
     background: #1a3f7a;
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(13, 42, 91, 0.3);
+}
+
+.btn-modal-secondary {
+    background: #fff;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+}
+
+.btn-modal-secondary:hover {
+    background: #f8fafc;
+    border-color: #94a3b8;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+}
+
+.btn-modal:focus-visible {
+    outline: 3px solid rgba(240, 202, 98, 0.68);
+    outline-offset: 2px;
 }
 
 @keyframes modal-pop {
