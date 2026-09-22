@@ -1,6 +1,7 @@
 import { normalizeRoleName, fetchAllRpc } from "./utils.js?v=16.13";
 import { getSession } from "./auth.js?v=3.33";
 import { mergeRowsById, readSessionCache, writeSessionCache } from "./cache.js?v=3.28";
+import { sortProjectsByNewest } from "./project-order.js?v=1";
 
 export { fetchAllRpc } from "./utils.js?v=16.13";
 
@@ -90,11 +91,13 @@ export async function loadProjects(feriaType = "") {
         p_session_token: sessionToken()
     });
 
+    const orderedProjects = sortProjectsByNewest(projects);
+
     if (!feriaType) {
-        return projects;
+        return orderedProjects;
     }
 
-    return projects.filter((item) => String(item.tipo_feria ?? "") === feriaType);
+    return orderedProjects.filter((item) => String(item.tipo_feria ?? "") === feriaType);
 }
 
 export async function loadJudges(feriaType = "") {
