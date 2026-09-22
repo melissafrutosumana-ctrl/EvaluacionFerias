@@ -577,7 +577,19 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
             const winnerText = winner ?
                 `Ganador: ${escapeHTML(winner.projectName)} (${winner.finalScore.toFixed(0)} pts)` :
                 "Ganador pendiente de evaluacion";
-            html.push(`<tr class="category-group-row"><td colspan="4"><span class="category-group-title">${escapeHTML(groupLabel)}</span><span class="category-winner">${winnerText}</span></td></tr>`);
+            const groupParts = groupLabel.split(" — ");
+            const hasLevel = groupParts.length >= 3;
+            const levelLabel = hasLevel ? groupParts.at(-1) : "";
+            const titleLabel = hasLevel ? groupParts.at(-2) : groupParts.at(-1);
+            const contextLabel = hasLevel ? groupParts.slice(0, -2).join(" · ") : groupParts.slice(0, -1).join(" · ");
+            html.push(`<tr class="category-group-row"><td colspan="4"><div class="category-group-heading">
+                <div class="category-group-heading-copy">
+                    ${contextLabel ? `<span class="category-group-context">${escapeHTML(contextLabel)}</span>` : ""}
+                    <span class="category-group-title">${escapeHTML(titleLabel)}</span>
+                </div>
+                ${levelLabel ? `<span class="category-group-level">${escapeHTML(levelLabel)}</span>` : ""}
+                <span class="category-winner">${winnerText}</span>
+            </div></td></tr>`);
             items.forEach((r) => html.push(buildProjectRow(r)));
         }
         tbody.innerHTML = html.join("");

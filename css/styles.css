@@ -1580,14 +1580,11 @@ body[data-page="admin"] [data-users-table] tr td {
 }
 
 .results-table .category-group-row td {
-    position: relative;
-    background: linear-gradient(135deg, var(--primary) 0%, #173f7a 100%);
-    color: #ffffff;
-    text-align: center;
-    padding: 0.9rem 1rem 0.85rem 1.1rem;
-    border-bottom: none;
-    border-left: 4px solid var(--secondary);
-    overflow: hidden;
+    padding: 0;
+    border-top: 1px solid rgba(13, 42, 91, 0.12);
+    border-bottom: 1px solid rgba(13, 42, 91, 0.12);
+    background: #edf3fb;
+    color: var(--ink);
 }
 
 .results-table .category-group-row td::after {
@@ -1595,42 +1592,77 @@ body[data-page="admin"] [data-users-table] tr td {
 }
 
 .category-group-title {
-    position: relative;
-    z-index: 1;
     display: block;
-    width: 100%;
     max-width: 72ch;
-    margin-inline: auto;
-    font-size: clamp(0.84rem, 1.4vw, 1rem);
+    margin-top: 0.12rem;
+    color: var(--primary);
+    font-size: clamp(0.98rem, 1.45vw, 1.12rem);
     font-weight: 800;
-    letter-spacing: 0.045em;
-    line-height: 1.3;
-    text-align: center;
+    letter-spacing: 0.01em;
+    line-height: 1.25;
     text-transform: uppercase;
-    text-wrap: balance;
+    overflow-wrap: anywhere;
+}
+
+.category-group-heading {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(12rem, 18rem);
+    align-items: center;
+    gap: 1rem;
+    min-height: 4.6rem;
+    padding: 0.85rem 1.1rem;
+    border-left: 4px solid var(--secondary);
+    text-align: left;
+}
+
+.category-group-heading-copy {
+    min-width: 0;
+}
+
+.category-group-context {
+    display: block;
+    color: var(--ink-secondary);
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    line-height: 1.25;
+    text-transform: uppercase;
+    overflow-wrap: anywhere;
+}
+
+.category-group-level {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2rem;
+    padding: 0.35rem 0.7rem;
+    border: 1px solid rgba(13, 42, 91, 0.18);
+    border-radius: 0.45rem;
+    background: #ffffff;
+    color: var(--primary);
+    font-size: 0.75rem;
+    font-weight: 800;
+    line-height: 1.15;
+    text-align: center;
+    white-space: nowrap;
 }
 
 .category-winner {
-    position: relative;
-    z-index: 1;
     display: flex;
     align-items: center;
-    width: fit-content;
+    justify-content: flex-start;
+    justify-self: end;
+    width: 100%;
     max-width: 100%;
-    margin-top: 0.55rem;
-    margin-right: auto;
-    margin-left: auto;
-    padding: 0.28rem 0.6rem;
-    border: 1px solid rgba(255, 204, 77, 0.45);
-    border-radius: 999px;
-    background: rgba(255, 204, 77, 0.12);
-    color: var(--secondary-light);
-    font-size: clamp(0.7rem, 1.2vw, 0.78rem);
+    min-height: 2rem;
+    padding: 0.35rem 0.6rem;
+    border-left: 2px solid var(--secondary);
+    background: rgba(255, 204, 77, 0.14);
+    color: var(--ink-secondary);
+    font-size: 0.72rem;
     font-weight: 600;
-    letter-spacing: 0.02em;
-    line-height: 1.35;
+    line-height: 1.25;
     overflow-wrap: anywhere;
-    text-transform: none;
 }
 
 .category-winner::before {
@@ -1641,14 +1673,6 @@ body[data-page="admin"] [data-users-table] tr td {
     border-radius: 50%;
     background: currentColor;
     content: "";
-}
-
-.results-table .category-group-row td:first-letter {
-    color: var(--secondary-light);
-}
-
-.results-table tbody tr.category-group-row:nth-child(even) td {
-    background: var(--primary);
 }
 
 .judge-status {
@@ -6860,17 +6884,45 @@ body[data-page="judge"] .rubric-table thead th {
     }
     body[data-page="admin"] .results-table tbody tr.category-group-row td {
         display: block;
-        padding: 0.85rem 0.9rem !important;
-        border-left-width: 4px;
-        border-radius: 10px;
+        padding: 0 !important;
+        border-left-width: 0;
+        border-radius: 0;
     }
     body[data-page="admin"] .results-table tbody tr.category-group-row td::before {
         content: "" !important;
         display: none;
     }
     .category-group-title {
-        font-size: 0.84rem;
-        letter-spacing: 0.035em;
+        margin-top: 0.08rem;
+        font-size: 0.95rem;
+        letter-spacing: 0.01em;
+    }
+    .category-group-heading {
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 0.65rem;
+        min-height: 0;
+        padding: 0.8rem 0.8rem 0.85rem 0.9rem;
+        border-left: 4px solid var(--secondary);
+    }
+    .category-group-context {
+        font-size: 0.62rem;
+        letter-spacing: 0.06em;
+    }
+    .category-group-level {
+        grid-column: 2;
+        grid-row: 1;
+        align-self: start;
+        min-height: 1.8rem;
+        padding: 0.3rem 0.5rem;
+        font-size: 0.68rem;
+        white-space: normal;
+    }
+    .category-group-heading .category-winner {
+        grid-column: 1 / -1;
+        justify-self: stretch;
+        width: auto;
+        min-height: 1.8rem;
+        font-size: 0.68rem;
     }
     .category-winner {
         display: flex;
