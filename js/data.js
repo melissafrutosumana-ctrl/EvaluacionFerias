@@ -1,12 +1,13 @@
-import { normalizeRoleName, fetchAllRpc } from "./utils.js?v=16.13";
+import { normalizeRoleName, fetchAllRpc } from "./utils.js?v=16.14";
 import { getSession } from "./auth.js?v=3.33";
-import { mergeRowsById, readSessionCache, writeSessionCache } from "./cache.js?v=3.28";
+import { isSessionCacheFresh, mergeRowsById, readSessionCache, writeSessionCache } from "./cache.js?v=3.29";
 import { sortProjectsByNewest } from "./project-order.js?v=1";
 
-export { fetchAllRpc } from "./utils.js?v=16.13";
+export { fetchAllRpc } from "./utils.js?v=16.14";
 
 const EVALUATIONS_CACHE_KEY = "admin:evaluations";
-const EVALUATIONS_CACHE_VERSION = 3;
+const EVALUATIONS_CACHE_VERSION = 4;
+const EVALUATIONS_CACHE_MAX_AGE_MS = 5 * 60 * 1000;
 const EVALUATIONS_SYNC_INTERVAL_MS = 15000;
 let evaluationsSyncTimer = null;
 let evaluationsVisibilityHandler = null;
@@ -18,7 +19,7 @@ function sessionToken() {
 
 function readEvaluationsCache() {
     const cache = readSessionCache(EVALUATIONS_CACHE_KEY);
-    if (!cache || cache.version !== EVALUATIONS_CACHE_VERSION || cache.complete !== true || !Array.isArray(cache.rows)) return null;
+    if (!cache || cache.version !== EVALUATIONS_CACHE_VERSION || cache.complete !== true || !Array.isArray(cache.rows) || !isSessionCacheFresh(cache, EVALUATIONS_CACHE_MAX_AGE_MS)) return null;
     return cache;
 }
 

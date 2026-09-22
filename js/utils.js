@@ -153,10 +153,12 @@ export function getNivelFromPronatecyt(categoria) {
     return null;
 }
 
-export function getResultCategoryGroupLabel(feria, categoria, nivel, selectedFeria = "") {
+export function getResultCategoryGroupLabel(feria, categoria, nivel, selectedFeria = "", subcategoria = "") {
     const categoryLabel = String(categoria ?? "").trim() || "Sin categoría";
+    const subcategoryLabel = feria === FESTIVAL_FERIA_NAME ? String(subcategoria ?? "").trim() : "";
     const levelLabel = feria === FESTIVAL_FERIA_NAME ? String(nivel ?? "").trim() : "";
-    const groupLabel = levelLabel ? `${categoryLabel} — ${levelLabel}` : categoryLabel;
+    const groupParts = [categoryLabel, subcategoryLabel, levelLabel].filter(Boolean);
+    const groupLabel = groupParts.join(" — ");
     return selectedFeria ? groupLabel : `${feria || "Feria"} — ${groupLabel}`;
 }
 

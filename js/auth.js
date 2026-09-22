@@ -1,7 +1,7 @@
 import { supabase } from "./supabase.js?v=1";
-import { normalizeRoleName, showToast, setupHideOnScroll, openModalAccesible, closeModalAccesible, fetchAllRpc } from "./utils.js?v=16.13";
+import { normalizeRoleName, showToast, setupHideOnScroll, openModalAccesible, closeModalAccesible, fetchAllRpc } from "./utils.js?v=16.14";
 import { generateJudgePDF } from "./pdf.js?v=3.23";
-import { clearSessionCache } from "./cache.js?v=3.28";
+import { CACHE_SCOPE, clearSessionCache } from "./cache.js?v=3.29";
 import { icon } from "./icons.js?v=1";
 
 export const SESSION_KEY = "ef_user_session";
@@ -27,7 +27,7 @@ export async function clearSession() {
         } catch { /* ignore */ }
     }
     sessionStorage.removeItem(SESSION_KEY);
-    clearSessionCache();
+    clearSessionCache(CACHE_SCOPE.ALL);
 }
 
 export async function restoreAppSession() {
@@ -265,7 +265,7 @@ export async function bootstrapLoginPage() {
         return;
       }
 
-      clearSessionCache();
+      clearSessionCache(CACHE_SCOPE.ALL);
       saveSession({
         id: result.user_id,
         nombre: result.user_name,

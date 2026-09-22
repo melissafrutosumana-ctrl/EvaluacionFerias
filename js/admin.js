@@ -1,10 +1,10 @@
 import { supabase } from "./supabase.js?v=1";
-import { escapeHTML, showToast, setMessage, normalizeRoleName, fillSelect, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, buildFeriaOptions, FESTIVAL_FERIA_NAME, FESTIVAL_CATEGORIES, FESTIVAL_SUBCATEGORIES, FESTIVAL_EDUCATIONAL_LEVELS, EXPOTECNICA_CATEGORIES, EXPOTECNICA_EJES, PRONAFECYT_CATEGORIES, PRONAFECYT_EDUCATIONAL_CATEGORIES, PRONAFECYT_C_RAW_MAX, updateProjectFormFieldsByFeria, getResultCategoryGroupLabel, getFestivalProjectLabel, showSkeleton, confirmDialog, PRONAFECYT_BY_NIVEL, getNivelFromPronatecyt, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore, openModalAccesible, closeModalAccesible } from "./utils.js?v=16.13";
+import { escapeHTML, showToast, setMessage, normalizeRoleName, fillSelect, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, buildFeriaOptions, FESTIVAL_FERIA_NAME, FESTIVAL_CATEGORIES, FESTIVAL_SUBCATEGORIES, FESTIVAL_EDUCATIONAL_LEVELS, EXPOTECNICA_CATEGORIES, EXPOTECNICA_EJES, PRONAFECYT_CATEGORIES, PRONAFECYT_EDUCATIONAL_CATEGORIES, PRONAFECYT_C_RAW_MAX, updateProjectFormFieldsByFeria, getResultCategoryGroupLabel, getFestivalProjectLabel, showSkeleton, confirmDialog, PRONAFECYT_BY_NIVEL, getNivelFromPronatecyt, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore, openModalAccesible, closeModalAccesible } from "./utils.js?v=16.14";
 import { getSession, enforceRole, hashPassword, bindLogout } from "./auth.js?v=3.33";
 import { loadProjects, loadJudgeAssignments, loadUsers, fetchAllEvaluations, fetchAllRpc, startEvaluationsSync } from "./data.js?v=3.31";
 import { generateAdminPDF } from "./pdf.js?v=3.23";
 import { icon } from "./icons.js?v=1";
-import { clearSessionCache } from "./cache.js?v=3.28";
+import { CACHE_SCOPE, clearSessionCache } from "./cache.js?v=3.29";
 
 let latestAdminReportData = null;
 
@@ -433,6 +433,7 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
             projectName: proj ?.titulo ?? "Proyecto",
             feria: proj ?.tipo_feria ?? "Feria",
             categoria: cat,
+            subcategoria: proj ?.tipo_feria === FESTIVAL_FERIA_NAME ? (proj ?.subcategoria_festival || "Sin subcategoría") : "",
             nivel: proj ?.tipo_feria === FESTIVAL_FERIA_NAME ? (proj ?.nivel_educativo || "Sin nivel") : "",
             writtenMax,
             manualEscrito,
@@ -565,7 +566,7 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
     if (groupByCategory) {
         const grouped = new Map();
         results.forEach((r) => {
-            const groupLabel = getResultCategoryGroupLabel(r.feria, r.categoria, r.nivel, selectedFeria);
+            const groupLabel = getResultCategoryGroupLabel(r.feria, r.categoria, r.nivel, selectedFeria, r.subcategoria);
             if (!grouped.has(groupLabel)) grouped.set(groupLabel, []);
             grouped.get(groupLabel).push(r);
         });
@@ -1193,7 +1194,7 @@ export async function bootstrapAdminPage() {
         });
         if (ok) {
           await deleteUser(userId);
-          clearSessionCache();
+          clearSessionCache(CACHE_SCOPE.ALL);
           await refreshAdminDataView();
         }
       }
@@ -1247,7 +1248,7 @@ export async function bootstrapAdminPage() {
         }
 
         showToast("Proyecto eliminado correctamente.", "success");
-        clearSessionCache();
+        clearSessionCache(CACHE_SCOPE.EVALUATIONS);
         await refreshAdminDataView();
       } catch (err) {
         showToast(err?.message || "No se pudo eliminar el proyecto.", "error");
