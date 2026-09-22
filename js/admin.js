@@ -455,7 +455,7 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
         highScoreEl.textContent = results[0].finalScore.toFixed(0);
     }
 
-    function buildProjectRow(r) {
+    function buildProjectRow(r, groupId = "", rowId = "", isVisible = true) {
         const totalVoted = r.expoVoted + r.escritoVoted;
         const totalAssigned = r.expoTotal + r.escritoTotal;
         const pct = totalAssigned > 0 ? Math.round(totalVoted / totalAssigned * 100) : 0;
@@ -471,7 +471,9 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>
            Ingresar manual
          </button>`;
-        return `<tr data-result-row="${r.projectId}" data-written-max="${r.writtenMax}">
+        const groupAttributes = groupId ?
+            ` id="${rowId}" data-result-group-row="${groupId}"${isVisible ? "" : " hidden"}` : "";
+        return `<tr data-result-row="${r.projectId}" data-written-max="${r.writtenMax}"${groupAttributes}>
       <td>
         <strong>${escapeHTML(r.projectName)}</strong>
         <div class="judge-progress-wrap">
@@ -567,20 +569,61 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
         const grouped = new Map();
         results.forEach((r) => {
             const groupLabel = getResultCategoryGroupLabel(r.feria, r.categoria, r.nivel, selectedFeria, r.subcategoria);
-            if (!grouped.has(groupLabel)) grouped.set(groupLabel, []);
-            grouped.get(groupLabel).push(r);
+            if (!grouped.has(groupLabel)) grouped.set(groupLabel, { label: groupLabel, items: [] });
+            grouped.get(groupLabel).items.push(r);
         });
 
         const html = [];
-        for (const [groupLabel, items] of grouped) {
+        const groups = [...grouped.values()].sort((a, b) => a.label.localeCompare(b.label, "es", { sensitivity: "base" }));
+        groups.forEach(({ label: groupLabel, items }, groupIndex) => {
+            const groupId = `result-group-${groupIndex}`;
+            const first = items[0];
+            const isFestivalGroup = first.feria === FESTIVAL_FERIA_NAME;
             const winner = items.find((item) => item.evaluationComplete && item.finalScore > 0);
             const winnerText = winner ?
                 `Ganador: ${escapeHTML(winner.projectName)} (${winner.finalScore.toFixed(0)} pts)` :
-                "Ganador pendiente de evaluacion";
-            html.push(`<tr class="category-group-row"><td colspan="4"><span class="category-group-title">${escapeHTML(groupLabel)}</span><span class="category-winner">${winnerText}</span></td></tr>`);
-            items.forEach((r) => html.push(buildProjectRow(r)));
-        }
+                "Ganador pendiente de evaluación";
+            const isExpanded = groupIndex === 0;
+            const rowIds = items.map((_, itemIndex) => `${groupId}-project-${itemIndex}`);
+            const groupControls = rowIds.join(" ");
+            const categoryLabel = first.categoria || "Sin categoría";
+            const titleLabel = isFestivalGroup ? first.subcategoria : groupLabel;
+            const levelLabel = isFestivalGroup ? first.nivel : "";
+            const countLabel = `${items.length} ${items.length === 1 ? "proyecto" : "proyectos"}`;
+            html.push(`<tr class="category-group-row" data-result-group-header="${groupId}">
+  <td colspan="4">
+    <button class="category-group-toggle" type="button" data-group-id="${groupId}" data-group-label="${escapeHTML(groupLabel)}" aria-expanded="${isExpanded}" aria-controls="${groupControls}" aria-label="${isExpanded ? "Colapsar" : "Expandir"} ${escapeHTML(groupLabel)}">
+      <span class="category-group-hierarchy">
+        <span class="category-group-kicker">${escapeHTML(categoryLabel)}</span>
+        <span class="category-group-title">${escapeHTML(titleLabel)}</span>
+      </span>
+      ${levelLabel ? `<span class="category-group-level">${escapeHTML(levelLabel)}</span>` : ""}
+      <span class="category-group-meta">
+        <span class="category-group-count">${countLabel}</span>
+        <span class="category-group-status">${winnerText}</span>
+      </span>
+      <span class="category-group-chevron" aria-hidden="true"></span>
+    </button>
+  </td>
+</tr>`);
+            items.forEach((r, itemIndex) => html.push(buildProjectRow(r, groupId, rowIds[itemIndex], isExpanded)));
+        });
         tbody.innerHTML = html.join("");
+
+        if (!tbody.dataset.groupToggleBound) {
+            tbody.dataset.groupToggleBound = "true";
+            tbody.addEventListener("click", (event) => {
+                const toggle = event.target.closest(".category-group-toggle");
+                if (!toggle) return;
+                const groupId = toggle.dataset.groupId;
+                const expanded = toggle.getAttribute("aria-expanded") === "true";
+                toggle.setAttribute("aria-expanded", String(!expanded));
+                toggle.setAttribute("aria-label", `${expanded ? "Expandir" : "Colapsar"} ${toggle.dataset.groupLabel}`);
+                tbody.querySelectorAll(`[data-result-group-row="${groupId}"]`).forEach((row) => {
+                    row.hidden = expanded;
+                });
+            });
+        }
     } else {
         tbody.innerHTML = results.map(buildProjectRow).join("");
     }
