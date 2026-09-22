@@ -1737,17 +1737,17 @@ function showEditProjectModal(project) {
                 <option value="Artes Escenicas">Artes Escenicas</option>
               </select>
             </label>
+            <label class="field-label" data-festival-subcategory-wrap hidden>
+              <span>Subcategoria del Festival</span>
+              <select name="subcategoria_festival">
+                <option value="">Selecciona una subcategoria</option>
+              </select>
+            </label>
             <label class="field-label">
               <span>Nivel educativo</span>
               <select name="nivel_festival" data-festival-level-select>
                 <option value="">Selecciona un nivel</option>
                 ${FESTIVAL_EDUCATIONAL_LEVELS.map((level) => `<option value="${escapeHTML(level)}">${escapeHTML(level)}</option>`).join("")}
-              </select>
-            </label>
-            <label class="field-label" data-festival-subcategory-wrap hidden>
-              <span>Subcategoria del Festival</span>
-              <select name="subcategoria_festival">
-                <option value="">Selecciona una subcategoria</option>
               </select>
             </label>
           </div>
