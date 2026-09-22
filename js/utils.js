@@ -3,6 +3,7 @@ import { icon } from "./icons.js?v=1";
 export const FERIA_TYPES = ["Feria Cientifica y Tecnologica", "Feria Expotecnica", "Festival Estudiantil de las Artes"];
 export const FESTIVAL_FERIA_NAME = "Festival Estudiantil de las Artes";
 export const FESTIVAL_CATEGORIES = ["Artes Visuales", "Artes Literarias", "Artes Digitales", "Artes Musicales", "Artes Escenicas"];
+export const FESTIVAL_EDUCATIONAL_LEVELS = ["Primaria", "Secundaria"];
 export const FESTIVAL_SUBCATEGORIES = {
     "Artes Escenicas": [
         "COREOGRAFIA DE BAILE",
@@ -150,6 +151,13 @@ export function getNivelFromPronatecyt(categoria) {
     if (["F9B", "F9C", "F10B", "F10C"].includes(code)) return "Secundaria - Ed. Diversificada";
     if (["F12B", "F12C", "F13B"].includes(code)) return "Educación Especial";
     return null;
+}
+
+export function getResultCategoryGroupLabel(feria, categoria, nivel, selectedFeria = "") {
+    const categoryLabel = String(categoria ?? "").trim() || "Sin categoría";
+    const levelLabel = feria === FESTIVAL_FERIA_NAME ? String(nivel ?? "").trim() : "";
+    const groupLabel = levelLabel ? `${categoryLabel} — ${levelLabel}` : categoryLabel;
+    return selectedFeria ? groupLabel : `${feria || "Feria"} — ${groupLabel}`;
 }
 
 export const PRONAFECYT_CATEGORIES = [
@@ -421,10 +429,12 @@ export function updateProjectFormFieldsByFeria(projectForm) {
 
     const festivalCategorySelect = projectForm.querySelector('select[name="categoria_festival"]');
     const festivalSubcategorySelect = projectForm.querySelector('select[name="subcategoria_festival"]');
+    const festivalLevelSelect = projectForm.querySelector('[data-festival-level-select]');
     const festivalCategoryValue = String(festivalCategorySelect ?.value ?? "");
     const hasFestivalCategory = isFestival && FESTIVAL_CATEGORIES.includes(festivalCategoryValue);
 
     if (isFestival) {
+        if (festivalLevelSelect) festivalLevelSelect.required = true;
         if (festivalSubcategorySelect) {
             const subcategories = FESTIVAL_SUBCATEGORIES[festivalCategoryValue] ?? [];
             const previousValue = String(festivalSubcategorySelect.value ?? "");
@@ -455,6 +465,10 @@ export function updateProjectFormFieldsByFeria(projectForm) {
             }
         }
     } else {
+        if (festivalLevelSelect) {
+            festivalLevelSelect.required = false;
+            festivalLevelSelect.value = "";
+        }
         if (festivalCategorySelect) {
             festivalCategorySelect.required = false;
             festivalCategorySelect.value = "";

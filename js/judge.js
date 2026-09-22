@@ -1,10 +1,10 @@
 import { supabase } from "./supabase.js?v=1";
-import { escapeHTML, showToast, setMessage, fillSelectGroupedByTipo, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, FESTIVAL_FERIA_NAME, renderJudgeRubric } from "./utils.js?v=16.11";
-import { enforceRole, bindLogout } from "./auth.js?v=3.32";
+import { escapeHTML, showToast, setMessage, fillSelectGroupedByTipo, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, FESTIVAL_FERIA_NAME, renderJudgeRubric } from "./utils.js?v=16.12";
+import { enforceRole, bindLogout } from "./auth.js?v=3.33";
 import { icon } from "./icons.js?v=1";
-import { loadAssignedProjectsForJudge, fetchAllRpc } from "./data.js?v=3.29";
-import { getRubricIndicatorsByFeria, getExpotecnicaRubricByCategory, getPronatecytRubricByCategory, getFestivalRubricBySubcategory, getFestivalRubricByCategory } from "./rubrics.js";
-import { generateJudgePDF } from "./pdf.js?v=3.22";
+import { loadAssignedProjectsForJudge, fetchAllRpc } from "./data.js?v=3.30";
+import { getRubricIndicatorsByFeria, getExpotecnicaRubricByCategory, getPronatecytRubricByCategory, getFestivalRubricBySubcategory, getFestivalRubricByCategory } from "./rubrics.js?v=2";
+import { generateJudgePDF } from "./pdf.js?v=3.23";
 
 export async function bootstrapJudgePage() {
   bindLogout();

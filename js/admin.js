@@ -1,8 +1,8 @@
 import { supabase } from "./supabase.js?v=1";
-import { escapeHTML, showToast, setMessage, normalizeRoleName, fillSelect, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, buildFeriaOptions, FESTIVAL_FERIA_NAME, FESTIVAL_CATEGORIES, FESTIVAL_SUBCATEGORIES, EXPOTECNICA_CATEGORIES, EXPOTECNICA_EJES, PRONAFECYT_CATEGORIES, PRONAFECYT_EDUCATIONAL_CATEGORIES, PRONAFECYT_C_RAW_MAX, updateProjectFormFieldsByFeria, showSkeleton, confirmDialog, PRONAFECYT_BY_NIVEL, getNivelFromPronatecyt, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore, openModalAccesible, closeModalAccesible } from "./utils.js?v=16.11";
-import { getSession, enforceRole, hashPassword, bindLogout } from "./auth.js?v=3.32";
-import { loadProjects, loadJudgeAssignments, loadUsers, fetchAllEvaluations, fetchAllRpc, startEvaluationsSync } from "./data.js?v=3.29";
-import { generateAdminPDF } from "./pdf.js?v=3.22";
+import { escapeHTML, showToast, setMessage, normalizeRoleName, fillSelect, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, buildFeriaOptions, FESTIVAL_FERIA_NAME, FESTIVAL_CATEGORIES, FESTIVAL_SUBCATEGORIES, FESTIVAL_EDUCATIONAL_LEVELS, EXPOTECNICA_CATEGORIES, EXPOTECNICA_EJES, PRONAFECYT_CATEGORIES, PRONAFECYT_EDUCATIONAL_CATEGORIES, PRONAFECYT_C_RAW_MAX, updateProjectFormFieldsByFeria, getResultCategoryGroupLabel, showSkeleton, confirmDialog, PRONAFECYT_BY_NIVEL, getNivelFromPronatecyt, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore, openModalAccesible, closeModalAccesible } from "./utils.js?v=16.12";
+import { getSession, enforceRole, hashPassword, bindLogout } from "./auth.js?v=3.33";
+import { loadProjects, loadJudgeAssignments, loadUsers, fetchAllEvaluations, fetchAllRpc, startEvaluationsSync } from "./data.js?v=3.30";
+import { generateAdminPDF } from "./pdf.js?v=3.23";
 import { icon } from "./icons.js?v=1";
 import { clearSessionCache } from "./cache.js?v=3.28";
 
@@ -97,6 +97,7 @@ function renderProjectsManagementTable(projects) {
                 if (isFestival) {
                     const category = String(item.categoria_festival ?? "").trim();
                     const subcategory = String(item.subcategoria_festival ?? "").trim();
+                    const educationalLevel = String(item.nivel_educativo ?? "").trim();
                     const participation = String(item.participacion ?? "").trim();
 
                     if (category) {
@@ -105,6 +106,10 @@ function renderProjectsManagementTable(projects) {
 
                     if (subcategory) {
                         detailParts.push(["Subcategoría", subcategory]);
+                    }
+
+                    if (educationalLevel) {
+                        detailParts.push(["Nivel educativo", educationalLevel]);
                     }
 
                     if (participation) {
@@ -428,6 +433,7 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
             projectName: proj ?.titulo ?? "Proyecto",
             feria: proj ?.tipo_feria ?? "Feria",
             categoria: cat,
+            nivel: proj ?.tipo_feria === FESTIVAL_FERIA_NAME ? (proj ?.nivel_educativo || "Sin nivel") : "",
             writtenMax,
             manualEscrito,
             expoJudges,
@@ -559,19 +565,18 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
     if (groupByCategory) {
         const grouped = new Map();
         results.forEach((r) => {
-            const cat = r.categoria || "Sin categoría";
-            const groupLabel = selectedFeria ? cat : `${r.feria} — ${cat}`;
+            const groupLabel = getResultCategoryGroupLabel(r.feria, r.categoria, r.nivel, selectedFeria);
             if (!grouped.has(groupLabel)) grouped.set(groupLabel, []);
             grouped.get(groupLabel).push(r);
         });
 
         const html = [];
-        for (const [cat, items] of grouped) {
+        for (const [groupLabel, items] of grouped) {
             const winner = items.find((item) => item.evaluationComplete && item.finalScore > 0);
             const winnerText = winner ?
                 `Ganador: ${escapeHTML(winner.projectName)} (${winner.finalScore.toFixed(0)} pts)` :
                 "Ganador pendiente de evaluacion";
-            html.push(`<tr class="category-group-row"><td colspan="5"><span class="category-group-title">${escapeHTML(cat)}</span><span class="category-winner">${winnerText}</span></td></tr>`);
+            html.push(`<tr class="category-group-row"><td colspan="4"><span class="category-group-title">${escapeHTML(groupLabel)}</span><span class="category-winner">${winnerText}</span></td></tr>`);
             items.forEach((r) => html.push(buildProjectRow(r)));
         }
         tbody.innerHTML = html.join("");
@@ -1049,6 +1054,7 @@ export async function bootstrapAdminPage() {
       const integrante3 = String(formData.get("integrante_3") ?? "").trim();
       const categoriaFestival = String(formData.get("categoria_festival") ?? "").trim();
       const subcategoriaFestival = String(formData.get("subcategoria_festival") ?? "").trim();
+      const nivelFestival = String(formData.get("nivel_festival") ?? "").trim();
       const participacion = String(formData.get("participacion") ?? "").trim();
       const categoriaExpotecnica = String(formData.get("categoria_expotecnica") ?? "").trim();
       const ejeTematico = String(formData.get("eje_tematico") ?? "").trim();
@@ -1075,8 +1081,8 @@ export async function bootstrapAdminPage() {
       }
 
       if (isFestival) {
-        if (!FESTIVAL_CATEGORIES.includes(categoriaFestival) || !(FESTIVAL_SUBCATEGORIES[categoriaFestival] ?? []).includes(subcategoriaFestival) || !participacion) {
-          showToast("Para Festival debes seleccionar categoria, subcategoria y participacion.", "error");
+        if (!FESTIVAL_CATEGORIES.includes(categoriaFestival) || !(FESTIVAL_SUBCATEGORIES[categoriaFestival] ?? []).includes(subcategoriaFestival) || !FESTIVAL_EDUCATIONAL_LEVELS.includes(nivelFestival) || !participacion) {
+          showToast("Para Festival debes seleccionar categoria, subcategoria, nivel educativo y participacion.", "error");
           return;
         }
       } else if (isExpotecnica) {
@@ -1099,7 +1105,7 @@ export async function bootstrapAdminPage() {
           titulo,
           descripcion: descripcion || null,
           tipo_feria: tipoFeria,
-          nivel_educativo: isScientific ? nivelEducativo || null : null,
+          nivel_educativo: isFestival ? nivelFestival : isScientific ? nivelEducativo || null : null,
           integrante_1: isFestival ? null : integrante1 || null,
           integrante_2: isFestival ? null : integrante2 || null,
           integrante_3: isFestival ? null : integrante3 || null,
@@ -1731,6 +1737,13 @@ function showEditProjectModal(project) {
                 <option value="Artes Escenicas">Artes Escenicas</option>
               </select>
             </label>
+            <label class="field-label">
+              <span>Nivel educativo</span>
+              <select name="nivel_festival" data-festival-level-select>
+                <option value="">Selecciona un nivel</option>
+                ${FESTIVAL_EDUCATIONAL_LEVELS.map((level) => `<option value="${escapeHTML(level)}">${escapeHTML(level)}</option>`).join("")}
+              </select>
+            </label>
             <label class="field-label" data-festival-subcategory-wrap hidden>
               <span>Subcategoria del Festival</span>
               <select name="subcategoria_festival">
@@ -1845,6 +1858,11 @@ function showEditProjectModal(project) {
     }
   }
 
+  const festivalLevelSelect = form.querySelector('[data-festival-level-select]');
+  if (festivalLevelSelect) {
+    festivalLevelSelect.value = String(project.nivel_educativo ?? "");
+  }
+
   if (expoCategorySelect) {
     expoCategorySelect.value = String(project.categoria_expotecnica ?? "");
     const isExpotecnica = selectedFeria === "Feria Expotecnica";
@@ -1921,6 +1939,7 @@ function showEditProjectModal(project) {
     const integrante3 = String(formData.get("integrante_3") ?? "").trim();
     const categoriaFestival = String(formData.get("categoria_festival") ?? "").trim();
     const subcategoriaFestival = String(formData.get("subcategoria_festival") ?? "").trim();
+    const nivelFestival = String(formData.get("nivel_festival") ?? "").trim();
     const participacion = String(formData.get("participacion") ?? "").trim();
     const categoriaExpotecnica = String(formData.get("categoria_expotecnica") ?? "").trim();
     const ejeTematico = String(formData.get("eje_tematico") ?? "").trim();
@@ -1931,6 +1950,11 @@ function showEditProjectModal(project) {
     const isExpotecnica = tipoFeria === "Feria Expotecnica";
     const isScientific = tipoFeria === "Feria Cientifica y Tecnologica";
 
+    if (isFestival && (!FESTIVAL_CATEGORIES.includes(categoriaFestival) || !(FESTIVAL_SUBCATEGORIES[categoriaFestival] ?? []).includes(subcategoriaFestival) || !FESTIVAL_EDUCATIONAL_LEVELS.includes(nivelFestival) || !participacion)) {
+      showToast("Para Festival debes seleccionar categoria, subcategoria, nivel educativo y participacion.", "error");
+      return;
+    }
+
     if (isScientific && (!PRONAFECYT_BY_NIVEL[nivelEducativo] || !PRONAFECYT_CATEGORIES.includes(categoriaPronatecyt))) {
       showToast("Para Feria Cientifica debes seleccionar categoria educativa y formulario PRONAFECYT.", "error");
       return;
@@ -1940,7 +1964,7 @@ function showEditProjectModal(project) {
       titulo,
       descripcion: descripcion || null,
       tipo_feria: tipoFeria,
-      nivel_educativo: isScientific ? nivelEducativo || null : null,
+      nivel_educativo: isFestival ? nivelFestival : isScientific ? nivelEducativo || null : null,
       integrante_1: isFestival ? null : integrante1 || null,
       integrante_2: isFestival ? null : integrante2 || null,
       integrante_3: isFestival ? null : integrante3 || null,

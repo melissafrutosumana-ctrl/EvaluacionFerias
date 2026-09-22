@@ -1,7 +1,7 @@
 import { supabase } from "./supabase.js?v=1";
-import { showToast, FESTIVAL_FERIA_NAME, PRONAFECYT_CODE_MAX, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore } from "./utils.js?v=16.11";
-import { getExpotecnicaRubricByCategory, getFestivalRubricBySubcategory } from "./rubrics.js";
-import { loadUsers, fetchAllEvaluations, fetchAllRpc } from "./data.js?v=3.29";
+import { showToast, FESTIVAL_FERIA_NAME, PRONAFECYT_CODE_MAX, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore } from "./utils.js?v=16.12";
+import { getExpotecnicaRubricByCategory, getFestivalRubricBySubcategory } from "./rubrics.js?v=2";
+import { loadUsers, fetchAllEvaluations, fetchAllRpc } from "./data.js?v=3.30";
 
 let jspdfPromise = null;
 
@@ -808,12 +808,14 @@ export async function generateAdminPDF(sessionToken) {
     for(let idx=0; idx<results.length; idx++){
       const r = results[idx];
       const feriaLbl = r.projData?.categoria_pronatecyt?.split(" -")[0] || r.projData?.categoria_expotecnica || r.projData?.categoria_festival || "";
+      const levelLbl = r.projData?.tipo_feria === FESTIVAL_FERIA_NAME ? r.projData?.nivel_educativo : "";
+      const resultLabel = [feriaLbl, levelLbl].filter(Boolean).join(" — ");
       const nameW = dualCols ? 110 : 130;
       doc.setFont("helvetica","bold");
       doc.setFontSize(6.8);
       const tLines = doc.splitTextToSize(r.projectName, nameW);
       const display = tLines.length > 3 ? [tLines[0], tLines[1], tLines[2].slice(0, -3) + "…"] : tLines;
-      const rowH = Math.max(10, display.length * 3.6 + (feriaLbl ? 4.5 : 0) + 4);
+      const rowH = Math.max(10, display.length * 3.6 + (resultLabel ? 4.5 : 0) + 4);
       y = pdfCheckPage(doc, y, rowH+0.6);
       const isFirst = idx===0;
       doc.setFillColor(isFirst?253: (rowIdx%2===0?255:248), isFirst?251:(rowIdx%2===0?255:250), isFirst?247:(rowIdx%2===0?255:252));
@@ -827,11 +829,11 @@ export async function generateAdminPDF(sessionToken) {
       doc.setFont("helvetica","bold");
       doc.setFontSize(6.8);
       doc.text(display, M+10, y+3.2);
-      if(feriaLbl){
+      if(resultLabel){
         doc.setFont("helvetica","normal");
         doc.setFontSize(5.2);
         doc.setTextColor(...PDF.MUTED);
-        doc.text(feriaLbl.slice(0,32), M+10, y+ display.length*3.6+3.8);
+        doc.text(resultLabel.slice(0,32), M+10, y+ display.length*3.6+3.8);
       }
       if(dualCols){
         const expoMax = getMaxScoreForProject(r.projectId, "Exposición");
@@ -869,7 +871,7 @@ export async function generateAdminPDF(sessionToken) {
     y = pdfSubHeader(doc, "Detalle por proyecto — jueces", y);
     for(const r of results){
       const proj = r.projData;
-      const cat = proj?.categoria_pronatecyt || proj?.categoria_expotecnica || proj?.categoria_festival || "";
+      const cat = [proj?.categoria_pronatecyt || proj?.categoria_expotecnica || proj?.categoria_festival || "", proj?.tipo_feria === FESTIVAL_FERIA_NAME ? proj?.nivel_educativo : ""].filter(Boolean).join(" — ");
       doc.setFont("helvetica","bold");
       doc.setFontSize(7.5);
       const hdrLines = doc.splitTextToSize(r.projectName, W-2*M-6);
