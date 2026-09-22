@@ -1,5 +1,5 @@
 import { supabase } from "./supabase.js?v=1";
-import { showToast, FESTIVAL_FERIA_NAME, PRONAFECYT_CODE_MAX, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore } from "./utils.js?v=16.12";
+import { showToast, FESTIVAL_FERIA_NAME, PRONAFECYT_CODE_MAX, getFestivalProjectLabel, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore } from "./utils.js?v=16.13";
 import { getExpotecnicaRubricByCategory, getFestivalRubricBySubcategory } from "./rubrics.js?v=2";
 import { loadUsers, fetchAllEvaluations, fetchAllRpc } from "./data.js?v=3.30";
 
@@ -477,7 +477,7 @@ export async function generateJudgePDF(user) {
             const p = g.projectData; if (!p) return "";
             if (p.tipo_feria === "Feria Expotecnica" && p.categoria_expotecnica) return p.eje_tematico ? `${p.categoria_expotecnica} — ${p.eje_tematico}` : p.categoria_expotecnica;
             if (p.tipo_feria === "Feria Cientifica y Tecnologica" && p.categoria_pronatecyt) return `${p.tipo_feria} · ${p.categoria_pronatecyt} · ${p.nivel_educativo || ""}`.trim();
-            if (p.tipo_feria === "Festival Estudiantil de las Artes") return p.subcategoria_festival ? `${p.categoria_festival} — ${p.subcategoria_festival}` : p.categoria_festival;
+            if (p.tipo_feria === "Festival Estudiantil de las Artes") return getFestivalProjectLabel(p, true) || p.categoria_festival;
             return p.tipo_feria || "";
         })();
         const innerW = tableW - 6;

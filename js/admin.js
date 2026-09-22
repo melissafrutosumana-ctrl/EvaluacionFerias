@@ -1,5 +1,5 @@
 import { supabase } from "./supabase.js?v=1";
-import { escapeHTML, showToast, setMessage, normalizeRoleName, fillSelect, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, buildFeriaOptions, FESTIVAL_FERIA_NAME, FESTIVAL_CATEGORIES, FESTIVAL_SUBCATEGORIES, FESTIVAL_EDUCATIONAL_LEVELS, EXPOTECNICA_CATEGORIES, EXPOTECNICA_EJES, PRONAFECYT_CATEGORIES, PRONAFECYT_EDUCATIONAL_CATEGORIES, PRONAFECYT_C_RAW_MAX, updateProjectFormFieldsByFeria, getResultCategoryGroupLabel, showSkeleton, confirmDialog, PRONAFECYT_BY_NIVEL, getNivelFromPronatecyt, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore, openModalAccesible, closeModalAccesible } from "./utils.js?v=16.12";
+import { escapeHTML, showToast, setMessage, normalizeRoleName, fillSelect, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, buildFeriaOptions, FESTIVAL_FERIA_NAME, FESTIVAL_CATEGORIES, FESTIVAL_SUBCATEGORIES, FESTIVAL_EDUCATIONAL_LEVELS, EXPOTECNICA_CATEGORIES, EXPOTECNICA_EJES, PRONAFECYT_CATEGORIES, PRONAFECYT_EDUCATIONAL_CATEGORIES, PRONAFECYT_C_RAW_MAX, updateProjectFormFieldsByFeria, getResultCategoryGroupLabel, getFestivalProjectLabel, showSkeleton, confirmDialog, PRONAFECYT_BY_NIVEL, getNivelFromPronatecyt, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore, openModalAccesible, closeModalAccesible } from "./utils.js?v=16.13";
 import { getSession, enforceRole, hashPassword, bindLogout } from "./auth.js?v=3.33";
 import { loadProjects, loadJudgeAssignments, loadUsers, fetchAllEvaluations, fetchAllRpc, startEvaluationsSync } from "./data.js?v=3.30";
 import { generateAdminPDF } from "./pdf.js?v=3.23";
@@ -684,6 +684,7 @@ function renderJudgeAssignmentsTable(judges, projects, assignments) {
         current.push({
             id: assignment.proyecto_id,
             titulo: project ?.titulo ?? "Proyecto",
+            contexto: getFestivalProjectLabel(project),
             tipo_evaluacion: assignment.tipo_evaluacion ?? "Exposición"
         });
         assignmentsByJudge.set(assignment.juez_id, current);
@@ -695,7 +696,7 @@ function renderJudgeAssignmentsTable(judges, projects, assignments) {
 
             const projectList = judgeAssignments.length ?
                 judgeAssignments.map((a) =>
-                    `${escapeHTML(a.titulo)} <span class="tipo-badge tipo-badge--${a.tipo_evaluacion === "Escrito" ? "escrito" : "expo"}">${escapeHTML(a.tipo_evaluacion)}</span>`
+                    `${escapeHTML(a.titulo)}${a.contexto ? ` <span class="judge-status">(${escapeHTML(a.contexto)})</span>` : ""} <span class="tipo-badge tipo-badge--${a.tipo_evaluacion === "Escrito" ? "escrito" : "expo"}">${escapeHTML(a.tipo_evaluacion)}</span>`
                 ).join("<br>") :
                 '<span class="text-muted">Sin proyectos asignados</span>';
 
@@ -784,6 +785,7 @@ function openAssignmentModal(judgeId, judgeName, allProjects, currentAssignments
     listEl.innerHTML = allProjects.map((project) => {
                 const checked = assignedIds.has(project.id) ? "checked" : "";
                 const supportsDualEval = project.tipo_feria === "Feria Cientifica y Tecnologica" || project.tipo_feria === "Feria Expotecnica";
+                const projectContext = getFestivalProjectLabel(project);
                 const tipoVal = supportsDualEval ?
                     (selectedTipoMap.get(project.id) ?? "Exposición") :
                     "Exposición";
@@ -792,7 +794,7 @@ function openAssignmentModal(judgeId, judgeName, allProjects, currentAssignments
       <div class="modal-project-row" data-project-row data-project-id="${project.id}">
         <label class="modal-project-label">
           <input type="checkbox" data-project-checkbox value="${project.id}" ${checked}>
-          <span class="modal-project-title">${escapeHTML(project.titulo)}</span>
+          <span class="modal-project-title">${escapeHTML(project.titulo)}${projectContext ? ` <span class="judge-status">(${escapeHTML(projectContext)})</span>` : ""}</span>
           <span class="modal-project-feria">${escapeHTML(project.tipo_feria ?? "")}</span>
         </label>
         <div class="modal-project-control">
@@ -1404,7 +1406,11 @@ async function renderAdminObservaciones(feriaType = "", proyectoFilter, juezFilt
   if (proyectoFilter) {
     const curVal = proyectoFilter.value;
     proyectoFilter.innerHTML = '<option value="">Todos los proyectos</option>'
-      + projectOpts.map((p) => `<option value="${p.id}">${escapeHTML(p.titulo)}</option>`).join("");
+      + projectOpts.map((p) => {
+        const context = getFestivalProjectLabel(p);
+        const label = context ? `${p.titulo} (${context})` : p.titulo;
+        return `<option value="${p.id}">${escapeHTML(label)}</option>`;
+      }).join("");
     if (curVal && [...proyectoFilter.options].some((o) => o.value === curVal)) proyectoFilter.value = curVal;
   }
 
@@ -1434,7 +1440,13 @@ async function renderAdminObservaciones(feriaType = "", proyectoFilter, juezFilt
   visibleRows.forEach((row) => {
     const pid = row.proyecto_id;
     if (!grouped.has(pid)) {
-      grouped.set(pid, { title: projectsById.get(pid)?.titulo ?? "Proyecto", rows: [] });
+      const project = projectsById.get(pid);
+      const context = getFestivalProjectLabel(project);
+      grouped.set(pid, {
+        title: project?.titulo ?? "Proyecto",
+        context,
+        rows: []
+      });
     }
     grouped.get(pid).rows.push(row);
   });
@@ -1448,7 +1460,7 @@ async function renderAdminObservaciones(feriaType = "", proyectoFilter, juezFilt
     heading.type = "button";
     heading.className = "observacion-group-heading";
     heading.setAttribute("aria-expanded", "true");
-    heading.innerHTML = `<span>${escapeHTML(data.title)}</span><span class="observacion-group-count">${data.rows.length}</span><span class="observacion-group-chevron" aria-hidden="true">⌄</span>`;
+    heading.innerHTML = `<span>${escapeHTML(data.title)}${data.context ? ` <span class="judge-status">(${escapeHTML(data.context)})</span>` : ""}</span><span class="observacion-group-count">${data.rows.length}</span><span class="observacion-group-chevron" aria-hidden="true">⌄</span>`;
 
     const body = document.createElement("div");
     body.className = "observacion-group-body";

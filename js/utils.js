@@ -160,6 +160,22 @@ export function getResultCategoryGroupLabel(feria, categoria, nivel, selectedFer
     return selectedFeria ? groupLabel : `${feria || "Feria"} — ${groupLabel}`;
 }
 
+export function getFestivalProjectLabel(project, includeCategory = false) {
+    if (String(project?.tipo_feria ?? "") !== FESTIVAL_FERIA_NAME) return "";
+
+    const parts = [];
+    if (includeCategory) {
+        const category = String(project?.categoria_festival ?? "").trim();
+        if (category) parts.push(category);
+    }
+
+    const subcategory = String(project?.subcategoria_festival ?? "").trim();
+    const level = String(project?.nivel_educativo ?? "").trim();
+    if (subcategory) parts.push(subcategory);
+    if (level) parts.push(level);
+    return parts.join(" — ");
+}
+
 export const PRONAFECYT_CATEGORIES = [
     "F8B - Demostraciones Científicas y Tecnológicas",
     "F9B - Investigación Científica",

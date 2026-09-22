@@ -1,5 +1,5 @@
 import { supabase } from "./supabase.js?v=1";
-import { escapeHTML, showToast, setMessage, fillSelectGroupedByTipo, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, FESTIVAL_FERIA_NAME, renderJudgeRubric } from "./utils.js?v=16.12";
+import { escapeHTML, showToast, setMessage, fillSelectGroupedByTipo, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, FESTIVAL_FERIA_NAME, getFestivalProjectLabel, renderJudgeRubric } from "./utils.js?v=16.13";
 import { enforceRole, bindLogout } from "./auth.js?v=3.33";
 import { icon } from "./icons.js?v=1";
 import { loadAssignedProjectsForJudge, fetchAllRpc } from "./data.js?v=3.30";
@@ -493,7 +493,7 @@ export async function bootstrapJudgePage() {
 
       const projectsForSelect = filteredProjects.map((item) => {
         if (userFeria === FESTIVAL_FERIA_NAME && item.categoria_festival) {
-          const disciplineLabel = item.subcategoria_festival || item.categoria_festival;
+          const disciplineLabel = getFestivalProjectLabel(item, false) || item.categoria_festival;
           return {
             ...item,
             titulo: `${item.titulo} (${disciplineLabel})`
