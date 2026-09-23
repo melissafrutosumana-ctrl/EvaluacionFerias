@@ -1663,6 +1663,7 @@ body[data-page="admin"] [data-users-table] tr td {
     min-height: 2rem;
     padding: 0.35rem 0.6rem;
     border-left: 2px solid var(--secondary);
+    border-radius: 0.55rem;
     background: rgba(255, 204, 77, 0.16);
     color: #fff4bf;
     font-size: 0.72rem;
