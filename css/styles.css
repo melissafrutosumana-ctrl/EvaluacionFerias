@@ -1583,8 +1583,8 @@ body[data-page="admin"] [data-users-table] tr td {
     padding: 0;
     border-top: 1px solid rgba(13, 42, 91, 0.12);
     border-bottom: 1px solid rgba(13, 42, 91, 0.12);
-    background: #edf3fb;
-    color: var(--ink);
+    background: var(--primary);
+    color: #ffffff;
 }
 
 .results-table .category-group-row td::after {
@@ -1595,7 +1595,7 @@ body[data-page="admin"] [data-users-table] tr td {
     display: block;
     max-width: 72ch;
     margin-top: 0.12rem;
-    color: var(--primary);
+    color: #ffffff;
     font-size: clamp(0.98rem, 1.45vw, 1.12rem);
     font-weight: 800;
     letter-spacing: 0.01em;
@@ -1621,7 +1621,7 @@ body[data-page="admin"] [data-users-table] tr td {
 
 .category-group-context {
     display: block;
-    color: var(--ink-secondary);
+    color: rgba(255, 255, 255, 0.76);
     font-size: 0.68rem;
     font-weight: 800;
     letter-spacing: 0.08em;
@@ -1636,7 +1636,7 @@ body[data-page="admin"] [data-users-table] tr td {
     justify-content: center;
     min-height: 2rem;
     padding: 0.35rem 0.7rem;
-    border: 1px solid rgba(13, 42, 91, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.46);
     border-radius: 0.45rem;
     background: #ffffff;
     color: var(--primary);
@@ -1657,8 +1657,8 @@ body[data-page="admin"] [data-users-table] tr td {
     min-height: 2rem;
     padding: 0.35rem 0.6rem;
     border-left: 2px solid var(--secondary);
-    background: rgba(255, 204, 77, 0.14);
-    color: var(--ink-secondary);
+    background: rgba(255, 204, 77, 0.16);
+    color: #fff4bf;
     font-size: 0.72rem;
     font-weight: 600;
     line-height: 1.25;
