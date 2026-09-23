@@ -1,10 +1,10 @@
-import { supabase } from "./supabase.js?v=1";
+import { supabase } from "./supabase.js?v=2";
 import { escapeHTML, showToast, setMessage, fillSelectGroupedByTipo, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, FESTIVAL_FERIA_NAME, getFestivalProjectLabel, renderJudgeRubric } from "./utils.js?v=16.15";
-import { enforceRole, bindLogout } from "./auth.js?v=3.33";
+import { enforceRole, bindLogout } from "./auth.js?v=3.34";
 import { icon } from "./icons.js?v=1";
-import { loadAssignedProjectsForJudge, fetchAllRpc } from "./data.js?v=3.31";
+import { loadAssignedProjectsForJudge, fetchAllRpc } from "./data.js?v=3.32";
 import { getRubricIndicatorsByFeria, getExpotecnicaRubricByCategory, getPronatecytRubricByCategory, getFestivalRubricBySubcategory, getFestivalRubricByCategory } from "./rubrics.js?v=2";
-import { generateJudgePDF } from "./pdf.js?v=3.23";
+import { generateJudgePDF } from "./pdf.js?v=3.24";
 
 export async function bootstrapJudgePage() {
   bindLogout();
@@ -167,7 +167,6 @@ export async function bootstrapJudgePage() {
     const tipoEval = getSelectedProjectType(projectId);
     try {
       const { error } = await supabase.rpc(draftRpc.save, {
-        p_session_token: user.session_token,
         p_project_id: Number(projectId),
         p_tipo_evaluacion: tipoEval,
         p_draft_data: draftData
@@ -205,7 +204,6 @@ export async function bootstrapJudgePage() {
     const tipoEval = getSelectedProjectType(projectId);
     try {
       const { data, error } = await supabase.rpc(draftRpc.get, {
-        p_session_token: user.session_token,
         p_project_id: Number(projectId),
         p_tipo_evaluacion: tipoEval
       });
@@ -244,7 +242,6 @@ export async function bootstrapJudgePage() {
     if (!projectId) return;
     try {
       await supabase.rpc(draftRpc.remove, {
-        p_session_token: user.session_token,
         p_project_id: Number(projectId),
         p_tipo_evaluacion: getSelectedProjectType(projectId)
       });
@@ -340,7 +337,6 @@ export async function bootstrapJudgePage() {
     const selectedProject = assignedProjectsCache.find((p) => Number(p.id) === Number(projectId));
     const tipoEval = selectedProject?.tipo_evaluacion ?? "Exposición";
     const { data, error } = await supabase.rpc("get_judge_evaluations", {
-      p_session_token: user.session_token,
       p_project_id: Number(projectId),
       p_tipo_evaluacion: tipoEval
     });
@@ -374,7 +370,6 @@ export async function bootstrapJudgePage() {
     const selectedProject = assignedProjectsCache.find((p) => Number(p.id) === Number(projectId));
     const tipoEval = selectedProject?.tipo_evaluacion ?? "Exposición";
     const { data, error } = await supabase.rpc("get_judge_observation", {
-      p_session_token: user.session_token,
       p_project_id: Number(projectId),
       p_tipo_evaluacion: tipoEval
     });
@@ -392,7 +387,6 @@ export async function bootstrapJudgePage() {
 
     try {
       await supabase.rpc("save_observation", {
-        p_session_token: user.session_token,
         p_proyecto_id: projectId,
         p_tipo_evaluacion: tipoEval,
         p_texto: trimmed
@@ -536,9 +530,7 @@ export async function bootstrapJudgePage() {
         setMessage(evaluationStatus, msg, "error");
       }
 
-      const data = await fetchAllRpc("get_judge_evaluations_with_titles", {
-        p_session_token: user.session_token
-      });
+      const data = await fetchAllRpc("get_judge_evaluations_with_titles");
 
       evaluatedKeys = new Set(data.map((e) => String(e.proyecto_id) + "-" + (e.tipo_evaluacion ?? "Exposición")));
       const evaluatedProjectIds = new Set(data.map((e) => e.proyecto_id));
@@ -702,7 +694,6 @@ export async function bootstrapJudgePage() {
 
     try {
       const { error } = await supabase.rpc("save_evaluations_batch", {
-        p_session_token: user.session_token,
         p_proyecto_id: proyectoId,
         p_tipo_evaluacion: tipoEval,
         p_evaluaciones: evaluaciones.map(({ criterio, nota }) => ({ criterio, nota }))

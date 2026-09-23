@@ -1,5 +1,4 @@
 import { normalizeRoleName, fetchAllRpc } from "./utils.js?v=16.15";
-import { getSession } from "./auth.js?v=3.33";
 import { isSessionCacheFresh, mergeRowsById, readSessionCache, writeSessionCache } from "./cache.js?v=3.29";
 import { sortProjectsByNewest } from "./project-order.js?v=1";
 
@@ -12,10 +11,6 @@ const EVALUATIONS_SYNC_INTERVAL_MS = 15000;
 let evaluationsSyncTimer = null;
 let evaluationsVisibilityHandler = null;
 let evaluationsSyncPromise = null;
-
-function sessionToken() {
-    return getSession()?.session_token ?? "";
-}
 
 function readEvaluationsCache() {
     const cache = readSessionCache(EVALUATIONS_CACHE_KEY);
@@ -46,9 +41,7 @@ function saveEvaluationsCache(rows, previousCache = null) {
 }
 
 async function fetchAllEvaluationsFromServer() {
-    const rows = await fetchAllRpc("get_evaluations", {
-        p_session_token: sessionToken()
-    });
+    const rows = await fetchAllRpc("get_evaluations");
     return saveEvaluationsCache(rows).rows;
 }
 
@@ -63,7 +56,6 @@ async function syncEvaluationsFromServer() {
         }
 
         const changedRows = await fetchAllRpc("get_evaluations_since", {
-            p_session_token: sessionToken(),
             p_since: cache.cursor ?? new Date(0).toISOString()
         });
 
@@ -88,9 +80,7 @@ async function syncEvaluationsFromServer() {
 }
 
 export async function loadProjects(feriaType = "") {
-    const projects = await fetchAllRpc("get_projects", {
-        p_session_token: sessionToken()
-    });
+    const projects = await fetchAllRpc("get_projects");
 
     const orderedProjects = sortProjectsByNewest(projects);
 
@@ -103,8 +93,8 @@ export async function loadProjects(feriaType = "") {
 
 export async function loadJudges(feriaType = "") {
     const [users, roles] = await Promise.all([
-        fetchAllRpc("get_users", { p_session_token: sessionToken() }),
-        fetchAllRpc("get_roles", { p_session_token: sessionToken() })
+        fetchAllRpc("get_users"),
+        fetchAllRpc("get_roles")
     ]);
 
     const roleNamesById = new Map(roles.map((role) => [role.id, normalizeRoleName(role.nombre)]));
@@ -117,15 +107,11 @@ export async function loadJudges(feriaType = "") {
 }
 
 export async function loadJudgeAssignments() {
-    return fetchAllRpc("get_assignments", {
-        p_session_token: sessionToken()
-    });
+    return fetchAllRpc("get_assignments");
 }
 
 export async function loadAssignedProjectsForJudge() {
-    const data = await fetchAllRpc("get_judge_projects", {
-        p_session_token: sessionToken()
-    });
+    const data = await fetchAllRpc("get_judge_projects");
 
     return data.map((item) => ({
         ...item,
@@ -134,9 +120,7 @@ export async function loadAssignedProjectsForJudge() {
 }
 
 export async function loadUsers() {
-    return fetchAllRpc("get_users", {
-        p_session_token: sessionToken()
-    });
+    return fetchAllRpc("get_users");
 }
 
 export async function fetchAllEvaluations() {

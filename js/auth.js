@@ -1,6 +1,6 @@
-import { supabase } from "./supabase.js?v=1";
+import { supabase } from "./supabase.js?v=2";
 import { normalizeRoleName, showToast, setupHideOnScroll, openModalAccesible, closeModalAccesible, fetchAllRpc } from "./utils.js?v=16.15";
-import { generateJudgePDF } from "./pdf.js?v=3.23";
+import { generateJudgePDF } from "./pdf.js?v=3.24";
 import { CACHE_SCOPE, clearSessionCache } from "./cache.js?v=3.29";
 import { icon } from "./icons.js?v=1";
 
@@ -16,28 +16,27 @@ export function getSession() {
 }
 
 export function saveSession(user) {
-    sessionStorage.setItem(SESSION_KEY, JSON.stringify(user));
+    const safeUser = { ...user };
+    delete safeUser.session_token;
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify(safeUser));
 }
 
 export async function clearSession() {
-    const user = getSession();
-    if (user?.session_token) {
-        try {
-            await supabase.rpc("logout_session", { p_session_token: user.session_token });
-        } catch { /* ignore */ }
-    }
+    try {
+        await supabase.rpc("logout_session", {});
+    } catch { /* ignore */ }
     sessionStorage.removeItem(SESSION_KEY);
     clearSessionCache(CACHE_SCOPE.ALL);
 }
 
 export async function restoreAppSession() {
     const user = getSession();
-    if (!user?.session_token) return false;
+    const legacyToken = user?.session_token;
 
     try {
-        const { data, error } = await supabase.rpc("restore_session", {
-            p_session_token: user.session_token
-        });
+        const { data, error } = await supabase.rpc("restore_session", legacyToken
+            ? { p_session_token: legacyToken }
+            : {});
 
         if (error) {
             sessionStorage.removeItem(SESSION_KEY);
@@ -54,8 +53,7 @@ export async function restoreAppSession() {
             id: result.user_id,
             nombre: result.user_name,
             role: normalizeRoleName(result.user_role),
-            tipo_feria: result.user_feria ?? null,
-            session_token: user.session_token
+            tipo_feria: result.user_feria ?? null
         });
         return true;
     } catch {
@@ -139,9 +137,7 @@ export function showLogoutModal(user) {
         btn.disabled = true;
         btn.textContent = "Verificando...";
 
-        const evalCheck = await fetchAllRpc("get_judge_evaluations_with_titles", {
-            p_session_token: user.session_token
-        });
+        const evalCheck = await fetchAllRpc("get_judge_evaluations_with_titles");
 
         if (!evalCheck || evalCheck.length === 0) {
             showToast("No tienes evaluaciones guardadas para exportar. Puedes cerrar sesión sin descargar.", "info");
@@ -203,7 +199,6 @@ export async function enforceRole(requiredRole) {
 }
 
 export async function bootstrapLoginPage() {
-  await supabase.auth.signOut().catch(() => {});
   setupHideOnScroll();
   await restoreAppSession();
   const user = getSession();
@@ -270,8 +265,7 @@ export async function bootstrapLoginPage() {
         id: result.user_id,
         nombre: result.user_name,
         role: normalizeRoleName(result.user_role),
-        tipo_feria: result.user_feria ?? null,
-        session_token: result.session_token
+        tipo_feria: result.user_feria ?? null
       });
 
       if (normalizeRoleName(result.user_role) === "Juez") {

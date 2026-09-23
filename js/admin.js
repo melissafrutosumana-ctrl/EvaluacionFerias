@@ -1,8 +1,8 @@
-import { supabase } from "./supabase.js?v=1";
+import { supabase } from "./supabase.js?v=2";
 import { escapeHTML, showToast, setMessage, normalizeRoleName, fillSelect, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, buildFeriaOptions, FESTIVAL_FERIA_NAME, FESTIVAL_CATEGORIES, FESTIVAL_SUBCATEGORIES, FESTIVAL_EDUCATIONAL_LEVELS, EXPOTECNICA_CATEGORIES, EXPOTECNICA_EJES, PRONAFECYT_CATEGORIES, PRONAFECYT_EDUCATIONAL_CATEGORIES, PRONAFECYT_C_RAW_MAX, updateProjectFormFieldsByFeria, getResultCategoryGroupLabel, getFestivalProjectLabel, showSkeleton, confirmDialog, PRONAFECYT_BY_NIVEL, getNivelFromPronatecyt, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore, openModalAccesible, closeModalAccesible, normalizeSearchText, paginateItems, getJudgeProgressLabel } from "./utils.js?v=16.15";
-import { getSession, enforceRole, hashPassword, bindLogout } from "./auth.js?v=3.33";
-import { loadProjects, loadJudgeAssignments, loadUsers, fetchAllEvaluations, fetchAllRpc, startEvaluationsSync } from "./data.js?v=3.31";
-import { generateAdminPDF } from "./pdf.js?v=3.23";
+import { enforceRole, hashPassword, bindLogout } from "./auth.js?v=3.34";
+import { loadProjects, loadJudgeAssignments, loadUsers, fetchAllEvaluations, fetchAllRpc, startEvaluationsSync } from "./data.js?v=3.32";
+import { generateAdminPDF } from "./pdf.js?v=3.24";
 import { icon } from "./icons.js?v=1";
 import { CACHE_SCOPE, clearSessionCache } from "./cache.js?v=3.29";
 
@@ -619,7 +619,6 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
             if (submitButton) { submitButton.disabled = true; submitButton.textContent = "Guardando…"; }
             if (deleteButton) deleteButton.disabled = true;
             const { error } = await supabase.rpc("admin_set_manual_escrito", {
-                p_session_token: getSession()?.session_token,
                 p_project_id: Number(projectId),
                 p_score: num
             });
@@ -982,7 +981,6 @@ function openAssignmentModal(judgeId, judgeName, allProjects, currentAssignments
       }));
 
       const { error } = await supabase.rpc("admin_save_assignments", {
-        p_session_token: getSession().session_token,
         p_juez_id: judgeId,
         p_assignments: assignmentsPayload
       });
@@ -1137,7 +1135,7 @@ export async function bootstrapAdminPage() {
     setAdminLoadState("loading", "Cargando datos…");
 
     const [roles, reportData] = await Promise.all([
-      needsRoles ? fetchAllRpc("get_roles", { p_session_token: getSession()?.session_token }) : Promise.resolve([]),
+      needsRoles ? fetchAllRpc("get_roles") : Promise.resolve([]),
       loadAdminReportData({
         includeUsers: needsUsers,
         includeProjects: needsProjects,
@@ -1219,7 +1217,6 @@ export async function bootstrapAdminPage() {
       try {
         const contrasenaHash = await hashPassword(contrasena);
         const { error } = await supabase.rpc("admin_insert_user", {
-          p_session_token: user.session_token,
           p_nombre: nombre,
           p_role_id: roleId,
           p_contrasena_hash: contrasenaHash,
@@ -1320,7 +1317,6 @@ export async function bootstrapAdminPage() {
         };
 
         const { error } = await supabase.rpc("admin_save_project", {
-          p_session_token: user.session_token,
           p_data: payload
         });
 
@@ -1374,7 +1370,7 @@ export async function bootstrapAdminPage() {
       if (editBtn) {
         try {
           const userData = JSON.parse(editBtn.dataset.editUser);
-          const roles = await fetchAllRpc("get_roles", { p_session_token: getSession()?.session_token });
+          const roles = await fetchAllRpc("get_roles");
           showEditUserModal(userData, roles);
         } catch {
           showEditUserModal({ id: 0, nombre: "", role_id: 0, tipo_feria: "" }, []);
@@ -1403,7 +1399,7 @@ export async function bootstrapAdminPage() {
 
       if (editBtn) {
         const projectId = Number(editBtn.dataset.projectId);
-        const { data, error } = await supabase.rpc("get_project", { p_session_token: getSession()?.session_token, p_project_id: projectId });
+        const { data, error } = await supabase.rpc("get_project", { p_project_id: projectId });
         const projectData = Array.isArray(data) ? data[0] : data;
         if (error || !projectData) {
           showToast("Error al leer datos del proyecto.", "error");
@@ -1434,7 +1430,6 @@ export async function bootstrapAdminPage() {
 
       try {
         const { error } = await supabase.rpc("admin_delete_project", {
-          p_session_token: getSession()?.session_token,
           p_project_id: projectId
         });
 
@@ -1468,7 +1463,7 @@ export async function bootstrapAdminPage() {
 
   const exportBtn = document.getElementById("export-pdf-btn");
   if (exportBtn) {
-    exportBtn.addEventListener("click", () => generateAdminPDF(getSession()?.session_token));
+    exportBtn.addEventListener("click", () => generateAdminPDF());
   }
 
   if (document.querySelector("[data-observaciones-groups]")) {
@@ -1560,8 +1555,8 @@ async function renderAdminObservaciones(feriaType = "", proyectoFilter, juezFilt
     try {
       [usersResult, projectsResult, observacionesResult] = await Promise.all([
         loadUsers(),
-        fetchAllRpc("get_projects", { p_session_token: getSession()?.session_token }),
-        fetchAllRpc("get_observations", { p_session_token: getSession()?.session_token })
+        fetchAllRpc("get_projects"),
+        fetchAllRpc("get_observations")
       ]);
       setCache?.([usersResult, projectsResult, observacionesResult]);
     } catch (error) {
@@ -1857,7 +1852,6 @@ async function updateUser(userId, nombre, contrasena, tipoFeria, roleId) {
   const contrasenaHash = contrasena ? await hashPassword(contrasena) : null;
 
   const { error } = await supabase.rpc("admin_update_user", {
-    p_session_token: getSession()?.session_token,
     p_user_id: userId,
     p_nombre: nombre,
     p_role_id: roleId,
@@ -2222,7 +2216,6 @@ function showEditProjectModal(project) {
 
 async function updateProject(projectId, data) {
   const { error } = await supabase.rpc("admin_save_project", {
-    p_session_token: getSession()?.session_token,
     p_data: { id: projectId, ...data }
   });
   if (error) throw error;
@@ -2230,7 +2223,6 @@ async function updateProject(projectId, data) {
 
 async function deleteUser(userId) {
   const { error } = await supabase.rpc("admin_delete_user", {
-    p_session_token: getSession()?.session_token,
     p_user_id: userId
   });
   if (error) throw error;

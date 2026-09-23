@@ -1,30 +1,51 @@
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+const RPC_ENDPOINT = "/api/rpc";
 
-const localConfig = globalThis.__ENV__ ?? {};
+function createRpcRequest(functionName, params) {
+  let range;
 
-async function loadSupabaseConfig() {
-  if (localConfig.SUPABASE_URL && (localConfig.SUPABASE_PUBLISHABLE_KEY || localConfig.SUPABASE_KEY)) {
-    return localConfig;
-  }
+  const request = {
+    range(start, end) {
+      range = { start, end };
+      return request;
+    },
+    then(onFulfilled, onRejected) {
+      return executeRpc(functionName, params, range).then(onFulfilled, onRejected);
+    }
+  };
 
-  const response = await fetch("/api/config", {
-    headers: { Accept: "application/json" },
-    cache: "no-store"
-  });
-
-  if (!response.ok) {
-    throw new Error("No se pudo cargar la configuración de Supabase.");
-  }
-
-  return response.json();
+  return request;
 }
 
-const config = await loadSupabaseConfig();
-const SUPABASE_URL = config.SUPABASE_URL;
-const SUPABASE_KEY = config.SUPABASE_PUBLISHABLE_KEY ?? config.SUPABASE_KEY;
+async function executeRpc(functionName, params, range) {
+  const safeParams = { ...params };
+  if (functionName !== "restore_session") delete safeParams.p_session_token;
 
-if (!SUPABASE_URL || !SUPABASE_KEY) {
-  throw new Error("Faltan SUPABASE_URL o SUPABASE_PUBLISHABLE_KEY.");
+  const headers = { "Content-Type": "application/json", "X-App-Request": "1" };
+  if (range) {
+    headers.Range = `${range.start}-${range.end}`;
+    headers["Range-Unit"] = "items";
+  }
+
+  try {
+    const response = await fetch(RPC_ENDPOINT, {
+      method: "POST",
+      credentials: "same-origin",
+      headers,
+      body: JSON.stringify({ functionName, params: safeParams })
+    });
+    const responseText = await response.text();
+    const result = responseText ? JSON.parse(responseText) : null;
+
+    if (!response.ok) {
+      return { data: null, error: result.error ?? { message: "La solicitud no se pudo completar." } };
+    }
+
+    return { data: result?.data ?? null, error: null };
+  } catch (error) {
+    return { data: null, error: { message: error.message || "No se pudo conectar con el servidor." } };
+  }
 }
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+export const supabase = {
+  rpc: createRpcRequest
+};

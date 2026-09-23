@@ -1,0 +1,18 @@
+# Local secrets and deployment metadata
+.env*
+!.env.example
+.vercel/
+*.pem
+*.p12
+*.pfx
+*.key
+
+# Dependencies and generated local files
+node_modules/
+npm-debug.log*
+*.log
+*.dump
+*.bak
+*.backup
+.DS_Store
+Thumbs.db

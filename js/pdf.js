@@ -1,7 +1,7 @@
-import { supabase } from "./supabase.js?v=1";
+import { supabase } from "./supabase.js?v=2";
 import { showToast, FESTIVAL_FERIA_NAME, PRONAFECYT_CODE_MAX, getFestivalProjectLabel, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore } from "./utils.js?v=16.15";
 import { getExpotecnicaRubricByCategory, getFestivalRubricBySubcategory } from "./rubrics.js?v=2";
-import { loadUsers, fetchAllEvaluations, fetchAllRpc } from "./data.js?v=3.31";
+import { loadUsers, fetchAllEvaluations, fetchAllRpc } from "./data.js?v=3.32";
 
 let jspdfPromise = null;
 
@@ -10,7 +10,7 @@ export function loadJSPDF() {
     if (jspdfPromise) return jspdfPromise;
     jspdfPromise = new Promise((resolve, reject) => {
         const s = document.createElement("script");
-        s.src = "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+        s.src = "/vendor/pdf/jspdf-4.2.1.umd.min.js";
         s.onload = () => {
             if (window.jspdf ?.jsPDF) resolve();
             else reject(new Error("jsPDF not found after load"));
@@ -57,7 +57,7 @@ export function loadAutoTable() {
         if (!script.parentNode) {
             script.dataset.autotable = "1";
             script.dataset.autotableStatus = "loading";
-            script.src = "https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/5.0.8/jspdf.plugin.autotable.min.js";
+            script.src = "/vendor/pdf/jspdf-autotable-5.0.8.min.js";
             document.head.appendChild(script);
         } else if (hasAutoTable()) {
             finish();
@@ -337,8 +337,8 @@ export async function generateJudgePDF(user) {
     await loadAutoTable();
     const logoData = await loadMEPLogo();
     const [evalResult, projectsData] = await Promise.all([
-        fetchAllRpc("get_judge_evaluations_with_titles", { p_session_token: user.session_token }),
-        fetchAllRpc("get_judge_projects", { p_session_token: user.session_token })
+        fetchAllRpc("get_judge_evaluations_with_titles"),
+        fetchAllRpc("get_judge_projects")
     ]);
     const data = evalResult;
     if (!data || !data.length) {
@@ -356,7 +356,6 @@ export async function generateJudgePDF(user) {
     const obsResults = await Promise.all(
         [...uniqueCombos.values()].map((c) =>
             supabase.rpc("get_judge_observation", {
-                p_session_token: user.session_token,
                 p_project_id: c.pid,
                 p_tipo_evaluacion: c.tipo
             }).then((r) => ({ key: `${c.pid}-${c.tipo}`, data: r.data, error: r.error }))
@@ -670,15 +669,15 @@ export function pdfSubHeader(doc, title, y) {
 }
 
 
-export async function generateAdminPDF(sessionToken) {
+export async function generateAdminPDF() {
   await loadJSPDF();
   const logoData = await loadMEPLogo();
   try {
     const [users, projectsResult, evaluations, assignmentsResult] = await Promise.all([
       loadUsers(),
-      fetchAllRpc("get_projects", { p_session_token: sessionToken }),
+      fetchAllRpc("get_projects"),
       fetchAllEvaluations(),
-      fetchAllRpc("get_assignments", { p_session_token: sessionToken })
+      fetchAllRpc("get_assignments")
     ]);
     const filterEl = document.querySelector("[data-feria-results-filter]");
     const selectedFeria = filterEl ? filterEl.value : "";
