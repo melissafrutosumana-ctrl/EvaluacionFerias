@@ -11,6 +11,14 @@
     --ink: #1a2332;
     --ink-secondary: #5b677d;
     --gold-strong: #7a5d12;
+    --status-error: #b91c1c;
+    --status-error-bg: rgba(185, 28, 28, 0.06);
+    --status-success: #166534;
+    --status-success-bg: rgba(22, 101, 52, 0.06);
+    --evaluation-expo-bg: #dbeafe;
+    --evaluation-expo-ink: #1e40af;
+    --evaluation-written-bg: #fce7f3;
+    --evaluation-written-ink: #9d174d;
     --focus-ring: #1a3f7a;
     --focus-ring-offset: 2px;
     --border: #e4e8ee;
@@ -1022,14 +1030,16 @@ body.nav-open[data-page="judge"] main {
     line-height: 1.5;
 }
 
-.filter-status[data-kind="error"] {
-    color: #b91c1c;
-    background: rgba(185, 28, 28, 0.06);
+.filter-status[data-kind="error"],
+.form-status[data-kind="error"] {
+    color: var(--status-error);
+    background: var(--status-error-bg);
 }
 
-.filter-status[data-kind="success"] {
-    color: #166534;
-    background: rgba(22, 101, 52, 0.06);
+.filter-status[data-kind="success"],
+.form-status[data-kind="success"] {
+    color: var(--status-success);
+    background: var(--status-success-bg);
 }
 
 
@@ -1389,15 +1399,11 @@ body[data-page="admin"] .quick-nav-link.active:focus-visible {
 }
 
 .form-status[data-kind="error"] {
-    color: #b91c1c;
-    background: rgba(185, 28, 28, 0.06);
-    border: 1px solid rgba(185, 28, 28, 0.1);
+    border: 1px solid color-mix(in srgb, var(--status-error) 14%, transparent);
 }
 
 .form-status[data-kind="success"] {
-    color: #166534;
-    background: rgba(22, 101, 52, 0.06);
-    border: 1px solid rgba(22, 101, 52, 0.1);
+    border: 1px solid color-mix(in srgb, var(--status-success) 14%, transparent);
 }
 
 .form-status:empty {
@@ -1801,13 +1807,13 @@ body[data-page="admin"] [data-users-table] tr td {
 }
 
 .evaluation-type-badge[data-tipo="Exposición"] {
-    background: #dbeafe;
-    color: #1e40af;
+    background: var(--evaluation-expo-bg);
+    color: var(--evaluation-expo-ink);
 }
 
 .evaluation-type-badge[data-tipo="Escrito"] {
-    background: #fce7f3;
-    color: #9d174d;
+    background: var(--evaluation-written-bg);
+    color: var(--evaluation-written-ink);
 }
 
 
@@ -4088,17 +4094,17 @@ body.modal-open {
 }
 
 .tipo-badge--expo {
-    background: #dbeafe;
-    color: #1e40af;
+    background: var(--evaluation-expo-bg);
+    color: var(--evaluation-expo-ink);
 }
 
 .tipo-badge--escrito {
-    background: #fce7f3;
-    color: #9d174d;
+    background: var(--evaluation-written-bg);
+    color: var(--evaluation-written-ink);
 }
 
 .text-muted {
-    color: #94a3b8;
+    color: var(--ink-secondary);
     font-style: italic;
 }
 
@@ -5513,10 +5519,10 @@ body[data-page="login"] .login-form button:active {
 /* --- Sistema compartido para las pantallas administrativas --- */
 .admin-page-intro {
     align-items: flex-end;
-    background: linear-gradient(135deg, #102f68 0%, #173f82 72%, #24569a 100%);
-    border: 1px solid rgba(16, 47, 104, 0.18);
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 72%, var(--primary-light) 100%);
+    border: 1px solid color-mix(in srgb, var(--primary) 18%, transparent);
     border-radius: 18px;
-    box-shadow: 0 14px 30px rgba(16, 47, 104, 0.12);
+    box-shadow: 0 14px 30px color-mix(in srgb, var(--primary-dark) 12%, transparent);
     color: #fff;
     display: flex;
     justify-content: space-between;
@@ -5527,7 +5533,7 @@ body[data-page="login"] .login-form button:active {
 }
 
 .admin-page-intro::after {
-    background: rgba(220, 177, 78, 0.92);
+    background: var(--secondary-light);
     border-radius: 999px;
     content: "";
     height: 4px;
@@ -5538,7 +5544,7 @@ body[data-page="login"] .login-form button:active {
 }
 
 .admin-page-intro .eyebrow {
-    color: #efd287;
+    color: var(--secondary-light);
     display: block;
     font-size: 0.7rem;
     font-weight: 700;
@@ -5589,10 +5595,10 @@ body[data-page="login"] .login-form button:active {
 /* --- Jerarquia visual renovada para resultados y juez --- */
 .page-intro {
     align-items: flex-end;
-    background: linear-gradient(135deg, #102f68 0%, #173f82 72%, #24569a 100%);
-    border: 1px solid rgba(16, 47, 104, 0.18);
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 72%, var(--primary-light) 100%);
+    border: 1px solid color-mix(in srgb, var(--primary) 18%, transparent);
     border-radius: 18px;
-    box-shadow: 0 14px 30px rgba(16, 47, 104, 0.12);
+    box-shadow: 0 14px 30px color-mix(in srgb, var(--primary-dark) 12%, transparent);
     color: #fff;
     display: flex;
     justify-content: space-between;
@@ -5603,7 +5609,7 @@ body[data-page="login"] .login-form button:active {
 }
 
 .page-intro::after {
-    background: rgba(220, 177, 78, 0.92);
+    background: var(--secondary-light);
     border-radius: 999px;
     content: "";
     height: 4px;
@@ -5614,7 +5620,7 @@ body[data-page="login"] .login-form button:active {
 }
 
 .page-intro .eyebrow {
-    color: #efd287;
+    color: var(--secondary-light);
     display: block;
     font-size: 0.7rem;
     font-weight: 700;
@@ -5646,20 +5652,6 @@ body[data-page="login"] .login-form button:active {
     margin-right: 0.1rem;
     user-select: none;
 }
-
-body[data-page="admin"][data-admin-view="results"] #main-content {
-    display: flex;
-    flex-direction: column;
-}
-
-body[data-page="admin"][data-admin-view="results"] #main-content > .identity-bar { order: 1; }
-body[data-page="admin"][data-admin-view="results"] #main-content > .quick-nav { order: 2; }
-body[data-page="admin"][data-admin-view="results"] #main-content > .results-page-intro { order: 3; }
-body[data-page="admin"][data-admin-view="results"] #main-content > .results-filter-card { order: 4; }
-body[data-page="admin"][data-admin-view="results"] #main-content > .results-summary { order: 5; }
-body[data-page="admin"][data-admin-view="results"] #main-content > .results-section-scores { order: 6; }
-body[data-page="admin"][data-admin-view="results"] #main-content > .results-section-evaluations { order: 7; }
-body[data-page="admin"][data-admin-view="results"] #main-content > .results-section-projects { order: 8; }
 
 .results-filter-card {
     align-items: center;
@@ -5791,7 +5783,7 @@ body[data-page="judge"] .rubric-table {
 }
 
 body[data-page="judge"] .rubric-table thead th {
-    background: #102f68;
+    background: var(--primary-dark);
 }
 
 @media (max-width: 700px) {
@@ -6218,7 +6210,7 @@ body[data-page="judge"] .rubric-table thead th {
 
     body[data-page="admin"] .quick-nav {
         display: grid;
-        grid-template-columns: repeat(5, minmax(0, 1fr));
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 0.4rem;
         margin: -0.25rem 0 0.9rem;
         padding: 0.25rem 0;
@@ -6233,8 +6225,8 @@ body[data-page="judge"] .rubric-table thead th {
         gap: 0.25rem;
         padding: 0.45rem 0.25rem;
         text-align: center;
-        font-size: 0.67rem;
-        line-height: 1.15;
+        font-size: 0.75rem;
+        line-height: 1.2;
         white-space: normal;
         overflow-wrap: anywhere;
         word-break: break-word;
@@ -6272,7 +6264,7 @@ body[data-page="judge"] .rubric-table thead th {
 
     body[data-page="admin"] .card-header .btn-sm {
         margin-left: auto;
-        min-height: 40px;
+        min-height: 44px;
         padding: 0.45rem 0.65rem;
         font-size: 0.74rem;
     }
@@ -6412,8 +6404,8 @@ body[data-page="judge"] .rubric-table thead th {
     }
 
     body[data-page="admin"] .quick-nav-link {
-        min-height: 46px;
-        font-size: 0.62rem;
+        min-height: 48px;
+        font-size: 0.74rem;
     }
 
     body[data-page="admin"] .quick-nav-link svg {
@@ -6848,7 +6840,16 @@ body[data-page="judge"] .rubric-table thead th {
     /* --- Tablas de admin en tarjetas --- */
     body[data-page="admin"] .results-table thead,
     body[data-page="admin"] .eval-table thead {
-        display: none;
+        position: absolute !important;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        clip-path: inset(50%);
+        white-space: nowrap;
+        border: 0;
     }
     body[data-page="admin"] .results-table,
     body[data-page="admin"] .results-table tbody,
@@ -6913,7 +6914,7 @@ body[data-page="judge"] .rubric-table thead th {
         border-left: 4px solid var(--secondary);
     }
     .category-group-context {
-        font-size: 0.65rem;
+        font-size: 0.75rem;
         letter-spacing: 0.06em;
     }
     .category-group-level {
@@ -6922,7 +6923,7 @@ body[data-page="judge"] .rubric-table thead th {
         align-self: start;
         min-height: 1.8rem;
         padding: 0.3rem 0.55rem;
-        font-size: 0.68rem;
+        font-size: 0.75rem;
         white-space: normal;
     }
     .category-group-heading .category-winner {
@@ -6930,7 +6931,7 @@ body[data-page="judge"] .rubric-table thead th {
         justify-self: stretch;
         width: auto;
         min-height: 1.8rem;
-        font-size: 0.68rem;
+        font-size: 0.75rem;
     }
     .category-winner {
         display: flex;
@@ -6979,7 +6980,8 @@ body[data-page="judge"] .rubric-table thead th {
         font-size: 0.92rem;
     }
     [data-admin-projects] td:nth-child(1)::before { content: "Proyecto"; }
-    [data-admin-projects] td:nth-child(2)::before { content: "ID"; }
+    [data-admin-projects] td:nth-child(2)::before { content: "Estado de evaluación"; }
+    [data-admin-projects] td:nth-child(3)::before { content: "ID"; }
     [data-project-results] td:nth-child(1)::before { content: "Proyecto"; }
     [data-project-results] td:nth-child(2)::before { content: "Exposición"; }
     [data-project-results] td:nth-child(3)::before { content: "Escrito"; }
@@ -7037,5 +7039,126 @@ body[data-page="judge"] .rubric-table thead th {
     .edit-project-modal .form-actions .btn-primary,
     .edit-project-modal .form-actions .btn-secondary {
         width: 100%;
+    }
+}
+
+.results-search-card {
+    display: grid;
+    grid-template-columns: minmax(12rem, 0.4fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 0.5rem 1rem;
+    margin-bottom: 1rem;
+}
+
+.results-search-card .field-label {
+    margin: 0;
+}
+
+.results-search-card input {
+    width: 100%;
+    min-height: 44px;
+    padding: 0.65rem 0.8rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--ink);
+    font: inherit;
+    font-size: 16px;
+}
+
+.evaluation-status {
+    display: inline-flex;
+    align-items: center;
+    max-width: 100%;
+    padding: 0.3rem 0.55rem;
+    border: 1px solid transparent;
+    border-radius: var(--radius-full);
+    font-size: var(--text-xs);
+    font-weight: 700;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
+.evaluation-status.is-complete {
+    border-color: color-mix(in srgb, var(--status-success) 18%, transparent);
+    background: var(--status-success-bg);
+    color: var(--status-success);
+}
+
+.evaluation-status.is-pending {
+    border-color: var(--border);
+    background: var(--surface-alt);
+    color: var(--ink-secondary);
+}
+
+.results-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-top: 0.85rem;
+    color: var(--ink-secondary);
+    font-size: var(--text-sm);
+}
+
+.results-pagination:empty {
+    display: none;
+}
+
+.results-pagination-controls {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+}
+
+.results-pagination-controls button {
+    min-height: 44px;
+}
+
+.field-error {
+    display: block;
+    margin-top: 0.3rem;
+    color: var(--status-error);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.project-form [aria-invalid="true"] {
+    border-color: var(--status-error) !important;
+    box-shadow: 0 0 0 3px var(--status-error-bg) !important;
+}
+
+@media (max-width: 700px) {
+    .results-search-card {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0.35rem;
+    }
+
+    .results-pagination {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .results-pagination-controls {
+        justify-content: space-between;
+    }
+
+    body[data-page="admin"] button,
+    body[data-page="judge"] button,
+    body[data-page="judge"] .rubric-radio-label,
+    body[data-page="admin"] .assignment-tipo-select {
+        min-height: 44px;
+    }
+
+    body[data-page="admin"] .results-table tbody td:last-child button,
+    body[data-page="admin"] .eval-table tbody td:last-child button {
+        min-height: 44px;
+    }
+}
+
+@media (max-width: 380px) {
+    body[data-page="admin"] .quick-nav {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }

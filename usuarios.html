@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/styles.css?v=17.30">
+    <link rel="stylesheet" href="/css/styles.css?v=17.31">
 </head>
 <body data-page="admin">
 
@@ -58,6 +58,8 @@
             </div>
             <span class="page-intro-mark" aria-hidden="true"><span>0</span><span>1</span></span>
         </section>
+
+        <p class="form-status" data-admin-load-status role="status" aria-live="polite"></p>
 
         <section class="card form-card admin-content-card">
             <div class="card-header">
@@ -111,23 +113,23 @@
             </div>
             <p class="form-status" data-users-table-status role="alert" aria-live="polite"></p>
             <div class="table-wrap">
-                <table class="results-table">
-                    <thead>
-                        <tr>
-                            <th>Nombre</th>
-                            <th>Rol</th>
-                            <th>Tipo de feria</th>
-                            <th>Accion</th>
+                <table class="results-table" role="table">
+                    <thead role="rowgroup">
+                        <tr role="row">
+                            <th id="users-name" role="columnheader" scope="col">Nombre</th>
+                            <th id="users-role" role="columnheader" scope="col">Rol</th>
+                            <th id="users-fair" role="columnheader" scope="col">Tipo de feria</th>
+                            <th id="users-actions" role="columnheader" scope="col">Accion</th>
                         </tr>
                     </thead>
-                    <tbody data-users-table></tbody>
+                    <tbody data-users-table role="rowgroup"></tbody>
                 </table>
             </div>
         </section>
     </main>
 
     <script type="module" src="/js/icons.js?v=1"></script>
-    <script type="module" src="/js/main.js?v=3.43"></script>
+    <script type="module" src="/js/main.js?v=3.44"></script>
 </body>
 
 </html>

@@ -1,5 +1,5 @@
 import { supabase } from "./supabase.js?v=1";
-import { normalizeRoleName, showToast, setupHideOnScroll, openModalAccesible, closeModalAccesible, fetchAllRpc } from "./utils.js?v=16.14";
+import { normalizeRoleName, showToast, setupHideOnScroll, openModalAccesible, closeModalAccesible, fetchAllRpc } from "./utils.js?v=16.15";
 import { generateJudgePDF } from "./pdf.js?v=3.23";
 import { CACHE_SCOPE, clearSessionCache } from "./cache.js?v=3.29";
 import { icon } from "./icons.js?v=1";

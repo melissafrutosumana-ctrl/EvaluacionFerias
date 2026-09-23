@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/styles.css?v=17.30">
+    <link rel="stylesheet" href="/css/styles.css?v=17.31">
 </head>
 <body data-page="admin">
 
@@ -67,17 +67,17 @@
                 </h2>
             </div>
             <p>Asigna proyectos a cada juez desde esta tabla.</p>
-            <p class="form-status" role="alert" aria-live="polite"></p>
+            <p class="form-status" data-admin-load-status role="status" aria-live="polite"></p>
             <div class="table-wrap">
-                <table class="results-table assignments-table">
-                    <thead>
-                        <tr>
-                            <th>Juez</th>
-                            <th>Proyectos asignados</th>
-                            <th>Accion</th>
+                <table class="results-table assignments-table" role="table">
+                    <thead role="rowgroup">
+                        <tr role="row">
+                            <th id="assignment-judge" role="columnheader" scope="col">Juez</th>
+                            <th id="assignment-projects" role="columnheader" scope="col">Proyectos asignados</th>
+                            <th id="assignment-actions" role="columnheader" scope="col">Accion</th>
                         </tr>
                     </thead>
-                    <tbody data-judge-assignments></tbody>
+                    <tbody data-judge-assignments role="rowgroup"></tbody>
                 </table>
             </div>
         </section>
@@ -122,7 +122,7 @@
     </div>
 
     <script type="module" src="/js/icons.js?v=1"></script>
-    <script type="module" src="/js/main.js?v=3.43"></script>
+    <script type="module" src="/js/main.js?v=3.44"></script>
 </body>
 
 </html>

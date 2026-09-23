@@ -639,6 +639,38 @@ export function escapeHTML(value) {
         .replaceAll("'", "&#39;");
 }
 
+export function normalizeSearchText(value) {
+    return String(value ?? "")
+        .trim()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
+}
+
+export function paginateItems(items, page, pageSize = 20) {
+    const safePageSize = Number.isInteger(pageSize) && pageSize > 0 ? pageSize : 20;
+    const totalItems = items.length;
+    const totalPages = Math.max(1, Math.ceil(totalItems / safePageSize));
+    const currentPage = Math.min(totalPages, Math.max(1, Math.trunc(Number(page) || 1)));
+    const startIndex = (currentPage - 1) * safePageSize;
+
+    return {
+        items: items.slice(startIndex, startIndex + safePageSize),
+        currentPage,
+        totalPages,
+        totalItems,
+        startIndex
+    };
+}
+
+export function getJudgeProgressLabel(votedCount, assignedCount) {
+    const assigned = Math.max(0, Math.trunc(Number(assignedCount) || 0));
+    if (assigned === 0) return "Sin jueces asignados";
+
+    const voted = Math.min(assigned, Math.max(0, Math.trunc(Number(votedCount) || 0)));
+    return `${voted}/${assigned} jueces (${Math.round(voted / assigned * 100)}%)`;
+}
+
 export function setupHamburgerMenu() {
     const hamburger = document.querySelector("[data-hamburger]");
     const header = document.querySelector("header");
@@ -714,7 +746,7 @@ export function renderJudgeRubric(indicators, scoreOptions = null) {
 
     if (headRow) {
         if (hasPerIndicatorMax) {
-            headRow.innerHTML = "<th>Indicadores a evaluar</th><th>Puntaje</th>";
+            headRow.innerHTML = '<th scope="col">Indicadores a evaluar</th><th scope="col">Puntaje</th>';
         } else {
             const options = scoreOptions && scoreOptions.length ?
                 scoreOptions : [
@@ -722,10 +754,10 @@ export function renderJudgeRubric(indicators, scoreOptions = null) {
                     { value: 2, label: "2" },
                     { value: 1, label: "1" },
                     { value: 0, label: "0" }
-                ];
+            ];
             headRow.innerHTML = [
-                "<th>Indicadores a evaluar</th>",
-                ...options.map((item) => `<th>${escapeHTML(item.label)}</th>`)
+                '<th scope="col">Indicadores a evaluar</th>',
+                ...options.map((item) => `<th scope="col">${escapeHTML(item.label)}</th>`)
             ].join("");
         }
     }
@@ -751,7 +783,7 @@ export function renderJudgeRubric(indicators, scoreOptions = null) {
         if (hasPerIndicatorMax) {
             const radios = [];
             for (let v = max; v >= 0; v--) {
-                radios.push(`<label class="rubric-radio-label rubric-radio-inline"><input type="radio" name="${fieldName}" value="${v}" ${v === max ? "required" : ""}><span>${v}</span></label>`);
+                radios.push(`<label class="rubric-radio-label rubric-radio-inline"><input type="radio" name="${fieldName}" value="${v}" aria-label="${escapeHTML(`${text}: ${v} puntos`)}" ${v === max ? "required" : ""}><span>${v}</span></label>`);
             }
             rows.push(`<tr><td>${escapeHTML(text)}</td><td><div class="rubric-radios">${radios.join("")}</div></td></tr>`);
         } else {
@@ -764,7 +796,7 @@ export function renderJudgeRubric(indicators, scoreOptions = null) {
                 ];
             const cells = options
                 .map(
-                    (opt, oi) => `<td><label class="rubric-radio-label rubric-radio-inline"><input type="radio" name="${fieldName}" value="${opt.value}" ${oi === 0 ? "required" : ""}><span>${escapeHTML(opt.label)}</span></label></td>`
+                    (opt, oi) => `<td><label class="rubric-radio-label rubric-radio-inline"><input type="radio" name="${fieldName}" value="${opt.value}" aria-label="${escapeHTML(`${text}: ${opt.label} puntos`)}" ${oi === 0 ? "required" : ""}><span>${escapeHTML(opt.label)}</span></label></td>`
                 )
                 .join("");
             rows.push(`<tr><td>${escapeHTML(text)}</td>${cells}</tr>`);

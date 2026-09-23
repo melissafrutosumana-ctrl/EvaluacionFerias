@@ -1,7 +1,7 @@
 import { initIcons } from "./icons.js?v=1";
 import { bootstrapLoginPage } from "./auth.js?v=3.33";
-import { bootstrapJudgePage } from "./judge.js?v=3.33";
-import { bootstrapAdminPage } from "./admin.js?v=3.43";
+import { bootstrapJudgePage } from "./judge.js?v=3.34";
+import { bootstrapAdminPage } from "./admin.js?v=3.44";
 
 async function bootstrapApp() {
   initIcons();

@@ -1,5 +1,5 @@
 import { supabase } from "./supabase.js?v=1";
-import { escapeHTML, showToast, setMessage, fillSelectGroupedByTipo, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, FESTIVAL_FERIA_NAME, getFestivalProjectLabel, renderJudgeRubric } from "./utils.js?v=16.14";
+import { escapeHTML, showToast, setMessage, fillSelectGroupedByTipo, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, FESTIVAL_FERIA_NAME, getFestivalProjectLabel, renderJudgeRubric } from "./utils.js?v=16.15";
 import { enforceRole, bindLogout } from "./auth.js?v=3.33";
 import { icon } from "./icons.js?v=1";
 import { loadAssignedProjectsForJudge, fetchAllRpc } from "./data.js?v=3.31";
@@ -31,6 +31,7 @@ export async function bootstrapJudgePage() {
 
   const evaluationForm = document.querySelector("[data-evaluation-form]");
   const evaluationStatus = document.querySelector("[data-evaluation-form-status]");
+  const evaluationSaveStatus = document.querySelector("[data-evaluation-save-status]");
   const myEvaluationsStatus = document.querySelector("[data-my-evaluations-status]");
   const myEvaluationsList = document.querySelector("[data-my-evaluations]");
   const projectSelect = document.querySelector("[data-project-select]");
@@ -688,51 +689,46 @@ export async function bootstrapJudgePage() {
     });
 
     if (!proyectoId || evaluaciones.some((item) => Number.isNaN(item.nota))) {
-      showToast("Completa todos los campos de la evaluacion.", "error");
+      setMessage(evaluationStatus, "Completa todos los campos de la evaluación.", "error");
       return;
     }
 
+    setMessage(evaluationSaveStatus, "", "info");
     btn.disabled = true;
     btn.textContent = "Guardando...";
 
-      const selectedProject = assignedProjectsCache.find((p) => Number(p.id) === Number(proyectoId));
-      const tipoEval = selectedProject?.tipo_evaluacion ?? "Exposición";
+    const selectedProject = assignedProjectsCache.find((p) => Number(p.id) === Number(proyectoId));
+    const tipoEval = selectedProject?.tipo_evaluacion ?? "Exposición";
 
-      try {
-        const payload = evaluaciones.map((item) => ({
-          proyecto_id: proyectoId,
-          juez_id: user.id,
-          tipo_evaluacion: tipoEval,
-          criterio: item.criterio,
-          nota: item.nota
-        }));
-
-        for (const item of payload) {
-          const { error } = await supabase.rpc("save_evaluation", {
-            p_session_token: user.session_token,
-            p_proyecto_id: item.proyecto_id,
-            p_criterio: item.criterio,
-            p_nota: item.nota,
-            p_tipo_evaluacion: item.tipo_evaluacion
-          });
-          if (error) throw error;
-        }
-
-        const observacionTexto = String(formData.get("observacion") ?? "");
-        try { await saveObservacion(proyectoId, user.id, tipoEval, observacionTexto); } catch { /* ignorar */ } // ponytail: fallo silencioso si tabla no existe
+    try {
+      const { error } = await supabase.rpc("save_evaluations_batch", {
+        p_session_token: user.session_token,
+        p_proyecto_id: proyectoId,
+        p_tipo_evaluacion: tipoEval,
+        p_evaluaciones: evaluaciones.map(({ criterio, nota }) => ({ criterio, nota }))
+      });
+      if (error) throw error;
 
       clearTimeout(draftSaveTimer);
       await deleteDraft(proyectoId);
-
+      const observacionTexto = String(formData.get("observacion") ?? "");
+      await saveObservacion(proyectoId, user.id, tipoEval, observacionTexto);
       evaluationForm.reset();
-      showToast("Evaluacion guardada correctamente.", "success");
-      await refreshJudgeData();
-    } catch {
-      showToast("No se pudo guardar la evaluacion.", "error");
-    }
+      setMessage(evaluationSaveStatus, "Evaluación guardada correctamente.", "success");
+      showToast("Evaluación guardada correctamente.", "success");
 
-    btn.disabled = false;
-    btn.textContent = originalText;
+      try {
+        await refreshJudgeData();
+      } catch {
+        setMessage(evaluationSaveStatus, "La evaluación quedó guardada, pero no se pudo actualizar la vista. Recarga la página para ver el estado actual.", "error");
+      }
+    } catch {
+      setMessage(evaluationSaveStatus, "No se pudo confirmar el guardado de toda la rúbrica. Tus respuestas siguen en pantalla; revisa la lista de evaluaciones antes de intentar nuevamente.", "error");
+      showToast("No se pudo guardar la rúbrica completa.", "error");
+    } finally {
+      btn.disabled = false;
+      btn.textContent = originalText;
+    }
   });
 
   evaluationForm.addEventListener("change", (event) => {

@@ -1,9 +1,9 @@
-import { normalizeRoleName, fetchAllRpc } from "./utils.js?v=16.14";
+import { normalizeRoleName, fetchAllRpc } from "./utils.js?v=16.15";
 import { getSession } from "./auth.js?v=3.33";
 import { isSessionCacheFresh, mergeRowsById, readSessionCache, writeSessionCache } from "./cache.js?v=3.29";
 import { sortProjectsByNewest } from "./project-order.js?v=1";
 
-export { fetchAllRpc } from "./utils.js?v=16.14";
+export { fetchAllRpc } from "./utils.js?v=16.15";
 
 const EVALUATIONS_CACHE_KEY = "admin:evaluations";
 const EVALUATIONS_CACHE_VERSION = 4;

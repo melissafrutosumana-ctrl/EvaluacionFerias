@@ -1,5 +1,5 @@
 import { supabase } from "./supabase.js?v=1";
-import { escapeHTML, showToast, setMessage, normalizeRoleName, fillSelect, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, buildFeriaOptions, FESTIVAL_FERIA_NAME, FESTIVAL_CATEGORIES, FESTIVAL_SUBCATEGORIES, FESTIVAL_EDUCATIONAL_LEVELS, EXPOTECNICA_CATEGORIES, EXPOTECNICA_EJES, PRONAFECYT_CATEGORIES, PRONAFECYT_EDUCATIONAL_CATEGORIES, PRONAFECYT_C_RAW_MAX, updateProjectFormFieldsByFeria, getResultCategoryGroupLabel, getFestivalProjectLabel, showSkeleton, confirmDialog, PRONAFECYT_BY_NIVEL, getNivelFromPronatecyt, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore, openModalAccesible, closeModalAccesible } from "./utils.js?v=16.14";
+import { escapeHTML, showToast, setMessage, normalizeRoleName, fillSelect, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, buildFeriaOptions, FESTIVAL_FERIA_NAME, FESTIVAL_CATEGORIES, FESTIVAL_SUBCATEGORIES, FESTIVAL_EDUCATIONAL_LEVELS, EXPOTECNICA_CATEGORIES, EXPOTECNICA_EJES, PRONAFECYT_CATEGORIES, PRONAFECYT_EDUCATIONAL_CATEGORIES, PRONAFECYT_C_RAW_MAX, updateProjectFormFieldsByFeria, getResultCategoryGroupLabel, getFestivalProjectLabel, showSkeleton, confirmDialog, PRONAFECYT_BY_NIVEL, getNivelFromPronatecyt, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore, openModalAccesible, closeModalAccesible, normalizeSearchText, paginateItems, getJudgeProgressLabel } from "./utils.js?v=16.15";
 import { getSession, enforceRole, hashPassword, bindLogout } from "./auth.js?v=3.33";
 import { loadProjects, loadJudgeAssignments, loadUsers, fetchAllEvaluations, fetchAllRpc, startEvaluationsSync } from "./data.js?v=3.31";
 import { generateAdminPDF } from "./pdf.js?v=3.23";
@@ -7,6 +7,9 @@ import { icon } from "./icons.js?v=1";
 import { CACHE_SCOPE, clearSessionCache } from "./cache.js?v=3.29";
 
 let latestAdminReportData = null;
+let resultsSearchTerm = "";
+let resultsCurrentPage = 1;
+const RESULTS_PAGE_SIZE = 20;
 
 function formatEvaluationDate(value) {
     if (!value) return "Sin programar";
@@ -46,7 +49,7 @@ function renderUsersTable(users, roles) {
     }
 
     if (!users.length) {
-        tbody.innerHTML = '<tr><td colspan="4">No hay usuarios registrados.</td></tr>';
+        tbody.innerHTML = '<tr role="row"><td role="cell" colspan="4">No hay usuarios registrados.</td></tr>';
         setMessage(status, "", "info");
         return;
     }
@@ -58,11 +61,11 @@ function renderUsersTable(users, roles) {
             const roleName = roleNamesById.get(item.role_id) ?? "Sin rol";
             const roleClass = roleName === "administrador" ? "role-badge role-admin" : roleName === "Juez" ? "role-badge role-judge" : "role-badge";
             const feriaLabel = roleName === "administrador" ? "Acceso global" : (item.tipo_feria ?? "-");
-            return `<tr>
-        <td>${escapeHTML(item.nombre)}</td>
-        <td><span class="${roleClass}">${escapeHTML(roleName)}</span></td>
-        <td>${escapeHTML(feriaLabel)}</td>
-        <td>
+            return `<tr role="row">
+        <td role="cell" headers="users-name">${escapeHTML(item.nombre)}</td>
+        <td role="cell" headers="users-role"><span class="${roleClass}">${escapeHTML(roleName)}</span></td>
+        <td role="cell" headers="users-fair">${escapeHTML(feriaLabel)}</td>
+        <td role="cell" headers="users-actions">
           <button class="table-action-btn edit-user-btn" data-edit-user="${escapeHTML(JSON.stringify({ id: item.id, nombre: item.nombre, role_id: item.role_id, tipo_feria: item.tipo_feria }))}">Editar</button>
           <button class="table-action-btn delete-user-btn" data-delete-user-id="${item.id}">Eliminar</button>
         </td>
@@ -81,7 +84,7 @@ function renderProjectsManagementTable(projects) {
     }
 
     if (!projects.length) {
-        tbody.innerHTML = '<tr><td colspan="5">No hay proyectos registrados para esta feria.</td></tr>';
+        tbody.innerHTML = '<tr role="row"><td role="cell" colspan="5">No hay proyectos registrados.</td></tr>';
         setMessage(status, "", "info");
         return;
     }
@@ -157,12 +160,12 @@ function renderProjectsManagementTable(projects) {
                     "-";
 
                 return `
-        <tr>
-          <td>${escapeHTML(item.titulo)}</td>
-          <td>${escapeHTML(item.tipo_feria ?? "-")}</td>
-          <td class="project-detail-cell">${detailHtml}</td>
-          <td>${item.id}</td>
-          <td>
+        <tr role="row">
+          <td role="cell" headers="managed-project-title">${escapeHTML(item.titulo)}</td>
+          <td role="cell" headers="managed-project-fair">${escapeHTML(item.tipo_feria ?? "-")}</td>
+          <td role="cell" class="project-detail-cell" headers="managed-project-details">${detailHtml}</td>
+          <td role="cell" headers="managed-project-id">${item.id}</td>
+          <td role="cell" headers="managed-project-actions">
             <button class="table-action-btn edit-project-btn" data-project-id="${item.id}">Editar</button>
             <button class="table-action-btn delete-project-btn" data-delete-project-id="${item.id}">Eliminar</button>
           </td>
@@ -205,8 +208,15 @@ function renderAdminEvaluationsTable(rows, usersById, projectsById) {
         return;
     }
 
-    if (!rows.length) {
-        container.innerHTML = '<p class="form-status">No hay evaluaciones en esta feria.</p>';
+    const matchingRows = resultsSearchTerm ? rows.filter((row) =>
+        normalizeSearchText(projectsById.get(row.proyecto_id)?.titulo).includes(resultsSearchTerm)
+    ) : rows;
+
+    if (!matchingRows.length) {
+        const message = rows.length ?
+            "No hay evaluaciones que coincidan con la búsqueda." :
+            "No hay evaluaciones para los proyectos del filtro seleccionado.";
+        container.innerHTML = `<p class="form-status">${message}</p>`;
         return;
     }
 
@@ -225,6 +235,8 @@ function renderAdminEvaluationsTable(rows, usersById, projectsById) {
     // Build tabs
     const tabBar = document.createElement("div");
     tabBar.className = "eval-tab-bar";
+    tabBar.setAttribute("role", "tablist");
+    tabBar.setAttribute("aria-label", "Proyectos con evaluaciones");
 
     const panels = document.createElement("div");
     panels.className = "eval-tab-panels";
@@ -236,12 +248,23 @@ function renderAdminEvaluationsTable(rows, usersById, projectsById) {
         const btn = document.createElement("button");
         btn.className = `eval-tab${isActive ? " active" : ""}`;
         btn.dataset.evalTab = pid;
+        btn.id = `eval-tab-${pid}`;
+        btn.type = "button";
+        btn.setAttribute("role", "tab");
+        btn.setAttribute("aria-selected", String(isActive));
+        btn.setAttribute("aria-controls", `eval-panel-${pid}`);
+        btn.tabIndex = isActive ? 0 : -1;
         btn.textContent = data.title;
         tabBar.appendChild(btn);
 
         const panel = document.createElement("div");
         panel.className = `eval-tab-panel${isActive ? " active" : ""}`;
         panel.dataset.evalPanel = pid;
+        panel.id = `eval-panel-${pid}`;
+        panel.setAttribute("role", "tabpanel");
+        panel.setAttribute("aria-labelledby", `eval-tab-${pid}`);
+        panel.hidden = !isActive;
+        panel.tabIndex = 0;
 
         const tableWrap = document.createElement("div");
         tableWrap.className = "table-wrap";
@@ -261,11 +284,13 @@ function renderAdminEvaluationsTable(rows, usersById, projectsById) {
             return orderA - orderB;
         });
 
-        const table = document.createElement("table");
-        table.className = "results-table eval-table";
-        table.innerHTML = `<thead><tr><th>Juez</th><th>Criterio</th><th>Nota</th></tr></thead>`;
+    const table = document.createElement("table");
+    table.className = "results-table eval-table";
+        table.setAttribute("role", "table");
+        table.innerHTML = `<thead role="rowgroup"><tr role="row"><th id="eval-judge-${pid}" role="columnheader" scope="col">Juez</th><th id="eval-criterion-${pid}" role="columnheader" scope="col">Criterio</th><th id="eval-score-${pid}" role="columnheader" scope="col">Nota</th></tr></thead>`;
 
         const tbody = document.createElement("tbody");
+        tbody.setAttribute("role", "rowgroup");
         let lastJuez = null;
         tbody.innerHTML = sortedRows
             .map((row) => {
@@ -273,7 +298,7 @@ function renderAdminEvaluationsTable(rows, usersById, projectsById) {
                 const color = colorMap.get(row.juez_id) ?? "#6b7280";
                 const isFirstOfJudge = row.juez_id !== lastJuez;
                 lastJuez = row.juez_id;
-                return `<tr class="eval-judge-row${isFirstOfJudge ? " eval-judge-first" : ""}" style="--judge-color:${color}"><td><span class="role-badge judge-color-badge" style="background:${color}18;color:${color};border-color:${color}33">${escapeHTML(judgeName)}</span></td><td>${escapeHTML(row.criterio)}</td><td class="eval-nota-cell">${row.nota}</td></tr>`;
+                return `<tr role="row" class="eval-judge-row${isFirstOfJudge ? " eval-judge-first" : ""}" style="--judge-color:${color}"><td role="cell" headers="eval-judge-${pid}"><span class="role-badge judge-color-badge" style="background:${color}18;color:${color};border-color:${color}33">${escapeHTML(judgeName)}</span></td><td role="cell" headers="eval-criterion-${pid}">${escapeHTML(row.criterio)}</td><td role="cell" class="eval-nota-cell" headers="eval-score-${pid}">${row.nota}</td></tr>`;
             })
             .join("");
 
@@ -292,34 +317,72 @@ function renderAdminEvaluationsTable(rows, usersById, projectsById) {
         const btn = e.target.closest(".eval-tab");
         if (!btn) return;
 
-        const pid = btn.dataset.evalTab;
-        tabBar.querySelectorAll(".eval-tab").forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
+        activateEvaluationTab(btn);
+    });
 
-        panels.querySelectorAll(".eval-tab-panel").forEach((p) => {
-            p.classList.toggle("active", p.dataset.evalPanel === pid);
+    function activateEvaluationTab(btn) {
+        if (!btn) return;
+        const pid = btn.dataset.evalTab;
+        tabBar.querySelectorAll(".eval-tab").forEach((tab) => {
+            const active = tab === btn;
+            tab.classList.toggle("active", active);
+            tab.setAttribute("aria-selected", String(active));
+            tab.tabIndex = active ? 0 : -1;
         });
+        panels.querySelectorAll(".eval-tab-panel").forEach((panel) => {
+            const active = panel.dataset.evalPanel === pid;
+            panel.classList.toggle("active", active);
+            panel.hidden = !active;
+        });
+    }
+
+    tabBar.addEventListener("keydown", (event) => {
+        const tabs = [...tabBar.querySelectorAll('[role="tab"]')];
+        const currentTab = event.target.closest('[role="tab"]');
+        const currentIndex = tabs.indexOf(currentTab);
+        if (currentIndex < 0) return;
+        let nextIndex = currentIndex;
+        if (event.key === "ArrowRight" || event.key === "ArrowDown") nextIndex = (currentIndex + 1) % tabs.length;
+        else if (event.key === "ArrowLeft" || event.key === "ArrowUp") nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+        else if (event.key === "Home") nextIndex = 0;
+        else if (event.key === "End") nextIndex = tabs.length - 1;
+        else return;
+        event.preventDefault();
+        tabs[nextIndex].focus();
+        activateEvaluationTab(tabs[nextIndex]);
     });
 }
 
-function renderAdminProjectsTable(rows, projectsById) {
+function renderAdminProjectsTable(projects, rows, selectedFeria = "") {
     const tbody = document.querySelector("[data-admin-projects]");
 
     if (!tbody) {
         return;
     }
 
-    const projectIds = [...new Set(rows.map((item) => item.proyecto_id).filter(Boolean))];
+    const filteredProjects = resultsSearchTerm ?
+        projects.filter((project) => normalizeSearchText(project.titulo).includes(resultsSearchTerm)) :
+        projects;
 
-    if (!projectIds.length) {
-        tbody.innerHTML = '<tr><td colspan="2">No hay proyectos con evaluaciones en esta feria.</td></tr>';
+    if (!filteredProjects.length) {
+        const message = projects.length ?
+            "No hay proyectos que coincidan con la búsqueda." :
+            selectedFeria ? "No hay proyectos registrados para la feria seleccionada." : "No hay proyectos registrados en ninguna feria.";
+        tbody.innerHTML = `<tr role="row"><td role="cell" colspan="3">${message}</td></tr>`;
         return;
     }
 
-    tbody.innerHTML = projectIds
-        .map((projectId) => {
-            const projectName = projectsById.get(projectId) ?.titulo ?? "Proyecto";
-            return `<tr><td>${escapeHTML(projectName)}</td><td>${escapeHTML(String(projectId))}</td></tr>`;
+    const evaluationCounts = new Map();
+    rows.forEach((row) => {
+        if (!evaluationCounts.has(row.proyecto_id)) evaluationCounts.set(row.proyecto_id, new Set());
+        evaluationCounts.get(row.proyecto_id).add(String(row.criterio ?? ""));
+    });
+
+    tbody.innerHTML = filteredProjects
+        .map((project) => {
+            const count = evaluationCounts.get(project.id)?.size ?? 0;
+            const evaluationStatus = count ? `${count} criterios calificados` : "Sin evaluaciones";
+            return `<tr role="row"><td role="cell" headers="admin-project-name">${escapeHTML(project.titulo ?? "Proyecto")}</td><td role="cell" headers="admin-project-status"><span class="evaluation-status${count ? " is-complete" : " is-pending"}">${evaluationStatus}</span></td><td role="cell" headers="admin-project-id">${escapeHTML(String(project.id))}</td></tr>`;
         })
         .join("");
 }
@@ -347,6 +410,7 @@ function formatJudgeColumn(judges, votedCount, totalCount) {
 function renderAdminScoresTable(rows, projectsById, assignmentsByProject, selectedFeria) {
     const tbody = document.querySelector("[data-project-results]");
     if (!tbody) return;
+    const pagination = document.querySelector("[data-results-pagination]");
 
     const votedSet = new Set();
     const scoreMap = new Map();
@@ -361,7 +425,10 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
     });
 
     if (!projectsById ?.size) {
-        tbody.innerHTML = '<tr><td colspan="4">No hay proyectos en esta feria.</td></tr>';
+        tbody.innerHTML = `<tr role="row"><td role="cell" colspan="4">${selectedFeria ? "No hay proyectos para la feria seleccionada." : "No hay proyectos registrados en ninguna feria."}</td></tr>`;
+        if (pagination) pagination.innerHTML = "";
+        const highScoreEl = document.querySelector("[data-highest-score]");
+        if (highScoreEl) highScoreEl.textContent = "—";
         return;
     }
 
@@ -455,11 +522,43 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
         highScoreEl.textContent = results[0].finalScore.toFixed(0);
     }
 
+    const matchingResults = resultsSearchTerm ? results.filter((result) =>
+        normalizeSearchText(result.projectName).includes(resultsSearchTerm)
+    ) : results;
+    const pageData = paginateItems(matchingResults, resultsCurrentPage, RESULTS_PAGE_SIZE);
+    resultsCurrentPage = pageData.currentPage;
+    const visibleResults = pageData.items;
+
+    if (pagination) {
+        if (pageData.totalItems > RESULTS_PAGE_SIZE) {
+            const firstItem = pageData.startIndex + 1;
+            const lastItem = pageData.startIndex + visibleResults.length;
+            pagination.innerHTML = `<span class="results-pagination-summary" data-page-summary aria-live="polite">Mostrando ${firstItem}–${lastItem} de ${pageData.totalItems} proyectos</span><div class="results-pagination-controls"><button type="button" class="btn-secondary btn-sm" data-page-step="-1" aria-label="Página anterior" ${pageData.currentPage === 1 ? "disabled" : ""}>Anterior</button><span>Página ${pageData.currentPage} de ${pageData.totalPages}</span><button type="button" class="btn-secondary btn-sm" data-page-step="1" aria-label="Página siguiente" ${pageData.currentPage === pageData.totalPages ? "disabled" : ""}>Siguiente</button></div>`;
+        } else {
+            pagination.innerHTML = pageData.totalItems ? `<span class="results-pagination-summary" data-page-summary aria-live="polite">Mostrando ${pageData.totalItems} proyectos</span>` : "";
+        }
+        pagination.onclick = (event) => {
+            const button = event.target.closest("[data-page-step]");
+            if (!button || button.disabled) return;
+            resultsCurrentPage += Number(button.dataset.pageStep);
+            void renderAdminReportsByFeria(latestAdminReportData);
+        };
+    }
+
+    if (!visibleResults.length) {
+        const message = results.length ? "No hay proyectos que coincidan con la búsqueda." : "No hay proyectos en la feria seleccionada.";
+        tbody.innerHTML = `<tr role="row"><td role="cell" colspan="4">${message}</td></tr>`;
+        return;
+    }
+
     function buildProjectRow(r) {
         const totalVoted = r.expoVoted + r.escritoVoted;
         const totalAssigned = r.expoTotal + r.escritoTotal;
         const pct = totalAssigned > 0 ? Math.round(totalVoted / totalAssigned * 100) : 0;
         const barColor = pct === 100 ? "var(--secondary)" : pct > 50 ? "var(--secondary-light)" : "var(--ink-secondary)";
+        const progressHtml = totalAssigned > 0 ?
+            `<div class="judge-progress-wrap" role="progressbar" aria-label="Avance de jueces para ${escapeHTML(r.projectName)}" aria-valuemin="0" aria-valuemax="${totalAssigned}" aria-valuenow="${totalVoted}"><div class="judge-progress-bar" aria-hidden="true" style="width:${pct}%;background:${barColor}"></div></div><span class="judge-status">${getJudgeProgressLabel(totalVoted, totalAssigned)}</span>` :
+            `<span class="judge-status">${getJudgeProgressLabel(totalVoted, totalAssigned)}</span>`;
         const escritoCell = r.writtenMax === 0 ?
             '<span class="judge-empty">No aplica</span>' : r.manualEscrito !== null ?
             `<span class="manual-score-display">${r.manualEscrito.toFixed(0)} <span class="judge-status">(manual)</span></span>
@@ -471,22 +570,19 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>
            Ingresar manual
          </button>`;
-        return `<tr data-result-row="${r.projectId}" data-written-max="${r.writtenMax}">
-      <td>
+        return `<tr role="row" data-result-row="${r.projectId}" data-written-max="${r.writtenMax}">
+      <td role="cell" headers="scores-project">
         <strong>${escapeHTML(r.projectName)}</strong>
-        <div class="judge-progress-wrap">
-          <div class="judge-progress-bar" style="width:${pct}%;background:${barColor}"></div>
-        </div>
-        <span class="judge-status">${totalVoted}/${totalAssigned} jueces (${pct}%)</span>
+        ${progressHtml}
       </td>
-      <td>${formatJudgeColumn(r.expoJudges, r.expoVoted, r.expoTotal)}</td>
-      <td class="escrito-cell">${escritoCell}</td>
-      <td class="score-cell"><strong>${r.finalScore.toFixed(0)}</strong></td>
+      <td role="cell" headers="scores-expo">${formatJudgeColumn(r.expoJudges, r.expoVoted, r.expoTotal)}</td>
+      <td role="cell" class="escrito-cell" headers="scores-written">${escritoCell}</td>
+      <td role="cell" class="score-cell" headers="scores-final"><strong>${r.finalScore.toFixed(0)}</strong></td>
     </tr>`;
     }
 
     // Event delegation para guardar puntaje escrito manual
-    tbody.addEventListener("click", function handleManualClick(e) {
+    tbody.onclick = function handleManualClick(e) {
         const btn = e.target.closest(".btn-manual-escrito");
         if (!btn) return;
         const projectId = btn.dataset.projectId;
@@ -555,7 +651,7 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
                 await saveScore(null);
             });
         }
-    });
+    };
 
     const groupByCategory = results.some((result) =>
         result.feria === "Feria Expotecnica" ||
@@ -564,16 +660,23 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
     );
 
     if (groupByCategory) {
-        const grouped = new Map();
+        const allGroups = new Map();
         results.forEach((r) => {
             const groupLabel = getResultCategoryGroupLabel(r.feria, r.categoria, r.nivel, selectedFeria, r.subcategoria);
-            if (!grouped.has(groupLabel)) grouped.set(groupLabel, []);
-            grouped.get(groupLabel).push(r);
+            if (!allGroups.has(groupLabel)) allGroups.set(groupLabel, []);
+            allGroups.get(groupLabel).push(r);
+        });
+
+        const visibleGroups = new Map();
+        visibleResults.forEach((r) => {
+            const groupLabel = getResultCategoryGroupLabel(r.feria, r.categoria, r.nivel, selectedFeria, r.subcategoria);
+            if (!visibleGroups.has(groupLabel)) visibleGroups.set(groupLabel, []);
+            visibleGroups.get(groupLabel).push(r);
         });
 
         const html = [];
-        for (const [groupLabel, items] of grouped) {
-            const winner = items.find((item) => item.evaluationComplete && item.finalScore > 0);
+        for (const [groupLabel, items] of visibleGroups) {
+            const winner = (allGroups.get(groupLabel) ?? []).find((item) => item.evaluationComplete && item.finalScore > 0);
             const winnerText = winner ?
                 `Ganador: ${escapeHTML(winner.projectName)} (${winner.finalScore.toFixed(0)} pts)` :
                 "Ganador pendiente de evaluacion";
@@ -582,7 +685,7 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
             const levelLabel = hasLevel ? groupParts.at(-1) : "";
             const titleLabel = hasLevel ? groupParts.at(-2) : groupParts.at(-1);
             const contextLabel = hasLevel ? groupParts.slice(0, -2).join(" · ") : groupParts.slice(0, -1).join(" · ");
-            html.push(`<tr class="category-group-row"><td colspan="4"><div class="category-group-heading">
+            html.push(`<tr role="row" class="category-group-row"><td role="cell" colspan="4"><div class="category-group-heading">
                 <div class="category-group-heading-copy">
                     ${contextLabel ? `<span class="category-group-context">${escapeHTML(contextLabel)}</span>` : ""}
                     <span class="category-group-title">${escapeHTML(titleLabel)}</span>
@@ -594,17 +697,17 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
         }
         tbody.innerHTML = html.join("");
     } else {
-        tbody.innerHTML = results.map(buildProjectRow).join("");
+        tbody.innerHTML = visibleResults.map(buildProjectRow).join("");
     }
 }
 
 
-async function loadAdminReportData() {
+async function loadAdminReportData({ includeUsers = true, includeProjects = true, includeEvaluations = true, includeAssignments = true } = {}) {
     const [users, projects, allEvals, assignments] = await Promise.all([
-        loadUsers(),
-        loadProjects(""),
-        fetchAllEvaluations(),
-        loadJudgeAssignments()
+        includeUsers ? loadUsers() : Promise.resolve([]),
+        includeProjects ? loadProjects("") : Promise.resolve([]),
+        includeEvaluations ? fetchAllEvaluations() : Promise.resolve([]),
+        includeAssignments ? loadJudgeAssignments() : Promise.resolve([])
     ]);
 
     return { users, projects, allEvals, assignments };
@@ -641,7 +744,7 @@ async function renderAdminReportsByFeria(reportData = latestAdminReportData) {
     );
 
     const assignmentsByProject = new Map();
-    assignmentsResult.forEach((a) => {
+    (assignmentsResult ?? []).forEach((a) => {
         if (projectIdsInFeria.has(a.proyecto_id)) {
             if (!assignmentsByProject.has(a.proyecto_id)) {
                 assignmentsByProject.set(a.proyecto_id, []);
@@ -655,7 +758,7 @@ async function renderAdminReportsByFeria(reportData = latestAdminReportData) {
     });
 
     renderAdminEvaluationsTable(filteredRows, usersById, projectsById);
-    renderAdminProjectsTable(filteredRows, projectsById);
+    renderAdminProjectsTable(filteredProjects, filteredRows, selectedFeria);
     renderAdminScoresTable(filteredRows, projectsById, assignmentsByProject, selectedFeria);
 
     // Update summary cards
@@ -684,7 +787,7 @@ function renderJudgeAssignmentsTable(judges, projects, assignments) {
     }
 
     if (!judges.length) {
-        tbody.innerHTML = '<tr><td colspan="3">No hay jueces registrados.</td></tr>';
+        tbody.innerHTML = '<tr role="row"><td role="cell" colspan="3">No hay jueces registrados.</td></tr>';
         return;
     }
 
@@ -716,10 +819,10 @@ function renderJudgeAssignmentsTable(judges, projects, assignments) {
             const count = judgeAssignments.length;
 
             return `
-        <tr data-judge-row data-judge-id="${judge.id}">
-          <td><strong>${escapeHTML(judge.nombre)}</strong></td>
-          <td class="assigned-projects-cell">${projectList}</td>
-          <td>
+        <tr role="row" data-judge-row data-judge-id="${judge.id}">
+          <td role="cell" headers="assignment-judge"><strong>${escapeHTML(judge.nombre)}</strong></td>
+          <td role="cell" class="assigned-projects-cell" headers="assignment-projects">${projectList}</td>
+          <td role="cell" headers="assignment-actions">
             <button type="button" class="btn-secondary btn-sm" data-open-assign-modal data-judge-id="${judge.id}" data-judge-name="${escapeHTML(judge.nombre)}">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6"/><path d="M22 11h-6"/></svg>
               Asignar (${count}/${projects.length})
@@ -907,7 +1010,41 @@ function closeAssignmentModal() {
   closeModalAccesible(overlay);
 }
 
+function clearProjectFieldError(field) {
+  if (!field) return;
+  const errorId = field.getAttribute("aria-describedby");
+  if (errorId) document.getElementById(errorId)?.remove();
+  field.removeAttribute("aria-invalid");
+  field.removeAttribute("aria-describedby");
+  field.closest(".field-label")?.querySelectorAll(".field-error").forEach((error) => error.remove());
+}
+
+function clearProjectFormErrors(form) {
+  form.querySelectorAll("[aria-invalid='true']").forEach(clearProjectFieldError);
+}
+
+function markProjectFieldInvalid(form, fieldName, message) {
+  const field = form.querySelector(`[name="${fieldName}"]`);
+  if (!field) return false;
+  clearProjectFieldError(field);
+  const error = document.createElement("span");
+  error.className = "field-error";
+  error.id = `project-field-error-${fieldName}`;
+  error.setAttribute("role", "alert");
+  error.textContent = message;
+  field.closest(".field-label")?.append(error);
+  field.setAttribute("aria-invalid", "true");
+  field.setAttribute("aria-describedby", error.id);
+  field.focus();
+  return false;
+}
+
 export async function bootstrapAdminPage() {
+  const mainContent = document.querySelector("#main-content");
+  const scoresSection = mainContent?.querySelector(".results-section-scores");
+  const evaluationsSection = mainContent?.querySelector(".results-section-evaluations");
+  if (scoresSection && evaluationsSection) evaluationsSection.before(scoresSection);
+
   bindLogout();
   highlightActiveNavLink();
   setupHideOnScroll();
@@ -929,7 +1066,6 @@ export async function bootstrapAdminPage() {
   }
 
   const userForm = document.querySelector("[data-user-form]");
-  const userStatus = document.querySelector("[data-user-form-status]");
   const projectForm = document.querySelector("[data-project-form]");
 
   if (projectForm) {
@@ -949,42 +1085,90 @@ export async function bootstrapAdminPage() {
 
     const nivelCientSelect = projectForm.querySelector('[data-nivel-cientifico-select]');
     nivelCientSelect?.addEventListener("change", () => updateProjectFormFieldsByFeria(projectForm));
+    projectForm.addEventListener("input", (event) => clearProjectFieldError(event.target));
+    projectForm.addEventListener("change", (event) => {
+      clearProjectFieldError(event.target);
+      if (event.target === feriaSelect) clearProjectFormErrors(projectForm);
+    });
   }
 
   let allProjectsCache = [];
   let allAssignmentsCache = [];
   let rolesCache = [];
+  const adminLoadStatus = document.querySelector("[data-admin-load-status]");
+  const usersTbody = document.querySelector("[data-users-table]");
+  const projectsTbody = document.querySelector("[data-projects-table]");
+  const assignmentsTbody = document.querySelector("[data-judge-assignments]");
+  const hasEvaluationView = Boolean(document.querySelector("[data-admin-evaluations], [data-admin-projects], [data-project-results]"));
+  const needsUsers = Boolean(usersTbody || assignmentsTbody || hasEvaluationView);
+  const needsProjects = Boolean(projectsTbody || assignmentsTbody || hasEvaluationView);
+  const needsAssignments = Boolean(assignmentsTbody || hasEvaluationView);
+  const needsRoles = Boolean(usersTbody || assignmentsTbody);
+
+  function setAdminLoadState(state, message = "") {
+    const main = document.querySelector("#main-content");
+    if (main) main.setAttribute("aria-busy", String(state === "loading"));
+    if (!adminLoadStatus) return;
+    adminLoadStatus.replaceChildren();
+    adminLoadStatus.dataset.kind = state === "error" ? "error" : "info";
+    if (state === "loading") {
+      adminLoadStatus.textContent = message || "Cargando datos…";
+    } else if (state === "error") {
+      adminLoadStatus.append(document.createTextNode(message || "No se pudieron cargar los datos."));
+      const retryButton = document.createElement("button");
+      retryButton.type = "button";
+      retryButton.className = "btn-secondary btn-sm";
+      retryButton.dataset.adminRetryLoad = "";
+      retryButton.textContent = "Reintentar";
+      adminLoadStatus.append(" ", retryButton);
+    } else {
+      adminLoadStatus.removeAttribute("data-kind");
+      adminLoadStatus.textContent = "";
+    }
+  }
 
   async function refreshAdminDataView() {
-    const usersTbody = document.querySelector("[data-users-table]");
-    const assignmentsTbody = document.querySelector("[data-assignments-tbody]");
     if (usersTbody) showSkeleton(usersTbody, 4);
     if (assignmentsTbody) showSkeleton(assignmentsTbody, 3);
+    setAdminLoadState("loading", "Cargando datos…");
 
     const [roles, reportData] = await Promise.all([
-      fetchAllRpc("get_roles", { p_session_token: getSession()?.session_token }),
-      loadAdminReportData()
+      needsRoles ? fetchAllRpc("get_roles", { p_session_token: getSession()?.session_token }) : Promise.resolve([]),
+      loadAdminReportData({
+        includeUsers: needsUsers,
+        includeProjects: needsProjects,
+        includeEvaluations: hasEvaluationView,
+        includeAssignments: needsAssignments
+      })
     ]);
 
-    const { users, projects, assignments } = reportData;
-    const roleNamesById = new Map(roles.map((role) => [role.id, normalizeRoleName(role.nombre)]));
+    const { users = [], projects = [], assignments = [] } = reportData;
+    const roleNamesById = new Map((roles ?? []).map((role) => [role.id, normalizeRoleName(role.nombre)]));
     const judges = users.filter((item) => roleNamesById.get(item.role_id) === "Juez");
-    rolesCache = roles;
+    rolesCache = roles ?? [];
     latestAdminReportData = reportData;
     allProjectsCache = projects;
     allAssignmentsCache = assignments;
 
-    fillSelect(document.querySelector("[data-user-role-select]"), getAllowedRolesForUserForm(roles), "Selecciona un rol");
-    updateUserFeriaField(userForm, rolesCache);
-    renderUsersTable(users, roles);
-    renderProjectsManagementTable(projects);
-    renderJudgeAssignmentsTable(judges, allProjectsCache, assignments);
-    await renderAdminReportsByFeria(reportData);
+    if (usersTbody) {
+      fillSelect(document.querySelector("[data-user-role-select]"), getAllowedRolesForUserForm(rolesCache), "Selecciona un rol");
+      updateUserFeriaField(userForm, rolesCache);
+      renderUsersTable(users, rolesCache);
+    }
+    if (projectsTbody) renderProjectsManagementTable(projects);
+    if (assignmentsTbody) renderJudgeAssignmentsTable(judges, allProjectsCache, assignments);
+    if (hasEvaluationView) await renderAdminReportsByFeria(reportData);
+    setAdminLoadState("success");
   }
+
+  adminLoadStatus?.addEventListener("click", (event) => {
+    if (event.target.closest("[data-admin-retry-load]")) void refreshAdminDataView().catch(() => {
+      setAdminLoadState("error", "No se pudieron cargar los datos. Revisa tu conexión e inténtalo de nuevo.");
+    });
+  });
 
   try {
     await refreshAdminDataView();
-    const hasEvaluationView = document.querySelector("[data-admin-evaluations], [data-admin-projects], [data-project-results]");
     if (hasEvaluationView) {
       startEvaluationsSync((rows) => {
         if (latestAdminReportData) {
@@ -997,7 +1181,7 @@ export async function bootstrapAdminPage() {
       });
     }
   } catch {
-    setMessage(userStatus, "No se pudieron cargar datos para el panel admin.", "error");
+    setAdminLoadState("error", "No se pudieron cargar los datos. Revisa tu conexión e inténtalo de nuevo.");
   }
 
   if (userForm) {
@@ -1058,6 +1242,7 @@ export async function bootstrapAdminPage() {
   if (projectForm) {
     projectForm.addEventListener("submit", async (event) => {
       event.preventDefault();
+      clearProjectFormErrors(projectForm);
       const btn = projectForm.querySelector("button[type=submit]");
       const originalText = btn.textContent;
       const formData = new FormData(projectForm);
@@ -1080,36 +1265,33 @@ export async function bootstrapAdminPage() {
       const isExpotecnica = tipoFeria === "Feria Expotecnica";
       const isScientific = tipoFeria === "Feria Cientifica y Tecnologica";
 
-      if (!titulo || !tipoFeria) {
-        showToast("Completa nombre y tipo de feria del proyecto.", "error");
-        return;
-      }
+      if (!titulo) return markProjectFieldInvalid(projectForm, "titulo", "Escribe el título del proyecto.");
+      if (!tipoFeria) return markProjectFieldInvalid(projectForm, "tipo_feria", "Selecciona el tipo de feria.");
 
-      if (!isFestival && (!integrante1 || !integrante2 || !integrante3)) {
-        showToast("Completa los 3 integrantes del proyecto.", "error");
-        return;
-      }
-
-      if (!isFestival && new Set([integrante1.toLowerCase(), integrante2.toLowerCase(), integrante3.toLowerCase()]).size !== 3) {
-        showToast("Los nombres de integrantes deben ser diferentes.", "error");
-        return;
+      if (!isFestival) {
+        const memberFields = ["integrante_1", "integrante_2", "integrante_3"];
+        const members = [integrante1, integrante2, integrante3];
+        const missingIndex = members.findIndex((member) => !member);
+        if (missingIndex >= 0) return markProjectFieldInvalid(projectForm, memberFields[missingIndex], "Completa los tres nombres de integrantes.");
+        const seenMembers = new Set();
+        for (let index = 0; index < members.length; index++) {
+          const normalizedName = normalizeSearchText(members[index]);
+          if (seenMembers.has(normalizedName)) return markProjectFieldInvalid(projectForm, memberFields[index], "Los nombres de integrantes deben ser diferentes.");
+          seenMembers.add(normalizedName);
+        }
       }
 
       if (isFestival) {
-        if (!FESTIVAL_CATEGORIES.includes(categoriaFestival) || !(FESTIVAL_SUBCATEGORIES[categoriaFestival] ?? []).includes(subcategoriaFestival) || !FESTIVAL_EDUCATIONAL_LEVELS.includes(nivelFestival) || !participacion) {
-          showToast("Para Festival debes seleccionar categoria, subcategoria, nivel educativo y participacion.", "error");
-          return;
-        }
+        if (!FESTIVAL_CATEGORIES.includes(categoriaFestival)) return markProjectFieldInvalid(projectForm, "categoria_festival", "Selecciona una categoría del Festival.");
+        if (!(FESTIVAL_SUBCATEGORIES[categoriaFestival] ?? []).includes(subcategoriaFestival)) return markProjectFieldInvalid(projectForm, "subcategoria_festival", "Selecciona una subcategoría válida.");
+        if (!FESTIVAL_EDUCATIONAL_LEVELS.includes(nivelFestival)) return markProjectFieldInvalid(projectForm, "nivel_festival", "Selecciona el nivel educativo.");
+        if (!participacion) return markProjectFieldInvalid(projectForm, "participacion", "Selecciona el tipo de participación.");
       } else if (isExpotecnica) {
-        if (!EXPOTECNICA_CATEGORIES.includes(categoriaExpotecnica) || !EXPOTECNICA_EJES.includes(ejeTematico)) {
-          showToast("Para ExpoTECNICA debes seleccionar categoria y eje tematico.", "error");
-          return;
-        }
+        if (!EXPOTECNICA_CATEGORIES.includes(categoriaExpotecnica)) return markProjectFieldInvalid(projectForm, "categoria_expotecnica", "Selecciona una categoría de ExpoTécnica.");
+        if (!EXPOTECNICA_EJES.includes(ejeTematico)) return markProjectFieldInvalid(projectForm, "eje_tematico", "Selecciona un eje temático.");
       } else if (isScientific) {
-        if (!PRONAFECYT_CATEGORIES.includes(categoriaPronatecyt) || !PRONAFECYT_EDUCATIONAL_CATEGORIES.includes(nivelEducativo)) {
-          showToast("Para Feria Cientifica debes seleccionar categoria educativa y formulario PRONAFECYT.", "error");
-          return;
-        }
+        if (!PRONAFECYT_EDUCATIONAL_CATEGORIES.includes(nivelEducativo)) return markProjectFieldInvalid(projectForm, "nivel_cientifico", "Selecciona la categoría educativa.");
+        if (!PRONAFECYT_CATEGORIES.includes(categoriaPronatecyt)) return markProjectFieldInvalid(projectForm, "categoria_pronatecyt", "Selecciona el formulario PRONAFECYT.");
       }
 
       btn.disabled = true;
@@ -1179,9 +1361,6 @@ export async function bootstrapAdminPage() {
       refreshAdminDataView();
     });
   }
-
-  const usersTbody = document.querySelector("[data-users-table]");
-  const projectsTbody = document.querySelector("[data-projects-table]");
 
   if (usersTbody) {
     usersTbody.addEventListener("click", async (event) => {
@@ -1271,9 +1450,17 @@ export async function bootstrapAdminPage() {
   const feriaResultsFilter = document.querySelector("[data-feria-results-filter]");
   if (feriaResultsFilter) {
     feriaResultsFilter.addEventListener("change", () => {
+      resultsCurrentPage = 1;
       void renderAdminReportsByFeria(latestAdminReportData);
     });
   }
+
+  const resultsSearch = document.querySelector("[data-results-search]");
+  resultsSearch?.addEventListener("input", () => {
+    resultsSearchTerm = normalizeSearchText(resultsSearch.value);
+    resultsCurrentPage = 1;
+    void renderAdminReportsByFeria(latestAdminReportData);
+  });
 
   const exportBtn = document.getElementById("export-pdf-btn");
   if (exportBtn) {
