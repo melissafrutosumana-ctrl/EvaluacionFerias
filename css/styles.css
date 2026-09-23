@@ -1587,6 +1587,12 @@ body[data-page="admin"] [data-users-table] tr td {
     color: #ffffff;
 }
 
+/* Las filas de categoría no deben heredar el fondo alterno de la tabla. */
+.results-table tbody tr.category-group-row:nth-child(even) td {
+    background: var(--primary);
+    color: #ffffff;
+}
+
 .results-table .category-group-row td::after {
     display: none;
 }
