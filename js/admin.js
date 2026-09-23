@@ -537,11 +537,15 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
         } else {
             pagination.innerHTML = pageData.totalItems ? `<span class="results-pagination-summary" data-page-summary aria-live="polite">Mostrando ${pageData.totalItems} proyectos</span>` : "";
         }
-        pagination.onclick = (event) => {
+        pagination.onclick = async (event) => {
             const button = event.target.closest("[data-page-step]");
             if (!button || button.disabled) return;
             resultsCurrentPage += Number(button.dataset.pageStep);
-            void renderAdminReportsByFeria(latestAdminReportData);
+            await renderAdminReportsByFeria(latestAdminReportData);
+            document.querySelector(".results-section-scores")?.scrollIntoView({
+                behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+                block: "start"
+            });
         };
     }
 

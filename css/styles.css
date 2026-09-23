@@ -1586,16 +1586,15 @@ body[data-page="admin"] [data-users-table] tr td {
 }
 
 .results-table .category-group-row td {
-    padding: 0;
-    border-top: 1px solid rgba(13, 42, 91, 0.12);
-    border-bottom: 1px solid rgba(13, 42, 91, 0.12);
-    background: var(--primary);
+    padding: 0.35rem 0.4rem;
+    border: 0;
+    background: transparent;
     color: #ffffff;
 }
 
 /* Las filas de categoría no deben heredar el fondo alterno de la tabla. */
 .results-table tbody tr.category-group-row:nth-child(even) td {
-    background: var(--primary);
+    background: transparent;
     color: #ffffff;
 }
 
@@ -1624,6 +1623,9 @@ body[data-page="admin"] [data-users-table] tr td {
     min-height: 4.6rem;
     padding: 0.85rem 1.1rem;
     border-left: 4px solid var(--secondary);
+    border-radius: var(--radius-sm);
+    background: var(--primary);
+    overflow: hidden;
     text-align: left;
 }
 
@@ -6893,9 +6895,8 @@ body[data-page="judge"] .rubric-table thead th {
     }
     body[data-page="admin"] .results-table tbody tr.category-group-row td {
         display: block;
-        padding: 0 !important;
+        padding: 0.2rem 0.25rem !important;
         border-left-width: 0;
-        border-radius: 0;
     }
     body[data-page="admin"] .results-table tbody tr.category-group-row td::before {
         content: "" !important;
@@ -7099,6 +7100,10 @@ body[data-page="judge"] .rubric-table thead th {
     margin-top: 0.85rem;
     color: var(--ink-secondary);
     font-size: var(--text-sm);
+}
+
+.results-section-scores {
+    scroll-margin-top: 5rem;
 }
 
 .results-pagination:empty {
