@@ -153,7 +153,7 @@ test("protected RPCs replace a submitted token with the HttpOnly cookie token", 
   let sentParams;
   globalThis.fetch = async (_url, options) => {
     sentParams = JSON.parse(options.body);
-    assert.equal(options.headers.apikey, process.env.SUPABASE_PUBLISHABLE_KEY);
+    assert.equal(options.headers.apikey, process.env.SUPABASE_SECRET_KEY);
     assert.equal("Authorization" in options.headers, false);
     return new Response(JSON.stringify([]), { status: 200 });
   };
@@ -166,6 +166,21 @@ test("protected RPCs replace a submitted token with the HttpOnly cookie token", 
 
   assert.equal(sentParams.p_session_token, cookieToken);
   assert.equal(JSON.stringify(result.payload).includes(cookieToken), false);
+});
+
+test("protected RPCs fail closed when the server secret is missing", async () => {
+  setup();
+  delete process.env.SUPABASE_SECRET_KEY;
+  let calledSupabase = false;
+  globalThis.fetch = async () => { calledSupabase = true; };
+  const result = response();
+
+  await handler(request({ functionName: "get_projects", params: {} }, {
+    cookies: { "__Host-ef_session": crypto.randomUUID() }
+  }), result);
+
+  assert.equal(result.code, 503);
+  assert.equal(calledSupabase, false);
 });
 
 test("a request without a session cookie is rejected before reaching Supabase", async () => {

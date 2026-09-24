@@ -134,8 +134,8 @@ export default async function handler(request, response) {
     response.status(500).json({ error: "Falta la configuración pública de Supabase." });
     return;
   }
-  if (isLogin && !secretKey?.startsWith("sb_secret_")) {
-    response.status(503).json({ error: "El inicio de sesión no está configurado de forma segura." });
+  if (!secretKey?.startsWith("sb_secret_")) {
+    response.status(503).json({ error: "El acceso seguro a Supabase no está configurado." });
     return;
   }
 
@@ -161,7 +161,7 @@ export default async function handler(request, response) {
   delete params.session_token;
   if (isLogin) delete params.p_session_token;
 
-  const upstreamApiKey = isLogin ? secretKey : publishableKey;
+  const upstreamApiKey = secretKey;
   const upstreamHeaders = { apikey: upstreamApiKey, "Content-Type": "application/json" };
   if (!upstreamApiKey.startsWith("sb_publishable_") && !upstreamApiKey.startsWith("sb_secret_")) {
     upstreamHeaders.Authorization = `Bearer ${upstreamApiKey}`;
