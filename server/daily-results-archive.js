@@ -23,7 +23,8 @@ async function callRpc(supabaseUrl, secretKey, name, params) {
   const response = await fetch(new URL(`/rest/v1/rpc/${name}`, supabaseUrl), {
     method: "POST",
     headers: createSupabaseHeaders(secretKey),
-    body: JSON.stringify(params)
+    body: JSON.stringify(params),
+    signal: AbortSignal.timeout(40000)
   });
   const body = await response.text();
   let data = null;
@@ -36,19 +37,20 @@ async function callRpc(supabaseUrl, secretKey, name, params) {
   return data;
 }
 
-export async function fetchDailySnapshotRows({ supabaseUrl, secretKey, sessionToken, evaluationDate }) {
+export async function fetchDailySnapshotRows({ supabaseUrl, secretKey, sessionToken, evaluationDate, snapshotRpc = "get_daily_results_pdf_snapshot" }) {
   const rows = [];
   let pageCount = 0;
   let offset = 0;
   let previousPageFingerprint = null;
   for (;;) {
     if (pageCount++ >= MAX_REST_PAGES) throw new Error("La lectura del corte diario excedió el límite seguro de páginas.");
-    const page = await callRpc(supabaseUrl, secretKey, "get_daily_results_pdf_snapshot", {
-      p_session_token: sessionToken,
+    const params = {
       p_evaluation_date: evaluationDate,
       p_offset: offset,
       p_limit: SNAPSHOT_PAGE_SIZE
-    });
+    };
+    if (snapshotRpc === "get_daily_results_pdf_snapshot") params.p_session_token = sessionToken;
+    const page = await callRpc(supabaseUrl, secretKey, snapshotRpc, params);
     if (!Array.isArray(page) || page.length > SNAPSHOT_PAGE_SIZE) {
       throw new Error("Supabase devolvió una página inválida del corte diario.");
     }
@@ -214,6 +216,7 @@ async function makePdf({ evaluationDate, projects, assignments, evaluations, gen
 
 export async function runDailyResultsArchiveWorker({
   projectId,
+  evaluationDate: requestedDate,
   enqueue,
   claim,
   build,
@@ -221,14 +224,26 @@ export async function runDailyResultsArchiveWorker({
   renewLease,
   release,
   waitForQuietPeriod = wait,
-  heartbeatIntervalMs = 30000
+  heartbeatIntervalMs = 30000,
+  retryCount = 0,
+  shouldContinue = () => true
 }) {
-  const request = await enqueue(Number(projectId));
+  const request = requestedDate
+    ? { evaluationDate: requestedDate }
+    : await enqueue(Number(projectId));
   if (!request?.evaluationDate) throw new Error("No se pudo registrar el corte diario pendiente.");
+  let failedBuilds = 0;
 
   for (;;) {
+    if (!shouldContinue()) return { processed: false, reason: "time-budget" };
     await waitForQuietPeriod(ARCHIVE_QUIET_WINDOW_MS);
-    const lease = await claim(request.evaluationDate);
+    let lease;
+    try {
+      lease = await claim(request.evaluationDate);
+    } catch (error) {
+      if (failedBuilds++ < retryCount && shouldContinue()) continue;
+      throw error;
+    }
     if (!lease) return { processed: false, reason: "leased-or-not-quiet" };
 
     let snapshot;
@@ -242,12 +257,17 @@ export async function runDailyResultsArchiveWorker({
       : null;
     try {
       snapshot = await build(lease);
+      if (!shouldContinue()) {
+        await release(lease).catch(() => {});
+        return { processed: false, reason: "time-budget" };
+      }
       if (heartbeatError) throw heartbeatError;
       if (renewLease && !await renewLease(lease)) throw new Error("Se perdió la lease del corte diario.");
       const processed = await complete(lease, snapshot);
       if (processed) return { processed: true, generation: lease.requestedGeneration };
     } catch (error) {
       await release(lease).catch(() => {});
+      if (failedBuilds++ < retryCount) continue;
       throw error;
     } finally {
       if (heartbeat) clearInterval(heartbeat);
@@ -256,9 +276,17 @@ export async function runDailyResultsArchiveWorker({
 
 }
 
-async function buildDailyResultsSnapshot({ supabaseUrl, secretKey, sessionToken, evaluationDate, sourceProjectId }) {
+async function buildDailyResultsSnapshot({
+  supabaseUrl,
+  secretKey,
+  sessionToken,
+  evaluationDate,
+  sourceProjectId,
+  allowMissingSource = false,
+  snapshotRpc
+}) {
   const generatedAt = new Date();
-  const snapshotRows = await fetchDailySnapshotRows({ supabaseUrl, secretKey, sessionToken, evaluationDate });
+  const snapshotRows = await fetchDailySnapshotRows({ supabaseUrl, secretKey, sessionToken, evaluationDate, snapshotRpc });
   const groupedRows = { project: [], assignment: [], evaluation: [] };
   for (const row of snapshotRows) {
     const target = groupedRows[row.record_type];
@@ -268,16 +296,20 @@ async function buildDailyResultsSnapshot({ supabaseUrl, secretKey, sessionToken,
     target.push(row.row_data);
   }
   const allProjects = groupedRows.project;
-  const sourceProject = allProjects.find((project) => Number(project.id) === sourceProjectId);
-  if (!sourceProject) throw new Error("El proyecto de la evaluación ya no existe en el día solicitado.");
   const uniqueProjects = [...new Map(allProjects.map((project) => [Number(project.id), project])).values()];
-  if (!uniqueProjects.length) throw new Error("No hay proyectos para generar el corte diario.");
+  const sourceProject = uniqueProjects.find((project) => Number(project.id) === sourceProjectId);
+  if (!allowMissingSource && !sourceProject) throw new Error("El proyecto de la evaluación ya no existe en el día solicitado.");
+  if (!uniqueProjects.length) {
+    if (allowMissingSource) return { empty: true, evaluationDate, sourceProjectId };
+    throw new Error("No hay proyectos para generar el corte diario.");
+  }
   const assignments = groupedRows.assignment;
   const evaluations = groupedRows.evaluation;
 
   const pdfBase64 = await makePdf({ evaluationDate, projects: uniqueProjects, assignments, evaluations, generatedAt });
   const fileName = `resultados_${evaluationDate}_todas_las_ferias.pdf`;
   return {
+    empty: false,
     sourceProjectId,
     evaluationDate,
     projectCount: uniqueProjects.length,
@@ -345,6 +377,94 @@ export async function archiveDailyResultsAfterEvaluation({ supabaseUrl, secretKe
       p_session_token: sessionToken,
       p_evaluation_date: lease.evaluationDate,
       p_lease_token: lease.leaseToken
-    })
+    }),
+    retryCount: 2
   });
+}
+
+export async function retryPendingDailyResultsArchives({
+  supabaseUrl,
+  secretKey,
+  maxDates = 14,
+  maxRuntimeMs = 240000,
+  now = Date.now
+}) {
+  if (!supabaseUrl || !secretKey) throw new Error("Falta la configuración segura de Supabase.");
+  const startedAt = now();
+  const pending = await callRpc(supabaseUrl, secretKey, "list_pending_daily_results_pdf_archives", {
+    p_limit: maxDates
+  });
+  if (!Array.isArray(pending)) throw new Error("Supabase devolvió una cola diaria inválida.");
+
+  const processed = [];
+  const failed = [];
+  const skipped = [];
+  for (const job of pending) {
+    const evaluationDate = job?.evaluation_date;
+    if (typeof evaluationDate !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(evaluationDate)) continue;
+    if (now() - startedAt >= maxRuntimeMs) break;
+    try {
+      const result = await runDailyResultsArchiveWorker({
+        evaluationDate,
+        enqueue: async () => ({ evaluationDate }),
+        claim: async (date) => {
+          const result = await callRpc(supabaseUrl, secretKey, "claim_daily_results_pdf_archive_worker", {
+            p_evaluation_date: date
+          });
+          const row = Array.isArray(result) ? result[0] : result;
+          return row?.lease_token ? {
+            evaluationDate: row.evaluation_date,
+            sourceProjectId: Number(row.source_project_id),
+            requestedGeneration: Number(row.requested_generation),
+            leaseToken: row.lease_token
+          } : null;
+        },
+        build: (lease) => buildDailyResultsSnapshot({
+          supabaseUrl,
+          secretKey,
+          sessionToken: null,
+          evaluationDate: lease.evaluationDate,
+          sourceProjectId: lease.sourceProjectId,
+          allowMissingSource: true,
+          snapshotRpc: "get_daily_results_pdf_snapshot_worker"
+        }),
+        complete: async (lease, snapshot) => {
+          if (snapshot.empty) {
+            return callRpc(supabaseUrl, secretKey, "acknowledge_empty_daily_results_pdf_archive_worker", {
+              p_evaluation_date: lease.evaluationDate,
+              p_requested_generation: lease.requestedGeneration,
+              p_lease_token: lease.leaseToken
+            });
+          }
+          return callRpc(supabaseUrl, secretKey, "complete_daily_results_pdf_archive_worker", {
+            p_evaluation_date: lease.evaluationDate,
+            p_source_project_id: snapshot.sourceProjectId,
+            p_requested_generation: lease.requestedGeneration,
+            p_lease_token: lease.leaseToken,
+            p_feria: "Todas las ferias",
+            p_project_count: snapshot.projectCount,
+            p_file_name: snapshot.fileName,
+            p_pdf_base64: snapshot.pdfBase64,
+            p_generated_at: snapshot.generatedAt
+          });
+        },
+        renewLease: (lease) => callRpc(supabaseUrl, secretKey, "renew_daily_results_pdf_archive_worker", {
+          p_evaluation_date: lease.evaluationDate,
+          p_lease_token: lease.leaseToken
+        }),
+        release: (lease) => callRpc(supabaseUrl, secretKey, "release_daily_results_pdf_archive_worker", {
+          p_evaluation_date: lease.evaluationDate,
+          p_lease_token: lease.leaseToken
+        }),
+        shouldContinue: () => now() - startedAt < maxRuntimeMs,
+        retryCount: 1
+      });
+      if (result.processed) processed.push(evaluationDate);
+      else if (result.reason === "time-budget") break;
+      else skipped.push(evaluationDate);
+    } catch {
+      failed.push(evaluationDate);
+    }
+  }
+  return { pending: pending.length, processed, failed, skipped };
 }

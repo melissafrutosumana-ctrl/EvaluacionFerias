@@ -1,5 +1,11 @@
 {
   "cleanUrls": true,
+  "crons": [
+    {
+      "path": "/api/cron-daily-results-pdf",
+      "schedule": "15 6 * * *"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",

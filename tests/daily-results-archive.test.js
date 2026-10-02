@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { afterEach, test } from "node:test";
 import { readFile } from "node:fs/promises";
-import { buildDailyResultsRows, fetchDailySnapshotRows, runDailyResultsArchiveWorker } from "../server/daily-results-archive.js";
+import { buildDailyResultsRows, fetchDailySnapshotRows, retryPendingDailyResultsArchives, runDailyResultsArchiveWorker } from "../server/daily-results-archive.js";
 import { getArchiveEvaluationDates, resolveArchivePageResults } from "../js/results-pdf-archives.js";
 
 const originalFetch = globalThis.fetch;
@@ -66,6 +66,32 @@ test("daily snapshot migration provides stable ordered pages and service-role-on
     assert.match(snapshotFunction, new RegExp(`'${field}', e\\.${field}`));
   }
   assert.doesNotMatch(snapshotFunction, /to_jsonb\s*\(/i);
+});
+
+test("daily recovery uses sessionless worker snapshot RPC and service-role-only SQL functions", async () => {
+  const migration = await readFile(new URL("../supabase/migrations/20261002000000_daily_results_pdf_autonomous_retry.sql", import.meta.url), "utf8");
+  for (const name of [
+    "list_pending_daily_results_pdf_archives",
+    "claim_daily_results_pdf_archive_worker",
+    "renew_daily_results_pdf_archive_worker",
+    "release_daily_results_pdf_archive_worker",
+    "get_daily_results_pdf_snapshot_worker",
+    "complete_daily_results_pdf_archive_worker",
+    "acknowledge_empty_daily_results_pdf_archive_worker"
+  ]) {
+    const index = migration.indexOf(`CREATE OR REPLACE FUNCTION public.${name}`);
+    assert.notEqual(index, -1, `${name} exists`);
+    const functionSource = migration.slice(index, migration.indexOf("$$;", index) + 3);
+    assert.match(functionSource, /SECURITY DEFINER/);
+    assert.match(migration.slice(index), new RegExp(`REVOKE ALL ON FUNCTION public\\.${name}\\([^;]+FROM PUBLIC, anon, authenticated`));
+    assert.match(migration.slice(index), new RegExp(`GRANT EXECUTE ON FUNCTION public\\.${name}\\([^;]+TO service_role`));
+  }
+  assert.match(migration, /ORDER BY snapshot_rows\.kind, snapshot_rows\.id\s+OFFSET p_offset\s+LIMIT p_limit/);
+  assert.match(migration, /WHERE job\.requested_generation > job\.processed_generation/);
+  assert.match(migration, /SET processed_generation = p_requested_generation,[\s\S]+?lease_token = NULL/);
+  assert.doesNotMatch(migration.slice(migration.indexOf("CREATE OR REPLACE FUNCTION public.get_daily_results_pdf_snapshot_worker"), migration.indexOf("CREATE OR REPLACE FUNCTION public.complete_daily_results_pdf_archive_worker")), /app_sessions|p_session_token/);
+  assert.match(migration, /IF p_project_count < 1/);
+  assert.match(migration, /CREATE OR REPLACE FUNCTION public\.acknowledge_empty_daily_results_pdf_archive_worker/);
 });
 
 test("daily PDF row generation works with the restricted snapshot fields", () => {
@@ -299,6 +325,84 @@ test("failed archive builds release the lease and keep the generation pending fo
   });
   assert.equal(database.queue.processed, 2);
   assert.deepEqual(database.queue.saved, [2]);
+});
+
+test("immediate retries reuse one enqueued generation and one lease at a time", async () => {
+  const database = createQueue();
+  let buildCount = 0;
+  let enqueueCount = 0;
+  let claimCount = 0;
+  const result = await runDailyResultsArchiveWorker({
+    projectId: 19,
+    ...database,
+    enqueue: async (projectId) => {
+      enqueueCount++;
+      return database.enqueue(projectId);
+    },
+    claim: async (date) => {
+      claimCount++;
+      return database.claim(date);
+    },
+    retryCount: 2,
+    waitForQuietPeriod: async () => {},
+    build: async (lease) => {
+      buildCount++;
+      if (buildCount < 3) throw new Error("temporary failure");
+      return { generation: lease.requestedGeneration };
+    }
+  });
+
+  assert.equal(result.processed, true);
+  assert.equal(enqueueCount, 1);
+  assert.equal(database.queue.generation, 1);
+  assert.equal(claimCount, 3);
+  assert.equal(buildCount, 3);
+  assert.deepEqual(database.queue.saved, [1]);
+});
+
+test("cron recovery processes a bounded pending date batch without an app session", async () => {
+  const calls = [];
+  globalThis.fetch = async (url, options) => {
+    const rpc = new URL(url).pathname.split("/").at(-1);
+    const params = JSON.parse(options.body);
+    calls.push({ rpc, params });
+    if (rpc === "list_pending_daily_results_pdf_archives") {
+      assert.equal(params.p_limit, 14);
+      return new Response(JSON.stringify([{ evaluation_date: "2026-10-01" }]), { status: 200 });
+    }
+    if (rpc === "claim_daily_results_pdf_archive_worker") {
+      return new Response(JSON.stringify([{
+        evaluation_date: "2026-10-01", source_project_id: 99, requested_generation: 4, lease_token: "lease-1"
+      }]), { status: 200 });
+    }
+    if (rpc === "get_daily_results_pdf_snapshot_worker") {
+      assert.equal("p_session_token" in params, false);
+      assert.equal(params.p_evaluation_date, "2026-10-01");
+      return new Response(JSON.stringify([]), { status: 200 });
+    }
+    if (rpc === "acknowledge_empty_daily_results_pdf_archive_worker") {
+      return new Response("true", { status: 200 });
+    }
+    if (rpc === "renew_daily_results_pdf_archive_worker") {
+      return new Response("true", { status: 200 });
+    }
+    assert.fail(`Unexpected RPC ${rpc}`);
+  };
+
+  const result = await retryPendingDailyResultsArchives({
+    supabaseUrl: "https://project.supabase.co",
+    secretKey: "sb_secret_test",
+    now: () => 0
+  });
+  assert.deepEqual(result, { pending: 1, processed: ["2026-10-01"], failed: [], skipped: [] });
+  assert.deepEqual(calls.map(({ rpc }) => rpc), [
+    "list_pending_daily_results_pdf_archives",
+    "claim_daily_results_pdf_archive_worker",
+    "get_daily_results_pdf_snapshot_worker",
+    "renew_daily_results_pdf_archive_worker",
+    "acknowledge_empty_daily_results_pdf_archive_worker"
+  ]);
+  assert.equal(calls.some(({ params }) => JSON.stringify(params).includes("session_token")), false);
 });
 
 test("queue migration couples source changes and PDF persistence to generation acknowledgement", async () => {

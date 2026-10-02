@@ -1,5 +1,5 @@
 import { normalizeRoleName, fetchAllRpc } from "./utils.js?v=16.17";
-import { isSessionCacheFresh, mergeRowsById, readSessionCache, writeSessionCache } from "./cache.js?v=3.29";
+import { areRowsEqual, isFullReconciliationDue, isSessionCacheFresh, mergeRowsById, readSessionCache, replaceRowsById, writeSessionCache } from "./cache.js?v=3.30";
 import { sortProjectsByNewest } from "./project-order.js?v=1";
 
 export { fetchAllRpc } from "./utils.js?v=16.17";
@@ -8,9 +8,15 @@ const EVALUATIONS_CACHE_KEY = "admin:evaluations";
 const EVALUATIONS_CACHE_VERSION = 4;
 const EVALUATIONS_CACHE_MAX_AGE_MS = 5 * 60 * 1000;
 const EVALUATIONS_SYNC_INTERVAL_MS = 15000;
+const ADMIN_REFERENCE_SYNC_INTERVAL_MS = 60000;
+const EVALUATIONS_FULL_RECONCILIATION_INTERVAL_MS = 5 * 60 * 1000;
 let evaluationsSyncTimer = null;
 let evaluationsVisibilityHandler = null;
 let evaluationsSyncPromise = null;
+let adminReferenceSyncTimer = null;
+let adminReferenceVisibilityHandler = null;
+let adminReferenceSyncPromise = null;
+let adminReferenceSnapshot = null;
 
 function readEvaluationsCache() {
     const cache = readSessionCache(EVALUATIONS_CACHE_KEY);
@@ -27,13 +33,15 @@ function getLatestEvaluationTimestamp(rows) {
     return timestamps.length ? new Date(Math.max(...timestamps)).toISOString() : new Date().toISOString();
 }
 
-function saveEvaluationsCache(rows, previousCache = null) {
+function saveEvaluationsCache(rows, previousCache = null, fullyReconciled = false) {
+    const syncedAt = Date.now();
     const nextCache = {
         version: EVALUATIONS_CACHE_VERSION,
         complete: true,
         rowCount: rows.length,
         rows,
-        syncedAt: Date.now(),
+        syncedAt,
+        lastFullSyncAt: fullyReconciled ? syncedAt : previousCache?.lastFullSyncAt,
         cursor: getLatestEvaluationTimestamp(rows) ?? previousCache?.cursor
     };
     writeSessionCache(EVALUATIONS_CACHE_KEY, nextCache);
@@ -42,7 +50,7 @@ function saveEvaluationsCache(rows, previousCache = null) {
 
 async function fetchAllEvaluationsFromServer() {
     const rows = await fetchAllRpc("get_evaluations");
-    return saveEvaluationsCache(rows).rows;
+    return saveEvaluationsCache(rows, null, true).rows;
 }
 
 async function syncEvaluationsFromServer() {
@@ -53,6 +61,13 @@ async function syncEvaluationsFromServer() {
         if (!cache) {
             const rows = await fetchAllEvaluationsFromServer();
             return { rows, changed: true };
+        }
+
+        if (isFullReconciliationDue(cache, EVALUATIONS_FULL_RECONCILIATION_INTERVAL_MS)) {
+            const serverRows = await fetchAllRpc("get_evaluations");
+            const reconciliation = replaceRowsById(cache.rows, serverRows);
+            const rows = saveEvaluationsCache(reconciliation.rows, cache, true).rows;
+            return { rows, changed: reconciliation.changed };
         }
 
         const changedRows = await fetchAllRpc("get_evaluations_since", {
@@ -149,6 +164,48 @@ export function startEvaluationsSync(onUpdate) {
         if (document.visibilityState === "visible") void sync();
     };
     document.addEventListener("visibilitychange", evaluationsVisibilityHandler);
+}
+
+export function startAdminReferenceDataSync(onUpdate, currentSnapshot = null) {
+    stopAdminReferenceDataSync();
+    adminReferenceSnapshot = currentSnapshot;
+
+    const sync = async() => {
+        if (document.visibilityState === "hidden" || adminReferenceSyncPromise) return;
+
+        adminReferenceSyncPromise = Promise.all([loadProjects(), loadJudgeAssignments()])
+            .then(([projects, assignments]) => {
+                if (areRowsEqual(adminReferenceSnapshot?.projects, projects) && areRowsEqual(adminReferenceSnapshot?.assignments, assignments)) return;
+                adminReferenceSnapshot = { projects, assignments };
+                onUpdate?.(projects, assignments);
+            })
+            .catch((error) => {
+                console.warn("No se pudieron sincronizar proyectos y asignaciones.", error);
+            })
+            .finally(() => {
+                adminReferenceSyncPromise = null;
+            });
+
+        await adminReferenceSyncPromise;
+    };
+
+    adminReferenceSyncTimer = window.setInterval(sync, ADMIN_REFERENCE_SYNC_INTERVAL_MS);
+    adminReferenceVisibilityHandler = () => {
+        if (document.visibilityState === "visible") void sync();
+    };
+    document.addEventListener("visibilitychange", adminReferenceVisibilityHandler);
+}
+
+export function stopAdminReferenceDataSync() {
+    if (adminReferenceSyncTimer) {
+        window.clearInterval(adminReferenceSyncTimer);
+        adminReferenceSyncTimer = null;
+    }
+
+    if (adminReferenceVisibilityHandler) {
+        document.removeEventListener("visibilitychange", adminReferenceVisibilityHandler);
+        adminReferenceVisibilityHandler = null;
+    }
 }
 
 export function stopEvaluationsSync() {

@@ -1,6 +1,6 @@
 import { supabase } from "./supabase.js?v=4";
 import { enforceRole, bindLogout } from "./auth.js?v=3.36";
-import { fetchAllRpc } from "./data.js?v=3.33";
+import { fetchAllRpc } from "./data.js?v=3.34";
 import { escapeHTML, showToast } from "./utils.js?v=16.17";
 import { icon } from "./icons.js?v=1";
 

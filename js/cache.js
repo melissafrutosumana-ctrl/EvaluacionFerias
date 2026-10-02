@@ -76,3 +76,25 @@ export function mergeRowsById(currentRows, changedRows) {
 
   return [...rowsById.values()];
 }
+
+export function replaceRowsById(currentRows, serverRows) {
+  const rowsById = new Map((serverRows ?? []).map((row) => [String(row.id), row]));
+  const currentById = new Map((currentRows ?? []).map((row) => [String(row.id), row]));
+  const changed = rowsById.size !== currentById.size || [...rowsById].some(([id, row]) =>
+    JSON.stringify(row) !== JSON.stringify(currentById.get(id))
+  );
+
+  return { rows: [...rowsById.values()], changed };
+}
+
+export function areRowsEqual(leftRows, rightRows) {
+  if ((leftRows ?? []).length !== (rightRows ?? []).length) return false;
+  const left = (leftRows ?? []).map((row) => JSON.stringify(row)).sort();
+  const right = (rightRows ?? []).map((row) => JSON.stringify(row)).sort();
+  return left.every((row, index) => row === right[index]);
+}
+
+export function isFullReconciliationDue(cache, intervalMs, now = Date.now()) {
+  const lastFullSyncAt = cache?.lastFullSyncAt;
+  return !Number.isFinite(lastFullSyncAt) || lastFullSyncAt > now || now - lastFullSyncAt >= intervalMs;
+}

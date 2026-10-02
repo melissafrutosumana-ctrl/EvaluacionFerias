@@ -1,7 +1,7 @@
 import { supabase } from "./supabase.js?v=4";
 import { showToast, FESTIVAL_FERIA_NAME, PRONAFECYT_CODE_MAX, getFestivalProjectLabel, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore, getEvaluationStatus, isEvaluationComplete, sortEvaluationResults } from "./utils.js?v=16.17";
 import { getExpotecnicaRubricByCategory, getFestivalRubricBySubcategory } from "./rubrics.js?v=2.1";
-import { loadUsers, fetchAllEvaluations, fetchAllRpc } from "./data.js?v=3.33";
+import { loadUsers, fetchAllEvaluations, fetchAllRpc } from "./data.js?v=3.34";
 
 let jspdfPromise = null;
 

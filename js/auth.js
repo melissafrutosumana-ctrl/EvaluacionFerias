@@ -1,7 +1,7 @@
 import { supabase } from "./supabase.js?v=4";
 import { normalizeRoleName, showToast, setupHideOnScroll, openModalAccesible, closeModalAccesible, fetchAllRpc } from "./utils.js?v=16.17";
 import { generateJudgePDF } from "./pdf.js?v=3.27";
-import { CACHE_SCOPE, clearSessionCache } from "./cache.js?v=3.29";
+import { CACHE_SCOPE, clearSessionCache } from "./cache.js?v=3.30";
 import { icon } from "./icons.js?v=1";
 
 export const SESSION_KEY = "ef_user_session";
