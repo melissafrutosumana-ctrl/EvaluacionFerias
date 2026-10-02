@@ -7311,7 +7311,8 @@ body[data-page="results-pdf-archives"] {
     font-weight: 600;
 }
 
-.archive-filters input {
+.archive-filters input,
+.archive-filters select {
     width: 100%;
     min-height: 44px;
     padding: 0.6rem 0.75rem;

@@ -1,5 +1,6 @@
 import { supabase } from "./supabase.js?v=4";
 import { enforceRole, bindLogout } from "./auth.js?v=3.35";
+import { fetchAllRpc } from "./data.js?v=3.32";
 import { escapeHTML, showToast } from "./utils.js?v=16.15";
 import { icon } from "./icons.js?v=1";
 
@@ -19,6 +20,31 @@ function decodePdf(base64) {
   return Uint8Array.from(binary, (character) => character.charCodeAt(0));
 }
 
+function isValidEvaluationDate(value) {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const [year, month, day] = value.split("-").map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
+}
+
+export function getArchiveEvaluationDates(projects) {
+  return [...new Set((projects ?? [])
+    .map((project) => project.fecha_evaluacion)
+    .filter(isValidEvaluationDate))]
+    .sort();
+}
+
+export function resolveArchivePageResults(archiveResult, projectsResult) {
+  if (archiveResult.status !== "fulfilled") throw archiveResult.reason;
+  if (archiveResult.value.error) throw archiveResult.value.error;
+
+  return {
+    archives: Array.isArray(archiveResult.value.data) ? archiveResult.value.data : [],
+    projects: projectsResult.status === "fulfilled" ? projectsResult.value : [],
+    projectsUnavailable: projectsResult.status === "rejected"
+  };
+}
+
 export async function bootstrapResultsPdfArchivesPage() {
   const user = await enforceRole("administrador");
   if (!user) return;
@@ -31,6 +57,14 @@ export async function bootstrapResultsPdfArchivesPage() {
   const dateFilter = document.querySelector("[data-archive-date]");
   if (!list || !status || !count || !search || !dateFilter) return;
   let loadedArchives = [];
+
+  const populateDateFilter = (projects) => {
+    const previousDate = dateFilter.value;
+    const dates = getArchiveEvaluationDates(projects);
+    dateFilter.replaceChildren(new Option("Todos los días", ""));
+    dates.forEach((date) => dateFilter.add(new Option(formatArchiveDate(date), date)));
+    dateFilter.value = dates.includes(previousDate) ? previousDate : "";
+  };
 
   const render = (archives) => {
     const query = search.value.trim().toLocaleLowerCase("es-CR");
@@ -97,10 +131,16 @@ export async function bootstrapResultsPdfArchivesPage() {
   dateFilter.addEventListener("change", () => render(loadedArchives));
 
   try {
-    const { data, error } = await supabase.rpc("get_admin_results_pdf_archives", {});
-    if (error) throw error;
-    loadedArchives = Array.isArray(data) ? data : [];
-    status.textContent = "";
+    const [archiveResult, projectsResult] = await Promise.allSettled([
+      supabase.rpc("get_admin_results_pdf_archives", {}),
+      fetchAllRpc("get_projects")
+    ]);
+    const pageResults = resolveArchivePageResults(archiveResult, projectsResult);
+    loadedArchives = pageResults.archives;
+    populateDateFilter(pageResults.projects);
+    status.textContent = pageResults.projectsUnavailable
+      ? "No se pudieron cargar los días con proyectos. El filtro solo mostrará «Todos los días»."
+      : "";
     render(loadedArchives);
   } catch (error) {
     console.error("Error loading results PDF archive:", error);

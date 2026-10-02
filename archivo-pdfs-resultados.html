@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/styles.css?v=17.35">
+    <link rel="stylesheet" href="/css/styles.css?v=17.36">
 </head>
 <body data-page="results-pdf-archives">
     <a class="skip-link" href="#main-content">Saltar al contenido principal</a>
@@ -46,13 +46,15 @@
                 <label for="archive-search">Buscar por feria o archivo</label>
                 <input id="archive-search" type="search" data-archive-search placeholder="Ej. Feria Científica">
                 <label for="archive-date">Día evaluado</label>
-                <input id="archive-date" type="date" data-archive-date>
+                <select id="archive-date" data-archive-date>
+                    <option value="">Todos los días</option>
+                </select>
             </div>
             <p class="form-status" data-archive-status role="status" aria-live="polite"></p>
             <div class="archive-list" data-results-pdf-archives></div>
         </section>
-        <p class="archive-footnote">El filtro de fecha distingue el día evaluado de la hora en que se guardó el archivo.</p>
+        <p class="archive-footnote">El menú muestra los días con proyectos; la hora indica cuándo se guardó cada archivo.</p>
     </main>
-    <script type="module" src="/js/main.js?v=3.51"></script>
+    <script type="module" src="/js/main.js?v=3.52"></script>
 </body>
 </html>
