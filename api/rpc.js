@@ -220,12 +220,12 @@ export default async function handler(request, response) {
   }
 
   if (functionName === "logout_session") clearSessionCookie(response);
-  if (functionName === "save_evaluations_batch") {
+  if (functionName === "save_evaluations_batch" || functionName === "admin_set_manual_escrito") {
     waitUntil(archiveDailyResultsAfterEvaluation({
       supabaseUrl,
       secretKey,
       sessionToken,
-      projectId: suppliedParams.p_proyecto_id
+      projectId: suppliedParams.p_proyecto_id ?? suppliedParams.p_project_id
     }).catch((error) => {
       console.error("Daily results PDF archive update failed:", error);
     }));

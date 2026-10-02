@@ -1,8 +1,8 @@
 import { initIcons } from "./icons.js?v=1";
-import { bootstrapLoginPage } from "./auth.js?v=3.35";
-import { bootstrapJudgePage } from "./judge.js?v=3.37";
-import { bootstrapAdminPage } from "./admin.js?v=3.48";
-import { bootstrapResultsPdfArchivesPage } from "./results-pdf-archives.js?v=3";
+import { bootstrapLoginPage } from "./auth.js?v=3.36";
+import { bootstrapJudgePage } from "./judge.js?v=3.38";
+import { bootstrapAdminPage } from "./admin.js?v=3.49";
+import { bootstrapResultsPdfArchivesPage } from "./results-pdf-archives.js?v=3.1";
 
 async function bootstrapApp() {
   initIcons();

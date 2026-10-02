@@ -1,10 +1,10 @@
 import { supabase } from "./supabase.js?v=4";
-import { escapeHTML, showToast, setMessage, fillSelectGroupedByTipo, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, FESTIVAL_FERIA_NAME, getFestivalProjectLabel, renderJudgeRubric } from "./utils.js?v=16.15";
-import { enforceRole, bindLogout } from "./auth.js?v=3.35";
+import { escapeHTML, showToast, setMessage, fillSelectGroupedByTipo, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, FESTIVAL_FERIA_NAME, getFestivalProjectLabel, renderJudgeRubric, saveObservationRpc } from "./utils.js?v=16.17";
+import { enforceRole, bindLogout } from "./auth.js?v=3.36";
 import { icon } from "./icons.js?v=1";
-import { loadAssignedProjectsForJudge, fetchAllRpc } from "./data.js?v=3.32";
-import { getRubricIndicatorsByFeria, getExpotecnicaRubricByCategory, getPronatecytRubricByCategory, getFestivalRubricBySubcategory, getFestivalRubricByCategory } from "./rubrics.js?v=2";
-import { generateJudgePDF } from "./pdf.js?v=3.26";
+import { loadAssignedProjectsForJudge, fetchAllRpc } from "./data.js?v=3.33";
+import { getRubricIndicatorsByFeria, getExpotecnicaRubricByCategory, getPronatecytRubricByCategory, getFestivalRubricBySubcategory, getFestivalRubricByCategory } from "./rubrics.js?v=2.1";
+import { generateJudgePDF } from "./pdf.js?v=3.27";
 
 export async function bootstrapJudgePage() {
   bindLogout();
@@ -385,13 +385,11 @@ export async function bootstrapJudgePage() {
     const trimmed = String(texto ?? "").trim();
     if (!projectId || !judgeId) return;
 
-    try {
-      await supabase.rpc("save_observation", {
+    await saveObservationRpc((...args) => supabase.rpc(...args), {
         p_proyecto_id: projectId,
         p_tipo_evaluacion: tipoEval,
         p_texto: trimmed
-      });
-    } catch { /* ignorar: fallo silencioso de carga */ }
+    });
   }
 
   function formatEvaluationDate(value) {
@@ -692,6 +690,7 @@ export async function bootstrapJudgePage() {
     const selectedProject = assignedProjectsCache.find((p) => Number(p.id) === Number(proyectoId));
     const tipoEval = selectedProject?.tipo_evaluacion ?? "Exposición";
 
+    let evaluationsSaved = false;
     try {
       const { error } = await supabase.rpc("save_evaluations_batch", {
         p_proyecto_id: proyectoId,
@@ -699,11 +698,12 @@ export async function bootstrapJudgePage() {
         p_evaluaciones: evaluaciones.map(({ criterio, nota }) => ({ criterio, nota }))
       });
       if (error) throw error;
+      evaluationsSaved = true;
 
-      clearTimeout(draftSaveTimer);
-      await deleteDraft(proyectoId);
       const observacionTexto = String(formData.get("observacion") ?? "");
       await saveObservacion(proyectoId, user.id, tipoEval, observacionTexto);
+      clearTimeout(draftSaveTimer);
+      await deleteDraft(proyectoId);
       evaluationForm.reset();
       setMessage(evaluationSaveStatus, "Evaluación guardada correctamente.", "success");
       showToast("Evaluación guardada correctamente.", "success");
@@ -714,8 +714,11 @@ export async function bootstrapJudgePage() {
         setMessage(evaluationSaveStatus, "La evaluación quedó guardada, pero no se pudo actualizar la vista. Recarga la página para ver el estado actual.", "error");
       }
     } catch {
-      setMessage(evaluationSaveStatus, "No se pudo confirmar el guardado de toda la rúbrica. Tus respuestas siguen en pantalla; revisa la lista de evaluaciones antes de intentar nuevamente.", "error");
-      showToast("No se pudo guardar la rúbrica completa.", "error");
+      const message = evaluationsSaved ?
+        "Las notas quedaron guardadas, pero no se pudo guardar la observación. El comentario sigue en pantalla; inténtalo de nuevo." :
+        "No se pudo confirmar el guardado de toda la rúbrica. Tus respuestas siguen en pantalla; revisa la lista de evaluaciones antes de intentar nuevamente.";
+      setMessage(evaluationSaveStatus, message, "error");
+      showToast(evaluationsSaved ? "No se pudo guardar la observación." : "No se pudo guardar la rúbrica completa.", "error");
     } finally {
       btn.disabled = false;
       btn.textContent = originalText;

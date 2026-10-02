@@ -203,7 +203,23 @@ test("a request without a session cookie is rejected before reaching Supabase", 
 
 test("void RPCs preserve the upstream 204 response without adding a body", async () => {
   setup();
-  globalThis.fetch = async () => new Response(null, { status: 204 });
+  const registeredTasks = [];
+  let fetchCount = 0;
+  globalThis[requestContextSymbol] = {
+    get: () => ({ waitUntil: (promise) => registeredTasks.push(promise) })
+  };
+  globalThis.fetch = async (url, options) => {
+    fetchCount++;
+    if (fetchCount === 1) return new Response(null, { status: 204 });
+    const rpcName = new URL(url).pathname;
+    if (fetchCount === 2) {
+      assert.equal(rpcName, "/rest/v1/rpc/enqueue_daily_results_pdf_archive");
+      assert.equal(JSON.parse(options.body).p_source_project_id, 1);
+      return new Response(JSON.stringify([{ evaluation_date: "2026-10-01", requested_generation: 1 }]), { status: 200 });
+    }
+    assert.equal(rpcName, "/rest/v1/rpc/claim_daily_results_pdf_archive");
+    return new Response(JSON.stringify([]), { status: 200 });
+  };
   const result = response();
 
   await handler(request({ functionName: "admin_set_manual_escrito", params: { p_project_id: 1 } }, {
@@ -213,22 +229,34 @@ test("void RPCs preserve the upstream 204 response without adding a body", async
   assert.equal(result.code, 204);
   assert.equal(result.ended, true);
   assert.equal(result.payload, null);
+  assert.equal(registeredTasks.length, 1);
+  await registeredTasks[0];
 });
 
 test("evaluation saves respond while the daily PDF archive is still pending", async () => {
   setup();
   const registeredTasks = [];
-  let releaseArchive;
+  let releaseClaim;
+  let notifyClaimStarted;
+  const claimStarted = new Promise((resolve) => { notifyClaimStarted = resolve; });
   let fetchCount = 0;
   globalThis[requestContextSymbol] = {
     get: () => ({ waitUntil: (promise) => registeredTasks.push(promise) })
   };
   console.error = () => {};
-  globalThis.fetch = async () => {
+  globalThis.fetch = async (url, options) => {
     fetchCount++;
     if (fetchCount === 1) return new Response("null", { status: 200 });
+    const rpcName = new URL(url).pathname;
+    if (fetchCount === 2) {
+      assert.equal(rpcName, "/rest/v1/rpc/enqueue_daily_results_pdf_archive");
+      assert.equal(JSON.parse(options.body).p_source_project_id, 19);
+      return new Response(JSON.stringify([{ evaluation_date: "2026-10-01", requested_generation: 1 }]), { status: 200 });
+    }
+    assert.equal(rpcName, "/rest/v1/rpc/claim_daily_results_pdf_archive");
+    notifyClaimStarted();
     return new Promise((resolve) => {
-      releaseArchive = () => resolve(new Response(JSON.stringify([]), { status: 200 }));
+      releaseClaim = () => resolve(new Response(JSON.stringify([]), { status: 200 }));
     });
   };
   const result = response();
@@ -242,10 +270,47 @@ test("evaluation saves respond while the daily PDF archive is still pending", as
   assert.deepEqual(result.payload, { data: null });
   assert.equal("archiveWarning" in result.payload, false);
   assert.equal(registeredTasks.length, 1);
-  assert.equal(typeof releaseArchive, "function");
 
-  releaseArchive();
+  await claimStarted;
+  assert.equal(result.code, 200);
+  assert.equal(typeof releaseClaim, "function");
+  releaseClaim();
   await registeredTasks[0];
+});
+
+test("manual written-score saves enqueue the daily PDF archive without changing the 204 response", async () => {
+  setup();
+  const registeredTasks = [];
+  const token = crypto.randomUUID();
+  const errors = [];
+  globalThis[requestContextSymbol] = {
+    get: () => ({ waitUntil: (promise) => registeredTasks.push(promise) })
+  };
+  console.error = (...args) => errors.push(args);
+  let fetchCount = 0;
+  globalThis.fetch = async (url, options) => {
+    fetchCount++;
+    if (fetchCount === 1) {
+      assert.equal(JSON.parse(options.body).p_session_token, token);
+      return new Response(null, { status: 204 });
+    }
+    assert.equal(new URL(url).pathname, "/rest/v1/rpc/enqueue_daily_results_pdf_archive");
+    assert.equal(JSON.parse(options.body).p_source_project_id, 19);
+    throw new Error("temporary archive failure");
+  };
+  const result = response();
+
+  await handler(request({
+    functionName: "admin_set_manual_escrito",
+    params: { p_project_id: 19, p_score: 10 }
+  }, { cookies: { "__Host-ef_session": token } }), result);
+
+  assert.equal(result.code, 204);
+  assert.equal(result.ended, true);
+  assert.equal(registeredTasks.length, 1);
+  await registeredTasks[0];
+  assert.equal(errors.length, 1);
+  assert.match(errors[0][0], /Daily results PDF archive update failed/);
 });
 
 test("the one-time legacy migration sets a cookie only after restore_session succeeds", async () => {

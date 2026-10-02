@@ -1,7 +1,7 @@
 import { supabase } from "./supabase.js?v=4";
-import { showToast, FESTIVAL_FERIA_NAME, PRONAFECYT_CODE_MAX, getFestivalProjectLabel, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore } from "./utils.js?v=16.15";
-import { getExpotecnicaRubricByCategory, getFestivalRubricBySubcategory } from "./rubrics.js?v=2";
-import { loadUsers, fetchAllEvaluations, fetchAllRpc } from "./data.js?v=3.32";
+import { showToast, FESTIVAL_FERIA_NAME, PRONAFECYT_CODE_MAX, getFestivalProjectLabel, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore, getEvaluationStatus, isEvaluationComplete, sortEvaluationResults } from "./utils.js?v=16.17";
+import { getExpotecnicaRubricByCategory, getFestivalRubricBySubcategory } from "./rubrics.js?v=2.1";
+import { loadUsers, fetchAllEvaluations, fetchAllRpc } from "./data.js?v=3.33";
 
 let jspdfPromise = null;
 
@@ -728,9 +728,9 @@ export async function generateAdminPDF() {
       const manualEscrito = projData?.puntaje_escrito_manual != null ? Number(projData.puntaje_escrito_manual) : null;
       const escritoAvgFinal = manualEscrito !== null ? manualEscrito : escritoAvg;
       const escritoVotedFinal = manualEscrito !== null ? 1 : escritoVoted;
-      const evalComplete = (expoTotal === 0 || expoVoted === expoTotal) && (manualEscrito !== null || escritoTotal === 0 || escritoVoted === escritoTotal);
+      const evaluationComplete = isEvaluationComplete({ expoTotal, expoVoted, escritoTotal, escritoVoted, manualEscrito });
       let pdfFinalScore = 0;
-      if (evalComplete) {
+      if (evaluationComplete) {
         const bCode = String(projData?.categoria_pronatecyt || "").split(" ")[0];
         if (projData?.tipo_feria === "Feria Cientifica y Tecnologica") {
           const expoPts = expoAvg; const escritoPts = manualEscrito !== null ? manualEscrito : escritoAvg;
@@ -744,9 +744,9 @@ export async function generateAdminPDF() {
           pdfFinalScore = calcFinalScore(expoVoted, expoAvg, escritoVotedFinal, escritoAvgFinal);
         }
       }
-      results.push({ projectName: projData?.titulo ?? "Proyecto", projectId, manualEscrito, expoJudges, escritoJudges, expoTotal, expoVoted, escritoTotal, escritoVoted, expoAvg, escritoAvg, evalComplete, finalScore: pdfFinalScore, projData });
+      results.push({ projectName: projData?.titulo ?? "Proyecto", projectId, manualEscrito, expoJudges, escritoJudges, expoTotal, expoVoted, escritoTotal, escritoVoted, expoAvg, escritoAvg, evaluationComplete, finalScore: pdfFinalScore, projData });
     }
-    results.sort((a, b) => b.finalScore - a.finalScore);
+    sortEvaluationResults(results);
     function getMaxScoreForProject(pid, tipo) {
       const p = projectsById.get(pid);
       if (!p) return 0;
@@ -851,8 +851,8 @@ export async function generateAdminPDF() {
         doc.text(`${escritoScore}/${escritoMax}`, M+148, y+4.5, {align:"center"});
         doc.setFont("helvetica","bold");
         doc.setFontSize(7.5);
-        doc.setTextColor(r.evalComplete?PDF.PRIMARY:PDF.MUTED_LIGHT);
-        doc.text(r.evalComplete? String(Math.round(r.finalScore)) : "—", M+W-2*M-24, y+4.5, {align:"center"});
+        doc.setTextColor(r.evaluationComplete?PDF.PRIMARY:PDF.MUTED_LIGHT);
+        doc.text(r.evaluationComplete? String(Math.round(r.finalScore)) : "—", M+W-2*M-24, y+4.5, {align:"center"});
       } else {
         const maxScore = getMaxScoreForProject(r.projectId, "Exposición");
         const score = r.expoTotal>0 && r.expoVoted>0 ? String(Math.round(r.expoAvg)) : "0";
@@ -862,8 +862,12 @@ export async function generateAdminPDF() {
         doc.text(`${score}/${maxScore}`, M+W-2*M-24, y+4.5, {align:"center"});
       }
       const totalVoted = r.expoVoted + r.escritoVoted;
-      let stateText = "Pendiente", stateColor = PDF.MUTED_LIGHT;
-      if(totalVoted===0){ stateText="Sin evaluar"; stateColor=PDF.MUTED_LIGHT; } else if(r.evalComplete){ stateText="Completa"; stateColor=PDF.SUCCESS; } else { stateText="Incompleta"; stateColor=PDF.WARNING; }
+      const stateText = getEvaluationStatus({
+        evaluationComplete: r.evaluationComplete,
+        totalVoted,
+        totalAssigned: r.expoTotal + r.escritoTotal
+      });
+      const stateColor = stateText === "Completa" ? PDF.SUCCESS : stateText === "Incompleta" ? PDF.WARNING : PDF.MUTED_LIGHT;
       doc.setFont("helvetica","bold");
       doc.setFontSize(5.5);
       doc.setTextColor(...stateColor);
@@ -952,7 +956,7 @@ export async function generateAdminPDF() {
     const totalVotes = totalExpoVotes+totalEscritoVotes;
     const totalAssigned = totalExpoAssigned+totalEscritoAssigned;
     const pctVotacion = totalAssigned>0? Math.round(totalVotes/totalAssigned*100):0;
-    const completedCount = results.filter(r=>r.evalComplete).length;
+    const completedCount = results.filter(r=>r.evaluationComplete).length;
     doc.setFillColor(...PDF.GOLD_LIGHT);
     doc.setDrawColor(...PDF.GOLD);
     doc.roundedRect(M, y, summaryW, 18, 2,2,"FD");
@@ -963,7 +967,7 @@ export async function generateAdminPDF() {
     doc.setFont("helvetica","normal");
     doc.setFontSize(6.5);
     doc.setTextColor(...PDF.MUTED);
-    doc.text(`Proyecto líder: ${results[0]?.projectName||"—"} — ${results[0]?.evalComplete? Math.round(results[0].finalScore)+" pts":"pendiente"}`, M+4, y+11);
+    doc.text(`Proyecto líder: ${results[0]?.projectName||"—"} — ${results[0]?.evaluationComplete? Math.round(results[0].finalScore)+" pts":"pendiente"}`, M+4, y+11);
     y+=22;
     y = pdfSignatureBlock(doc, y, ["Firma responsable", "Sello institucional"]);
     pdfFooter(doc, now);

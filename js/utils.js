@@ -20,6 +20,33 @@ export {
     calcExpotecnicaFinalScore
 };
 
+export function isEvaluationComplete({ expoTotal, expoVoted, escritoTotal, escritoVoted, manualEscrito }) {
+    const hasManualScore = Number.isFinite(manualEscrito) && manualEscrito >= 0;
+    const hasEvaluationEvidence = expoVoted + escritoVoted > 0 ||
+        hasManualScore;
+    return hasEvaluationEvidence &&
+        (expoTotal === 0 || expoVoted === expoTotal) &&
+        (hasManualScore || escritoTotal === 0 || escritoVoted === escritoTotal);
+}
+
+export function getEvaluationStatus({ evaluationComplete, totalVoted, totalAssigned }) {
+    if (evaluationComplete) return "Completa";
+    if (totalVoted > 0 || totalAssigned > 0) return "Incompleta";
+    return "Sin evaluar";
+}
+
+export function sortEvaluationResults(results) {
+    return results.sort((a, b) =>
+        Number(b.evaluationComplete) - Number(a.evaluationComplete) ||
+        (a.evaluationComplete ? b.finalScore - a.finalScore : 0)
+    );
+}
+
+export async function saveObservationRpc(rpc, params) {
+    const { error } = await rpc("save_observation", params);
+    if (error) throw error;
+}
+
 export const FERIA_TYPES = ["Feria Cientifica y Tecnologica", "Feria Expotecnica", "Festival Estudiantil de las Artes"];
 export const FESTIVAL_CATEGORIES = ["Artes Visuales", "Artes Literarias", "Artes Digitales", "Artes Musicales", "Artes Escenicas"];
 export const FESTIVAL_EDUCATIONAL_LEVELS = ["Primaria", "Secundaria"];
@@ -841,10 +868,6 @@ export async function fetchAllRpc(functionName, params = {}, pageSize = RPC_PAGE
         previousPageFingerprint = pageFingerprint;
 
         rows.push(...page);
-
-        if (page.length < effectivePageSize) {
-            return rows;
-        }
 
         offset += page.length;
     }

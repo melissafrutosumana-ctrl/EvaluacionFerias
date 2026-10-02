@@ -1,8 +1,8 @@
 import { supabase } from "./supabase.js?v=4";
-import { escapeHTML, showToast, setMessage, normalizeRoleName, fillSelect, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, buildFeriaOptions, FESTIVAL_FERIA_NAME, FESTIVAL_CATEGORIES, FESTIVAL_SUBCATEGORIES, FESTIVAL_EDUCATIONAL_LEVELS, EXPOTECNICA_CATEGORIES, EXPOTECNICA_EJES, PRONAFECYT_CATEGORIES, PRONAFECYT_EDUCATIONAL_CATEGORIES, PRONAFECYT_C_RAW_MAX, updateProjectFormFieldsByFeria, getResultCategoryGroupLabel, getFestivalProjectLabel, showSkeleton, confirmDialog, PRONAFECYT_BY_NIVEL, getNivelFromPronatecyt, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore, openModalAccesible, closeModalAccesible, normalizeSearchText, paginateItems, getJudgeProgressLabel } from "./utils.js?v=16.15";
-import { enforceRole, hashPassword, bindLogout } from "./auth.js?v=3.35";
-import { loadProjects, loadJudgeAssignments, loadUsers, fetchAllEvaluations, fetchAllRpc, startEvaluationsSync } from "./data.js?v=3.32";
-import { generateAdminPDF } from "./pdf.js?v=3.26";
+import { escapeHTML, showToast, setMessage, normalizeRoleName, fillSelect, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, buildFeriaOptions, FESTIVAL_FERIA_NAME, FESTIVAL_CATEGORIES, FESTIVAL_SUBCATEGORIES, FESTIVAL_EDUCATIONAL_LEVELS, EXPOTECNICA_CATEGORIES, EXPOTECNICA_EJES, PRONAFECYT_CATEGORIES, PRONAFECYT_EDUCATIONAL_CATEGORIES, PRONAFECYT_C_RAW_MAX, updateProjectFormFieldsByFeria, getResultCategoryGroupLabel, getFestivalProjectLabel, showSkeleton, confirmDialog, PRONAFECYT_BY_NIVEL, getNivelFromPronatecyt, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore, openModalAccesible, closeModalAccesible, normalizeSearchText, paginateItems, getJudgeProgressLabel, isEvaluationComplete, sortEvaluationResults } from "./utils.js?v=16.17";
+import { enforceRole, hashPassword, bindLogout } from "./auth.js?v=3.36";
+import { loadProjects, loadJudgeAssignments, loadUsers, fetchAllEvaluations, fetchAllRpc, startEvaluationsSync } from "./data.js?v=3.33";
+import { generateAdminPDF } from "./pdf.js?v=3.27";
 import { icon } from "./icons.js?v=1";
 import { CACHE_SCOPE, clearSessionCache } from "./cache.js?v=3.29";
 
@@ -524,25 +524,24 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
         const manualEscrito = writtenMax > 0 && proj ?.puntaje_escrito_manual != null ? Number(proj.puntaje_escrito_manual) : null;
         const escritoAvgFinal = manualEscrito !== null ? manualEscrito : escritoAvg;
         const escritoVotedFinal = manualEscrito !== null ? 1 : escritoVoted;
-        const evaluationComplete =
-            (expoTotal === 0 || expoVoted === expoTotal) &&
-            (manualEscrito !== null || escritoTotal === 0 || escritoVoted === escritoTotal);
+        const evaluationComplete = isEvaluationComplete({ expoTotal, expoVoted, escritoTotal, escritoVoted, manualEscrito });
 
-        let finalScore;
+        let calculatedScore;
         if (isScientific) {
             const bCode = String(proj ?.categoria_pronatecyt || "").split(" ")[0];
             const expoPts = expoAvg;
             const escritoPts = manualEscrito !== null ? manualEscrito : escritoAvg;
-            finalScore = calcPronatecytFinalScore(bCode, expoPts, escritoPts);
+            calculatedScore = calcPronatecytFinalScore(bCode, expoPts, escritoPts);
         } else if (isExpotecnica) {
             const expoPts = expoAvg;
             const escritoPts = manualEscrito !== null ? manualEscrito : escritoAvg;
-            finalScore = calcExpotecnicaFinalScore(proj ?.categoria_expotecnica, expoPts, escritoPts);
+            calculatedScore = calcExpotecnicaFinalScore(proj ?.categoria_expotecnica, expoPts, escritoPts);
         } else if (manualEscrito !== null) {
-            finalScore = expoVoted > 0 ? expoAvg + manualEscrito : manualEscrito;
+            calculatedScore = expoVoted > 0 ? expoAvg + manualEscrito : manualEscrito;
         } else {
-            finalScore = calcFinalScore(expoVoted, expoAvg, escritoVotedFinal, escritoAvgFinal);
+            calculatedScore = calcFinalScore(expoVoted, expoAvg, escritoVotedFinal, escritoAvgFinal);
         }
+        const finalScore = evaluationComplete ? calculatedScore : 0;
 
         results.push({
             projectId,
@@ -564,11 +563,11 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
         });
     }
 
-    results.sort((a, b) => b.finalScore - a.finalScore);
+    sortEvaluationResults(results);
 
     const highScoreEl = document.querySelector("[data-highest-score]");
     if (highScoreEl && results.length > 0) {
-        highScoreEl.textContent = results[0].finalScore.toFixed(0);
+        highScoreEl.textContent = results[0].evaluationComplete ? results[0].finalScore.toFixed(0) : "—";
     }
 
     const matchingResults = resultsSearchTerm ? results.filter((result) =>
@@ -630,7 +629,7 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
       </td>
       <td role="cell" headers="scores-expo">${formatJudgeColumn(r.expoJudges, r.expoVoted, r.expoTotal)}</td>
       <td role="cell" class="escrito-cell" headers="scores-written">${escritoCell}</td>
-      <td role="cell" class="score-cell" headers="scores-final"><strong>${r.finalScore.toFixed(0)}</strong></td>
+      <td role="cell" class="score-cell" headers="scores-final"><strong>${r.evaluationComplete ? r.finalScore.toFixed(0) : '<span class="judge-status">Pendiente</span>'}</strong></td>
     </tr>`;
     }
 
