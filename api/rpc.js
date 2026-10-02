@@ -166,17 +166,33 @@ export default async function handler(request, response) {
   delete params.session_token;
   if (isLogin) delete params.p_session_token;
 
+  let range = null;
+  if (request.headers.range) {
+    const rangeUnit = String(request.headers["range-unit"] ?? "items").trim().toLowerCase();
+    const match = String(request.headers.range).trim().match(/^(\d+)-(\d+)$/);
+    const start = match ? Number(match[1]) : NaN;
+    const end = match ? Number(match[2]) : NaN;
+    const limit = end - start + 1;
+    if (rangeUnit !== "items" || !Number.isSafeInteger(start) || !Number.isSafeInteger(end)
+      || end < start || !Number.isSafeInteger(limit)) {
+      response.status(400).json({ error: "Rango de resultados no válido." });
+      return;
+    }
+    range = { offset: start, limit };
+  }
+
   const upstreamApiKey = secretKey;
   const upstreamHeaders = { apikey: upstreamApiKey, "Content-Type": "application/json" };
   if (!upstreamApiKey.startsWith("sb_publishable_") && !upstreamApiKey.startsWith("sb_secret_")) {
     upstreamHeaders.Authorization = `Bearer ${upstreamApiKey}`;
   }
-  if (request.headers.range) upstreamHeaders.Range = request.headers.range;
-  if (request.headers["range-unit"]) upstreamHeaders["Range-Unit"] = request.headers["range-unit"];
-
   let upstreamResponse;
   try {
     const endpoint = new URL(`/rest/v1/rpc/${encodeURIComponent(functionName)}`, supabaseUrl);
+    if (range) {
+      endpoint.searchParams.set("offset", String(range.offset));
+      endpoint.searchParams.set("limit", String(range.limit));
+    }
     upstreamResponse = await fetch(endpoint, {
       method: "POST",
       headers: upstreamHeaders,

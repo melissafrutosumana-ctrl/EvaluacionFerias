@@ -174,6 +174,46 @@ test("protected RPCs replace a submitted token with the HttpOnly cookie token", 
   assert.equal(JSON.stringify(result.payload).includes(cookieToken), false);
 });
 
+test("RPC pagination translates item ranges into PostgREST offset and limit parameters", async () => {
+  setup();
+  let upstreamUrl;
+  let upstreamHeaders;
+  globalThis.fetch = async (url, options) => {
+    upstreamUrl = new URL(url);
+    upstreamHeaders = options.headers;
+    return new Response(JSON.stringify([{ id: 120 }]), { status: 200 });
+  };
+  const result = response();
+
+  await handler(request({ functionName: "get_projects", params: {} }, {
+    cookies: { "__Host-ef_session": crypto.randomUUID() },
+    headers: { range: "120-1119", "range-unit": "items" }
+  }), result);
+
+  assert.equal(upstreamUrl.searchParams.get("offset"), "120");
+  assert.equal(upstreamUrl.searchParams.get("limit"), "1000");
+  assert.equal("Range" in upstreamHeaders, false);
+  assert.equal("Range-Unit" in upstreamHeaders, false);
+  assert.equal(result.code, 200);
+});
+
+test("RPC pagination rejects malformed item ranges before calling Supabase", async () => {
+  setup();
+  let calledSupabase = false;
+  globalThis.fetch = async () => { calledSupabase = true; };
+
+  for (const range of ["120-20", "0-9007199254740991"]) {
+    const result = response();
+    await handler(request({ functionName: "get_projects", params: {} }, {
+      cookies: { "__Host-ef_session": crypto.randomUUID() },
+      headers: { range, "range-unit": "items" }
+    }), result);
+
+    assert.equal(result.code, 400, `expected range ${range} to be rejected`);
+  }
+  assert.equal(calledSupabase, false);
+});
+
 test("protected RPCs fail closed when the server secret is missing", async () => {
   setup();
   delete process.env.SUPABASE_SECRET_KEY;
