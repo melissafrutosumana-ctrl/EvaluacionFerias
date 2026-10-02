@@ -1,14 +1,15 @@
-import { supabase } from "./supabase.js?v=2";
+import { supabase } from "./supabase.js?v=4";
 import { escapeHTML, showToast, setMessage, normalizeRoleName, fillSelect, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, buildFeriaOptions, FESTIVAL_FERIA_NAME, FESTIVAL_CATEGORIES, FESTIVAL_SUBCATEGORIES, FESTIVAL_EDUCATIONAL_LEVELS, EXPOTECNICA_CATEGORIES, EXPOTECNICA_EJES, PRONAFECYT_CATEGORIES, PRONAFECYT_EDUCATIONAL_CATEGORIES, PRONAFECYT_C_RAW_MAX, updateProjectFormFieldsByFeria, getResultCategoryGroupLabel, getFestivalProjectLabel, showSkeleton, confirmDialog, PRONAFECYT_BY_NIVEL, getNivelFromPronatecyt, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore, openModalAccesible, closeModalAccesible, normalizeSearchText, paginateItems, getJudgeProgressLabel } from "./utils.js?v=16.15";
-import { enforceRole, hashPassword, bindLogout } from "./auth.js?v=3.34";
+import { enforceRole, hashPassword, bindLogout } from "./auth.js?v=3.35";
 import { loadProjects, loadJudgeAssignments, loadUsers, fetchAllEvaluations, fetchAllRpc, startEvaluationsSync } from "./data.js?v=3.32";
-import { generateAdminPDF } from "./pdf.js?v=3.24";
+import { generateAdminPDF } from "./pdf.js?v=3.26";
 import { icon } from "./icons.js?v=1";
 import { CACHE_SCOPE, clearSessionCache } from "./cache.js?v=3.29";
 
 let latestAdminReportData = null;
 let resultsSearchTerm = "";
 let resultsCurrentPage = 1;
+let projectsCurrentPage = 1;
 const RESULTS_PAGE_SIZE = 20;
 
 function formatEvaluationDate(value) {
@@ -353,22 +354,50 @@ function renderAdminEvaluationsTable(rows, usersById, projectsById) {
     });
 }
 
-function renderAdminProjectsTable(projects, rows, selectedFeria = "") {
+function isValidEvaluationDate(value) {
+    if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+    const [year, month, day] = value.split("-").map(Number);
+    const date = new Date(Date.UTC(year, month - 1, day));
+    return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
+}
+
+function updateResultsDateOptions(select, projects, feria) {
+    if (!select) return "";
+
+    const previousDate = select.value;
+    const dates = [...new Set(projects
+        .filter((project) => !feria || project.tipo_feria === feria)
+        .map((project) => project.fecha_evaluacion)
+        .filter(isValidEvaluationDate))]
+        .sort();
+
+    select.replaceChildren(new Option("Todos los días", ""));
+    dates.forEach((date) => select.add(new Option(formatEvaluationDate(date), date)));
+    select.value = dates.includes(previousDate) ? previousDate : "";
+    return select.value;
+}
+
+function renderAdminProjectsTable(projects, rows, selectedFeria = "", selectedDate = "") {
     const tbody = document.querySelector("[data-admin-projects]");
 
     if (!tbody) {
         return;
     }
+    const pagination = document.querySelector("[data-admin-projects-pagination]");
 
     const filteredProjects = resultsSearchTerm ?
         projects.filter((project) => normalizeSearchText(project.titulo).includes(resultsSearchTerm)) :
         projects;
+    const pageData = paginateItems(filteredProjects, projectsCurrentPage, RESULTS_PAGE_SIZE);
+    projectsCurrentPage = pageData.currentPage;
 
     if (!filteredProjects.length) {
         const message = projects.length ?
             "No hay proyectos que coincidan con la búsqueda." :
-            selectedFeria ? "No hay proyectos registrados para la feria seleccionada." : "No hay proyectos registrados en ninguna feria.";
-        tbody.innerHTML = `<tr role="row"><td role="cell" colspan="3">${message}</td></tr>`;
+            selectedDate ? "No hay proyectos registrados para el día seleccionado." :
+                selectedFeria ? "No hay proyectos registrados para la feria seleccionada." : "No hay proyectos registrados en ninguna feria.";
+        tbody.innerHTML = `<tr role="row"><td role="cell" colspan="4">${message}</td></tr>`;
+        if (pagination) pagination.innerHTML = "";
         return;
     }
 
@@ -378,13 +407,33 @@ function renderAdminProjectsTable(projects, rows, selectedFeria = "") {
         evaluationCounts.get(row.proyecto_id).add(String(row.criterio ?? ""));
     });
 
-    tbody.innerHTML = filteredProjects
+    tbody.innerHTML = pageData.items
         .map((project) => {
             const count = evaluationCounts.get(project.id)?.size ?? 0;
             const evaluationStatus = count ? `${count} criterios calificados` : "Sin evaluaciones";
-            return `<tr role="row"><td role="cell" headers="admin-project-name">${escapeHTML(project.titulo ?? "Proyecto")}</td><td role="cell" headers="admin-project-status"><span class="evaluation-status${count ? " is-complete" : " is-pending"}">${evaluationStatus}</span></td><td role="cell" headers="admin-project-id">${escapeHTML(String(project.id))}</td></tr>`;
+            return `<tr role="row"><td role="cell" headers="admin-project-name">${escapeHTML(project.titulo ?? "Proyecto")}</td><td role="cell" headers="admin-project-status"><span class="evaluation-status${count ? " is-complete" : " is-pending"}">${evaluationStatus}</span></td><td role="cell" headers="admin-project-id">${escapeHTML(String(project.id))}</td><td role="cell" headers="admin-project-date">${escapeHTML(formatEvaluationDate(project.fecha_evaluacion))}</td></tr>`;
         })
         .join("");
+
+    if (pagination) {
+        if (pageData.totalItems > RESULTS_PAGE_SIZE) {
+            const firstItem = pageData.startIndex + 1;
+            const lastItem = pageData.startIndex + pageData.items.length;
+            pagination.innerHTML = `<span class="results-pagination-summary" aria-live="polite">Mostrando ${firstItem}–${lastItem} de ${pageData.totalItems} proyectos</span><div class="results-pagination-controls"><button type="button" class="btn-secondary btn-sm" data-project-page-step="-1" aria-label="Página anterior" ${pageData.currentPage === 1 ? "disabled" : ""}>Anterior</button><span>Página ${pageData.currentPage} de ${pageData.totalPages}</span><button type="button" class="btn-secondary btn-sm" data-project-page-step="1" aria-label="Página siguiente" ${pageData.currentPage === pageData.totalPages ? "disabled" : ""}>Siguiente</button></div>`;
+        } else {
+            pagination.innerHTML = `<span class="results-pagination-summary" aria-live="polite">Mostrando ${pageData.totalItems} proyectos</span>`;
+        }
+        pagination.onclick = async (event) => {
+            const button = event.target.closest("[data-project-page-step]");
+            if (!button || button.disabled) return;
+            projectsCurrentPage += Number(button.dataset.projectPageStep);
+            await renderAdminReportsByFeria(latestAdminReportData);
+            document.querySelector(".results-section-projects")?.scrollIntoView({
+                behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+                block: "start"
+            });
+        };
+    }
 }
 
 
@@ -727,16 +776,18 @@ async function renderAdminReportsByFeria(reportData = latestAdminReportData) {
     }
 
     const filterEl = document.querySelector("[data-feria-results-filter]");
-    const selectedFeria = filterEl ? filterEl.value : "";
-
     const data = reportData ?? await loadAdminReportData();
     latestAdminReportData = data;
 
     const { users, projects: allProjects, allEvals, assignments: assignmentsResult } = data;
+    const selectedFeria = filterEl ? filterEl.value : "";
+    const dateFilterEl = document.querySelector("[data-results-date-filter]");
+    const selectedDate = updateResultsDateOptions(dateFilterEl, allProjects, selectedFeria);
 
-    const filteredProjects = selectedFeria ?
-        allProjects.filter((p) => p.tipo_feria === selectedFeria) :
-        allProjects;
+    const filteredProjects = allProjects.filter((project) =>
+        (!selectedFeria || project.tipo_feria === selectedFeria) &&
+        (!selectedDate || project.fecha_evaluacion === selectedDate)
+    );
 
     const projectIdsInFeria = new Set(filteredProjects.map((p) => p.id));
 
@@ -761,24 +812,45 @@ async function renderAdminReportsByFeria(reportData = latestAdminReportData) {
     });
 
     renderAdminEvaluationsTable(filteredRows, usersById, projectsById);
-    renderAdminProjectsTable(filteredProjects, filteredRows, selectedFeria);
+    renderAdminProjectsTable(filteredProjects, filteredRows, selectedFeria, selectedDate);
     renderAdminScoresTable(filteredRows, projectsById, assignmentsByProject, selectedFeria);
 
     // Update summary cards
     const uniqueProjects = new Set(filteredProjects.map((project) => project.id));
-    const uniqueJudges = new Set(
-        assignmentsResult
-            .filter((assignment) => projectIdsInFeria.has(assignment.proyecto_id))
-            .map((assignment) => assignment.juez_id)
-    );
-    const totalEval = filteredRows.length;
+    const votedKeys = new Set(filteredRows.map((row) =>
+        `${row.proyecto_id}-${row.juez_id}-${row.tipo_evaluacion ?? "Exposición"}`
+    ));
+    const completedCount = filteredProjects.filter((project) => {
+        const projectAssignments = assignmentsByProject.get(project.id) ?? [];
+        const writtenAssignments = projectAssignments.filter((assignment) => assignment.tipo_evaluacion === "Escrito");
+        const expoAssignments = projectAssignments.filter((assignment) => assignment.tipo_evaluacion !== "Escrito");
+        const manualWrittenScore = project.puntaje_escrito_manual != null;
+        const hasEvaluationWork = projectAssignments.length > 0 || manualWrittenScore;
+        const complete =
+            (expoAssignments.length === 0 || expoAssignments.every((assignment) =>
+                votedKeys.has(`${project.id}-${assignment.juez_id}-${assignment.tipo_evaluacion ?? "Exposición"}`)
+            )) &&
+            (manualWrittenScore || writtenAssignments.length === 0 || writtenAssignments.every((assignment) =>
+                votedKeys.has(`${project.id}-${assignment.juez_id}-${assignment.tipo_evaluacion ?? "Escrito"}`)
+            ));
+        return hasEvaluationWork && complete;
+    }).length;
+    const pendingCount = filteredProjects.length - completedCount;
+    const totalBallots = votedKeys.size;
+    const progress = filteredProjects.length ? Math.round(completedCount / filteredProjects.length * 100) : 0;
 
     const totalProjEl = document.querySelector("[data-total-projects]");
-    const totalJudEl = document.querySelector("[data-total-judges]");
-    const totalEvalEl = document.querySelector("[data-total-evaluations]");
     if (totalProjEl) totalProjEl.textContent = uniqueProjects.size;
-    if (totalJudEl) totalJudEl.textContent = uniqueJudges.size;
-    if (totalEvalEl) totalEvalEl.textContent = totalEval;
+    const completedEl = document.querySelector("[data-completed-projects]");
+    const pendingEl = document.querySelector("[data-pending-projects]");
+    const progressEl = document.querySelector("[data-results-progress]");
+    if (completedEl) completedEl.textContent = completedCount;
+    if (pendingEl) pendingEl.textContent = pendingCount;
+    if (progressEl) {
+        progressEl.textContent = `${progress}%`;
+        progressEl.setAttribute("aria-label", `${progress}% de proyectos completamente evaluados`);
+        progressEl.title = `${totalBallots} evaluaciones recibidas`;
+    }
 }
 
 
@@ -1450,14 +1522,23 @@ export async function bootstrapAdminPage() {
   if (feriaResultsFilter) {
     feriaResultsFilter.addEventListener("change", () => {
       resultsCurrentPage = 1;
+      projectsCurrentPage = 1;
       void renderAdminReportsByFeria(latestAdminReportData);
     });
   }
+
+  const resultsDateFilter = document.querySelector("[data-results-date-filter]");
+  resultsDateFilter?.addEventListener("change", () => {
+    resultsCurrentPage = 1;
+    projectsCurrentPage = 1;
+    void renderAdminReportsByFeria(latestAdminReportData);
+  });
 
   const resultsSearch = document.querySelector("[data-results-search]");
   resultsSearch?.addEventListener("input", () => {
     resultsSearchTerm = normalizeSearchText(resultsSearch.value);
     resultsCurrentPage = 1;
+    projectsCurrentPage = 1;
     void renderAdminReportsByFeria(latestAdminReportData);
   });
 

@@ -1,7 +1,8 @@
 import { initIcons } from "./icons.js?v=1";
-import { bootstrapLoginPage } from "./auth.js?v=3.34";
-import { bootstrapJudgePage } from "./judge.js?v=3.35";
-import { bootstrapAdminPage } from "./admin.js?v=3.46";
+import { bootstrapLoginPage } from "./auth.js?v=3.35";
+import { bootstrapJudgePage } from "./judge.js?v=3.37";
+import { bootstrapAdminPage } from "./admin.js?v=3.48";
+import { bootstrapResultsPdfArchivesPage } from "./results-pdf-archives.js?v=2";
 
 async function bootstrapApp() {
   initIcons();
@@ -13,6 +14,8 @@ async function bootstrapApp() {
     await bootstrapJudgePage();
   } else if (page === "admin") {
     await bootstrapAdminPage();
+  } else if (page === "results-pdf-archives") {
+    await bootstrapResultsPdfArchivesPage();
   }
 }
 

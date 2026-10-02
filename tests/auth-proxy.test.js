@@ -10,6 +10,9 @@ const originalFetch = globalThis.fetch;
 const originalSupabaseUrl = process.env.SUPABASE_URL;
 const originalPublishableKey = process.env.SUPABASE_PUBLISHABLE_KEY;
 const originalSecretKey = process.env.SUPABASE_SECRET_KEY;
+const requestContextSymbol = Symbol.for("@vercel/request-context");
+const originalRequestContext = Object.getOwnPropertyDescriptor(globalThis, requestContextSymbol);
+const originalConsoleError = console.error;
 
 function request(body, overrides = {}) {
   return {
@@ -47,6 +50,9 @@ function setup() {
 
 afterEach(() => {
   globalThis.fetch = originalFetch;
+  console.error = originalConsoleError;
+  if (originalRequestContext) Object.defineProperty(globalThis, requestContextSymbol, originalRequestContext);
+  else delete globalThis[requestContextSymbol];
   if (originalSupabaseUrl === undefined) delete process.env.SUPABASE_URL;
   else process.env.SUPABASE_URL = originalSupabaseUrl;
   if (originalPublishableKey === undefined) delete process.env.SUPABASE_PUBLISHABLE_KEY;
@@ -207,6 +213,39 @@ test("void RPCs preserve the upstream 204 response without adding a body", async
   assert.equal(result.code, 204);
   assert.equal(result.ended, true);
   assert.equal(result.payload, null);
+});
+
+test("evaluation saves respond while the daily PDF archive is still pending", async () => {
+  setup();
+  const registeredTasks = [];
+  let releaseArchive;
+  let fetchCount = 0;
+  globalThis[requestContextSymbol] = {
+    get: () => ({ waitUntil: (promise) => registeredTasks.push(promise) })
+  };
+  console.error = () => {};
+  globalThis.fetch = async () => {
+    fetchCount++;
+    if (fetchCount === 1) return new Response("null", { status: 200 });
+    return new Promise((resolve) => {
+      releaseArchive = () => resolve(new Response(JSON.stringify([]), { status: 200 }));
+    });
+  };
+  const result = response();
+
+  await handler(request({
+    functionName: "save_evaluations_batch",
+    params: { p_proyecto_id: 19, p_evaluaciones: [] }
+  }, { cookies: { "__Host-ef_session": crypto.randomUUID() } }), result);
+
+  assert.equal(result.code, 200);
+  assert.deepEqual(result.payload, { data: null });
+  assert.equal("archiveWarning" in result.payload, false);
+  assert.equal(registeredTasks.length, 1);
+  assert.equal(typeof releaseArchive, "function");
+
+  releaseArchive();
+  await registeredTasks[0];
 });
 
 test("the one-time legacy migration sets a cookie only after restore_session succeeds", async () => {

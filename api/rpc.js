@@ -1,5 +1,7 @@
 import { createHmac } from "node:crypto";
 import { isIP } from "node:net";
+import { waitUntil } from "@vercel/functions";
+import { archiveDailyResultsAfterEvaluation } from "../server/daily-results-archive.js";
 
 const SESSION_COOKIE = "__Host-ef_session";
 
@@ -14,6 +16,8 @@ const ALLOWED_RPCS = new Set([
   "authenticate_user",
   "delete_judge_evaluation_draft",
   "get_assignments",
+  "get_admin_results_pdf_archive",
+  "get_admin_results_pdf_archives",
   "get_evaluations",
   "get_evaluations_since",
   "get_judge_evaluation_draft",
@@ -29,6 +33,7 @@ const ALLOWED_RPCS = new Set([
   "logout_session",
   "restore_session",
   "save_evaluations_batch",
+  "save_admin_results_pdf_archive",
   "save_judge_evaluation_draft",
   "save_observation"
 ]);
@@ -215,6 +220,16 @@ export default async function handler(request, response) {
   }
 
   if (functionName === "logout_session") clearSessionCookie(response);
+  if (functionName === "save_evaluations_batch") {
+    waitUntil(archiveDailyResultsAfterEvaluation({
+      supabaseUrl,
+      secretKey,
+      sessionToken,
+      projectId: suppliedParams.p_proyecto_id
+    }).catch((error) => {
+      console.error("Daily results PDF archive update failed:", error);
+    }));
+  }
   if (upstreamResponse.status === 204) {
     response.status(204).end();
     return;

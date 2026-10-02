@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" type="image/svg+xml" href="/img/favicon.svg">
+    <title>Archivo privado de resultados</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/styles.css?v=17.35">
+</head>
+<body data-page="results-pdf-archives">
+    <a class="skip-link" href="#main-content">Saltar al contenido principal</a>
+    <header class="archive-header">
+        <h1 class="header-brand">
+            <span class="logo-wrap"><img src="/img/descarga.png" alt="Logo Ministerio de Educación Pública"></span>
+            <span>Archivo de resultados</span>
+        </h1>
+        <div class="archive-header-actions">
+            <a class="btn-secondary btn-sm" href="/resultados.html">Volver a resultados</a>
+            <a href="#" data-logout-link class="logout-link">Cerrar sesión</a>
+        </div>
+    </header>
+
+    <main id="main-content" class="archive-main" tabindex="-1">
+        <section class="archive-hero">
+            <div>
+                <span class="eyebrow">Repositorio privado · Solo administradores</span>
+                <h2>Historial de reportes</h2>
+                <p>Los reportes diarios se actualizan al guardar evaluaciones. Las exportaciones manuales también se archivan aquí.</p>
+            </div>
+            <div class="archive-hero-orbit" aria-hidden="true"><span></span><span></span><span></span></div>
+        </section>
+
+        <section class="archive-console" aria-label="Filtros del archivo PDF">
+            <div class="archive-console-heading">
+                <div>
+                    <span class="archive-console-kicker">BIBLIOTECA DE RESPALDOS</span>
+                    <h3>Reportes almacenados</h3>
+                </div>
+                <span class="archive-count" data-archive-count aria-live="polite">Cargando…</span>
+            </div>
+            <div class="archive-filters">
+                <label for="archive-search">Buscar por feria o archivo</label>
+                <input id="archive-search" type="search" data-archive-search placeholder="Ej. Feria Científica">
+                <label for="archive-date">Día evaluado</label>
+                <input id="archive-date" type="date" data-archive-date>
+            </div>
+            <p class="form-status" data-archive-status role="status" aria-live="polite"></p>
+            <div class="archive-list" data-results-pdf-archives></div>
+        </section>
+        <p class="archive-footnote">El filtro de fecha distingue el día evaluado de la hora en que se guardó el archivo.</p>
+    </main>
+    <script type="module" src="/js/main.js?v=3.50"></script>
+</body>
+</html>

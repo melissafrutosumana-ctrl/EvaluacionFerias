@@ -1,55 +1,55 @@
-<!DOCTYPE html>
-<html lang="es">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/svg+xml" href="/img/favicon.svg">
-    <title>Proyectos y Puntajes</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/styles.css?v=17.33">
-</head>
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/img/favicon.svg">
+    <title>Proyectos y Puntajes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/styles.css?v=17.35">
+</head>
 <body data-page="admin" data-admin-view="results">
 
     <a class="skip-link" href="#main-content">Saltar al contenido principal</a>
 
     <header>
-        <h1 class="header-brand">
-            <span class="logo-wrap">
-                <img src="/img/descarga.png" loading="lazy" alt="Logo Ministerio de Educacion Publica">
-            </span>
-            <span>Panel Administrador</span>
-        </h1>
+        <h1 class="header-brand">
+            <span class="logo-wrap">
+                <img src="/img/descarga.png" loading="lazy" alt="Logo Ministerio de Educacion Publica">
+            </span>
+            <span>Panel Administrador</span>
+        </h1>
         <a href="#" data-logout-link class="logout-link"><span data-icon="sign-out" data-icon-size="17" aria-hidden="true"></span><span>Cerrar sesión</span></a>
-    </header>
-
-    <main id="main-content" tabindex="-1">
-        <section class="identity-bar">
-            <div class="identity-bar-inner">
-                <div class="identity-bar-left">
-                    <strong>Admin:</strong>
-                    <span data-admin-name></span>
-                    <span class="feria-badge" data-feria-tag></span>
-                </div>
-            </div>
-        </section>
-
-        <nav class="quick-nav">
-            <a class="quick-nav-link" href="usuarios.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><path d="M16 3.128a4 4 0 0 1 0 7.744"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><circle cx="9" cy="7" r="4"/></svg>Usuarios
-            </a>
-            <a class="quick-nav-link" href="proyectos.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"/></svg>Proyectos
-            </a>
-            <a class="quick-nav-link" href="asignaciones.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg>Asignaciones
-            </a>
-            <a class="quick-nav-link active" href="resultados.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14.66v1.626a2 2 0 0 1-.976 1.696A5 5 0 0 0 7 21.978"/><path d="M14 14.66v1.626a2 2 0 0 0 .976 1.696A5 5 0 0 1 17 21.978"/><path d="M18 9h1.5a1 1 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M6 9a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1z"/><path d="M6 9H4.5a1 1 0 0 1 0-5H6"/></svg>Resultados
-            </a>
-            <a class="quick-nav-link" href="observaciones.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><rect x="7" y="13" width="9" height="4" rx="1"/><rect x="7" y="5" width="12" height="4" rx="1"/></svg>Observaciones
-            </a>
-
-        </nav>
-
+    </header>
+
+    <main id="main-content" tabindex="-1">
+        <section class="identity-bar">
+            <div class="identity-bar-inner">
+                <div class="identity-bar-left">
+                    <strong>Admin:</strong>
+                    <span data-admin-name></span>
+                    <span class="feria-badge" data-feria-tag></span>
+                </div>
+            </div>
+        </section>
+
+        <nav class="quick-nav">
+            <a class="quick-nav-link" href="usuarios.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><path d="M16 3.128a4 4 0 0 1 0 7.744"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><circle cx="9" cy="7" r="4"/></svg>Usuarios
+            </a>
+            <a class="quick-nav-link" href="proyectos.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"/></svg>Proyectos
+            </a>
+            <a class="quick-nav-link" href="asignaciones.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg>Asignaciones
+            </a>
+            <a class="quick-nav-link active" href="resultados.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14.66v1.626a2 2 0 0 1-.976 1.696A5 5 0 0 0 7 21.978"/><path d="M14 14.66v1.626a2 2 0 0 0 .976 1.696A5 5 0 0 1 17 21.978"/><path d="M18 9h1.5a1 1 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M6 9a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1z"/><path d="M6 9H4.5a1 1 0 0 1 0-5H6"/></svg>Resultados
+            </a>
+            <a class="quick-nav-link" href="observaciones.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><rect x="7" y="13" width="9" height="4" rx="1"/><rect x="7" y="5" width="12" height="4" rx="1"/></svg>Observaciones
+            </a>
+
+        </nav>
+
         <section class="page-intro results-page-intro">
             <div>
                 <span class="eyebrow">Control y seguimiento</span>
@@ -62,84 +62,67 @@
         <p class="form-status" data-admin-load-status role="status" aria-live="polite"></p>
 
         <section class="card feria-filter-bar results-filter-card">
-            <label>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></svg>
+            <label>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></svg>
                 <span class="results-filter-label">Filtrar por feria</span>
-                <select data-feria-results-filter>
-                    <option value="">Todas las ferias</option>
-                    <option value="Feria Cientifica y Tecnologica">Feria Cientifica y Tecnologica</option>
-                    <option value="Feria Expotecnica">Feria Expotecnica</option>
-                    <option value="Festival Estudiantil de las Artes">Festival Estudiantil de las Artes</option>
-                </select>
-            </label>
-        </section>
-        <section class="results-summary">
-            <div class="summary-card">
-                <div class="value" data-total-projects>0</div>
-                <div class="label">Proyectos</div>
-            </div>
-            <div class="summary-card">
-                <div class="value" data-total-judges>0</div>
-                <div class="label">Jueces asignados</div>
-            </div>
-            <div class="summary-card">
-                <div class="value" data-total-evaluations>0</div>
-                <div class="label">Evaluaciones</div>
-            </div>
-            <div class="summary-card accent">
-                <div class="value" data-highest-score>0</div>
-                <div class="label">Mayor puntaje</div>
-            </div>
-        </section>
-
-        <section class="card results-search-card" aria-label="Buscar proyectos">
-            <label class="field-label" for="results-search-input">Buscar por nombre de proyecto</label>
+                <select data-feria-results-filter>
+                    <option value="">Todas las ferias</option>
+                    <option value="Feria Cientifica y Tecnologica">Feria Cientifica y Tecnologica</option>
+                    <option value="Feria Expotecnica">Feria Expotecnica</option>
+                    <option value="Festival Estudiantil de las Artes">Festival Estudiantil de las Artes</option>
+                </select>
+            </label>
+        </section>
+        <section class="results-summary">
+            <div class="summary-card">
+                <div class="value" data-total-projects>0</div>
+                <div class="label">Proyectos</div>
+            </div>
+            <div class="summary-card">
+                <div class="value" data-completed-projects>0</div>
+                <div class="label">Evaluaciones completas</div>
+            </div>
+            <div class="summary-card">
+                <div class="value" data-pending-projects>0</div>
+                <div class="label">Pendientes</div>
+            </div>
+            <div class="summary-card accent">
+                <div class="value" data-results-progress>0%</div>
+                <div class="label">Avance</div>
+            </div>
+        </section>
+
+        <section class="card results-search-card" aria-label="Filtrar proyectos">
+            <label class="field-label" for="results-search-input">Buscar proyecto</label>
             <input id="results-search-input" type="search" data-results-search aria-controls="project-results-table admin-projects-table" placeholder="Escribe el nombre del proyecto">
+            <label class="field-label" for="results-date-filter">Filtrar por día</label>
+            <select id="results-date-filter" data-results-date-filter aria-controls="project-results-table admin-projects-table">
+                <option value="">Todos los días</option>
+            </select>
+            <p class="results-filter-help">Sin una fecha seleccionada se muestran todos los días.</p>
         </section>
 
         <section class="card results-section results-section-evaluations">
-            <div class="card-header">
-                <h2>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg>
+            <div class="card-header">
+                <h2>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg>
                     Detalle de evaluaciones
-                </h2>
-            </div>
+                </h2>
+            </div>
             <p>Revisa cada criterio calificado y detecta rápidamente qué falta por completar.</p>
-            <div data-admin-evaluations></div>
-        </section>
-
-        <section class="card results-section results-section-projects">
-            <div class="card-header">
-                <h2>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>
-                    Proyectos
-                </h2>
-            </div>
-            <p>Todos los proyectos del filtro y su estado de evaluación, incluidos los que todavía no tienen notas.</p>
-            <div class="table-wrap">
-                <table id="admin-projects-table" class="results-table" role="table">
-                    <thead role="rowgroup">
-                        <tr role="row">
-                            <th id="admin-project-name" role="columnheader" scope="col">Proyecto</th>
-                            <th id="admin-project-status" role="columnheader" scope="col">Estado de evaluación</th>
-                            <th id="admin-project-id" role="columnheader" scope="col">ID Proyecto</th>
-                        </tr>
-                    </thead>
-                    <tbody data-admin-projects role="rowgroup"></tbody>
-                </table>
-            </div>
-        </section>
-
+            <div data-admin-evaluations></div>
+        </section>
+
         <section class="card results-section results-section-scores">
-            <div class="card-header">
-                <h2>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
-                    Puntajes
-                </h2>
-            </div>
+            <div class="card-header">
+                <h2>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+                    Puntajes
+                </h2>
+            </div>
             <p>Resultado consolidado por proyecto, con avance de jueces y puntaje final.</p>
-            <p class="form-status" data-project-results-status role="alert" aria-live="polite"></p>
-            <div class="table-wrap">
+            <p class="form-status" data-project-results-status role="alert" aria-live="polite"></p>
+            <div class="table-wrap">
                 <table id="project-results-table" class="results-table" role="table">
                     <thead role="rowgroup">
                         <tr role="row">
@@ -147,24 +130,48 @@
                             <th id="scores-expo" role="columnheader" scope="col">Exposición <small class="judge-status">(votaron/asignados)</small></th>
                             <th id="scores-written" role="columnheader" scope="col">Escrito <small class="judge-status">(votaron/asignados)</small></th>
                             <th id="scores-final" role="columnheader" scope="col">Puntaje Final</th>
-                        </tr>
-                    </thead>
+                        </tr>
+                    </thead>
                     <tbody data-project-results role="rowgroup"></tbody>
-                </table>
-            </div>
+                </table>
+            </div>
             <nav class="results-pagination" data-results-pagination aria-label="Paginación de puntajes"></nav>
 
             <div class="form-actions results-export-actions">
-                <button class="btn-primary" id="export-pdf-btn">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg>
-                    Exportar PDF
-                </button>
-            </div>
-        </section>
-    </main>
-
+                <button class="btn-primary" id="export-pdf-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg>
+                    Exportar PDF
+                </button>
+            </div>
+        </section>
+
+        <section class="card results-section results-section-projects">
+            <div class="card-header">
+                <h2>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>
+                    Proyectos
+                </h2>
+            </div>
+            <p>Estado de cada proyecto, incluidos los que aún no tienen notas. Se muestran 20 por página.</p>
+            <div class="table-wrap">
+                <table id="admin-projects-table" class="results-table" role="table">
+                    <thead role="rowgroup">
+                        <tr role="row">
+                            <th id="admin-project-name" role="columnheader" scope="col">Proyecto</th>
+                            <th id="admin-project-status" role="columnheader" scope="col">Estado de evaluación</th>
+                            <th id="admin-project-id" role="columnheader" scope="col">ID Proyecto</th>
+                            <th id="admin-project-date" role="columnheader" scope="col">Día</th>
+                        </tr>
+                    </thead>
+                    <tbody data-admin-projects role="rowgroup"></tbody>
+                </table>
+            </div>
+            <nav class="results-pagination" data-admin-projects-pagination aria-label="Paginación de proyectos"></nav>
+        </section>
+    </main>
+
     <script type="module" src="/js/icons.js?v=1"></script>
-    <script type="module" src="/js/main.js?v=3.46"></script>
-</body>
-
+    <script type="module" src="/js/main.js?v=3.50"></script>
+</body>
+
 </html>

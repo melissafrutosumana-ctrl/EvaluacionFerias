@@ -14,11 +14,12 @@
     "@supabase/supabase-js": "^2.112.3",
     "eslint": "^9.0.0",
     "globals": "^15.0.0",
-    "jspdf": "^4.2.1",
-    "jspdf-autotable": "^5.0.8",
     "pdf-parse": "^2.4.5"
   },
   "dependencies": {
+    "@vercel/functions": "^3.9.9",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.8",
     "sileo": "^0.1.5"
   }
 }

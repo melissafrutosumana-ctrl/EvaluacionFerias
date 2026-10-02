@@ -1,4 +1,4 @@
-import { supabase } from "./supabase.js?v=2";
+import { supabase } from "./supabase.js?v=4";
 import { showToast, FESTIVAL_FERIA_NAME, PRONAFECYT_CODE_MAX, getFestivalProjectLabel, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore } from "./utils.js?v=16.15";
 import { getExpotecnicaRubricByCategory, getFestivalRubricBySubcategory } from "./rubrics.js?v=2";
 import { loadUsers, fetchAllEvaluations, fetchAllRpc } from "./data.js?v=3.32";
@@ -681,14 +681,18 @@ export async function generateAdminPDF() {
     ]);
     const filterEl = document.querySelector("[data-feria-results-filter]");
     const selectedFeria = filterEl ? filterEl.value : "";
-    const allProjects = projectsResult;
-    const filteredProjects = selectedFeria ? allProjects.filter((p) => p.tipo_feria === selectedFeria) : allProjects;
+    const selectedDate = document.querySelector("[data-results-date-filter]")?.value ?? "";
+    const allProjects = projectsResult ?? [];
+    const filteredProjects = allProjects.filter((project) =>
+      (!selectedFeria || project.tipo_feria === selectedFeria) &&
+      (!selectedDate || project.fecha_evaluacion === selectedDate)
+    );
     const projectIds = new Set(filteredProjects.map((p) => p.id));
     const usersById = new Map((users ?? []).map((item) => [item.id, item]));
     const projectsById = new Map(filteredProjects.map((item) => [item.id, item]));
     const filteredEvals = (evaluations ?? []).filter((r) => projectIds.has(r.proyecto_id));
-    if (!filteredEvals.length) {
-      showToast("No hay evaluaciones para generar el reporte.", "info");
+    if (!filteredProjects.length) {
+      showToast("No hay proyectos para generar el reporte con esos filtros.", "info");
       return;
     }
     const votedSet = new Set();
@@ -777,7 +781,8 @@ export async function generateAdminPDF() {
         .map((assignment) => assignment.juez_id)
     );
     const isFEA = selectedFeria === FESTIVAL_FERIA_NAME || (results.length > 0 && results.every(r => projectsById.get(r.projectId)?.tipo_feria === FESTIVAL_FERIA_NAME));
-    const infoLines = [`Feria: ${feriaLabel}`, `Total de proyectos: ${results.length}`, `Total de jueces asignados: ${assignedJudgeIds.size}`, `Total evaluaciones: ${filteredEvals.length}`, `Generado: ${now.toLocaleDateString("es-CR")} ${now.toLocaleTimeString("es-CR")}`];
+    const evaluationDateLabel = selectedDate ? new Date(`${selectedDate}T00:00:00`).toLocaleDateString("es-CR", { dateStyle: "long" }) : "Todos los días";
+    const infoLines = [`Día de evaluación: ${evaluationDateLabel}`, `Feria: ${feriaLabel}`, `Total de proyectos: ${results.length}`, `Total de jueces asignados: ${assignedJudgeIds.size}`, `Total evaluaciones: ${filteredEvals.length}`, `Generado: ${now.toLocaleDateString("es-CR")} ${now.toLocaleTimeString("es-CR")}`];
     y = pdfInfoBox(doc, infoLines, y);
     y = pdfSubHeader(doc, "Ranking de proyectos", y);
     const dualCols = !isFEA;
@@ -962,8 +967,9 @@ export async function generateAdminPDF() {
     y+=22;
     y = pdfSignatureBlock(doc, y, ["Firma responsable", "Sello institucional"]);
     pdfFooter(doc, now);
-    const fileNameFeria = selectedFeria || (feriaNamesInReport.length === 1 ? feriaNamesInReport[0] : "");
-    const fileName = fileNameFeria ? `resultados_${fileNameFeria.replace(/\s+/g, "_")}.pdf` : "resultados_generales.pdf";
+    const fileNameFeria = selectedFeria || (feriaNamesInReport.length === 1 ? feriaNamesInReport[0] : "todas_las_ferias");
+    const fileNameSlug = (value) => value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]+/g, "_").replace(/^_|_$/g, "").toLowerCase();
+    const fileName = `resultados_${selectedDate || "todas_las_fechas"}_${fileNameSlug(fileNameFeria)}.pdf`;
     doc.save(fileName);
     showToast("PDF exportado correctamente.", "success");
   } catch (err) {
