@@ -5,7 +5,7 @@ import {
   calcExpotecnicaFinalScore,
   PRONAFECYT_C_RAW_MAX,
   FESTIVAL_FERIA_NAME
-} from "../js/utils.js";
+} from "../js/scoring.js";
 
 const PAGE_SIZE = 1000;
 const PROJECT_SELECT = "*";
