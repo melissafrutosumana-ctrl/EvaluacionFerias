@@ -343,7 +343,7 @@ export async function generateJudgePDF(user) {
     const data = evalResult;
     if (!data || !data.length) {
         showToast("No tienes evaluaciones guardadas para exportar.", "info");
-        return;
+        return false;
     }
     const projectsMap = new Map(projectsData.map((p) => [p.id, p]));
     const uniqueCombos = new Map();
@@ -659,6 +659,7 @@ export async function generateJudgePDF(user) {
     y = pdfSignatureBlock(doc, y, ["Firma del juez", "Nombre y cargo"]);
     pdfFooter(doc, now);
     doc.save(`evaluaciones_${user.nombre.replace(/\s+/g, "_")}.pdf`);
+    return true;
 }
 
 

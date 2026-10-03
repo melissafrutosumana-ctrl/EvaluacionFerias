@@ -1,10 +1,10 @@
 import { supabase } from "./supabase.js?v=4";
 import { escapeHTML, showToast, setMessage, fillSelectGroupedByTipo, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, FESTIVAL_FERIA_NAME, getFestivalProjectLabel, renderJudgeRubric, saveObservationRpc } from "./utils.js?v=16.17";
-import { enforceRole, bindLogout } from "./auth.js?v=3.37";
+import { enforceRole, bindLogout } from "./auth.js?v=3.40";
 import { icon } from "./icons.js?v=1";
 import { loadAssignedProjectsForJudge, fetchAllRpc } from "./data.js?v=3.34";
 import { getRubricIndicatorsByFeria, getExpotecnicaRubricByCategory, getPronatecytRubricByCategory, getFestivalRubricBySubcategory, getFestivalRubricByCategory } from "./rubrics.js?v=2.1";
-import { generateJudgePDF } from "./pdf.js?v=3.32";
+import { generateJudgePDF } from "./pdf.js?v=3.33";
 
 export async function bootstrapJudgePage() {
   bindLogout();
@@ -616,8 +616,8 @@ export async function bootstrapJudgePage() {
     btn.disabled = true;
     btn.textContent = "Generando PDF...";
     try {
-      await generateJudgePDF(user);
-      showToast("PDF descargado correctamente.", "success");
+      const generated = await generateJudgePDF(user);
+      if (generated) showToast("PDF descargado correctamente.", "success");
     } catch (error) {
       console.error("Error generating judge PDF:", error);
       showToast("No se pudo generar el PDF.", "error");

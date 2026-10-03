@@ -1,10 +1,13 @@
 import { supabase } from "./supabase.js?v=4";
 import { normalizeRoleName, showToast, setupHideOnScroll, openModalAccesible, closeModalAccesible, fetchAllRpc } from "./utils.js?v=16.17";
-import { generateJudgePDF } from "./pdf.js?v=3.32";
+import { generateJudgePDF } from "./pdf.js?v=3.33";
 import { CACHE_SCOPE, clearSessionCache } from "./cache.js?v=3.30";
 import { icon } from "./icons.js?v=1";
 
 export const SESSION_KEY = "ef_user_session";
+const JUDGE_FEEDBACK_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSc9qUgsb-5mksdTvjs8buJcOG095FCaDfi60E7szDLC_UIxLw/viewform";
+const JUDGE_FEEDBACK_PROMPTED_PREFIX = "judge-feedback-prompted:v1:";
+const judgeFeedbackPromptedInMemory = new Set();
 
 export function getSession() {
     try {
@@ -21,11 +24,26 @@ export function saveSession(user) {
     sessionStorage.setItem(SESSION_KEY, JSON.stringify(safeUser));
 }
 
-export async function clearSession() {
+export async function clearSession(user = getSession()) {
+    const feedbackPromptedKey = normalizeRoleName(user?.role) === "Juez" && user?.id
+        ? `${JUDGE_FEEDBACK_PROMPTED_PREFIX}${user.id}`
+        : null;
+
     try {
         await supabase.rpc("logout_session", {});
     } catch { /* ignore */ }
-    sessionStorage.removeItem(SESSION_KEY);
+
+    try {
+        sessionStorage.removeItem(SESSION_KEY);
+    } catch { /* ignore unavailable session storage */ }
+
+    if (feedbackPromptedKey) {
+        judgeFeedbackPromptedInMemory.delete(feedbackPromptedKey);
+        try {
+            sessionStorage.removeItem(feedbackPromptedKey);
+        } catch { /* ignore unavailable session storage */ }
+    }
+
     clearSessionCache(CACHE_SCOPE.ALL);
 }
 
@@ -73,8 +91,105 @@ export function bindLogout() {
         event.preventDefault();
         const user = getSession();
 
+        if (normalizeRoleName(user?.role) === "Juez" && user?.id) {
+            const promptedKey = `${JUDGE_FEEDBACK_PROMPTED_PREFIX}${user.id}`;
+            let alreadyPrompted = judgeFeedbackPromptedInMemory.has(promptedKey);
+            if (!alreadyPrompted) {
+                try {
+                    alreadyPrompted = sessionStorage.getItem(promptedKey) === "1";
+                } catch {
+                    // Storage can be unavailable; the in-memory fallback remains usable.
+                }
+            }
+
+            if (!alreadyPrompted) {
+                judgeFeedbackPromptedInMemory.add(promptedKey);
+                try {
+                    sessionStorage.setItem(promptedKey, "1");
+                } catch {
+                    // The in-memory marker prevents repeated prompts until this tab closes.
+                }
+                showJudgeFeedbackModal(user);
+                return;
+            }
+        }
+
         showLogoutModal(user);
     });
+}
+
+function showJudgeFeedbackModal(user) {
+    const existing = document.getElementById("judge-feedback-modal");
+    if (existing) existing.remove();
+
+    const overlay = document.createElement("div");
+    overlay.id = "judge-feedback-modal";
+    overlay.className = "modal-overlay";
+    overlay.innerHTML = `
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="judge-feedback-title" aria-describedby="judge-feedback-description">
+      <h3 class="modal-title" id="judge-feedback-title">Comparte tu experiencia como juez</h3>
+      <p class="modal-desc" id="judge-feedback-description">Tu opinión ayuda a mejorar el proceso de evaluación. Completar el formulario es opcional; abrirlo no cierra tu sesión.</p>
+      <div class="modal-actions">
+        <button class="btn-modal btn-modal-pdf" id="judge-feedback-open-btn" type="button"><span>Abrir formulario</span></button>
+        <button class="btn-modal btn-modal-secondary" id="judge-feedback-later-btn" type="button">Ahora no</button>
+        <button class="btn-modal btn-modal-secondary" id="judge-feedback-cancel-btn" type="button">Cancelar</button>
+      </div>
+    </div>
+  `;
+
+    const dismiss = () => {
+        closeModalAccesible(overlay);
+        overlay.remove();
+    };
+
+    document.body.appendChild(overlay);
+    openModalAccesible(overlay, {
+        initialFocus: overlay.querySelector("#judge-feedback-open-btn"),
+        onEscape: dismiss
+    });
+
+    overlay.addEventListener("click", (event) => {
+        if (event.target === overlay) dismiss();
+    });
+
+    overlay.querySelector("#judge-feedback-cancel-btn").addEventListener("click", dismiss);
+    overlay.querySelector("#judge-feedback-later-btn").addEventListener("click", () => {
+        dismiss();
+        showLogoutModal(user);
+    });
+    overlay.querySelector("#judge-feedback-open-btn").addEventListener("click", () => {
+        const didOpen = openJudgeFeedbackForm();
+
+        dismiss();
+        showLogoutModal(user);
+        if (!didOpen) {
+            showToast("No se pudo abrir el formulario. Revisa si el navegador bloqueó la ventana.", "warning");
+        }
+    });
+}
+
+function openJudgeFeedbackForm() {
+    let openedWindow = null;
+    try {
+        // A blank page gives us a handle to detach its opener before loading the external form.
+        openedWindow = window.open("about:blank", "_blank");
+        if (!openedWindow || openedWindow.closed) return false;
+
+        openedWindow.opener = null;
+        const referrerPolicy = openedWindow.document.createElement("meta");
+        referrerPolicy.name = "referrer";
+        referrerPolicy.content = "no-referrer";
+        openedWindow.document.head.append(referrerPolicy);
+        openedWindow.location.replace(JUDGE_FEEDBACK_FORM_URL);
+        return true;
+    } catch {
+        try {
+            openedWindow?.close();
+        } catch {
+            // Ignore a browser popup handle that is no longer accessible.
+        }
+        return false;
+    }
 }
 
 export function showLogoutModal(user) {
@@ -126,7 +241,7 @@ export function showLogoutModal(user) {
 
     document.getElementById("modal-logout-btn").addEventListener("click", async() => {
         dismiss();
-        await clearSession();
+        await clearSession(user);
         window.location.href = "/index.html";
     });
 
@@ -148,7 +263,12 @@ export function showLogoutModal(user) {
 
         btn.textContent = "Generando PDF...";
         try {
-            await generateJudgePDF(user);
+            const generated = await generateJudgePDF(user);
+            if (!generated) {
+                btn.disabled = false;
+                btn.innerHTML = `${icon("file-arrow-down", 16)}<span>Descargar reporte</span>`;
+                return;
+            }
         } catch (e) {
             console.error("Error generating PDF:", e);
             showToast("No se pudo generar el PDF. Revisa la conexión e intenta de nuevo.", "error");
@@ -157,7 +277,7 @@ export function showLogoutModal(user) {
             return;
         }
         dismiss();
-        await clearSession();
+        await clearSession(user);
         window.location.href = "/index.html";
     });
 }
