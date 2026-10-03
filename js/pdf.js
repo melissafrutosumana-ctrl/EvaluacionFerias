@@ -119,40 +119,40 @@ export function pdfHeader(doc, title, logoDataUrl) {
     doc.__reportTitle = title;
     let y = 10;
     doc.setFillColor(...PDF.PRIMARY);
-    doc.roundedRect(PDF.MARGIN, y, PDF.PAGE_W - 2 * PDF.MARGIN, 30, 3, 3, "F");
+    doc.roundedRect(PDF.MARGIN, y, PDF.PAGE_W - 2 * PDF.MARGIN, 23, 3, 3, "F");
     doc.setDrawColor(...PDF.GOLD);
     doc.setLineWidth(0.6);
-    doc.line(PDF.MARGIN + 4, y + 24, PDF.PAGE_W - PDF.MARGIN - 4, y + 24);
+    doc.line(PDF.MARGIN + 4, y + 19, PDF.PAGE_W - PDF.MARGIN - 4, y + 19);
     const logoX = PDF.MARGIN + 5;
     if (logoDataUrl) {
-        try { doc.addImage(logoDataUrl, "PNG", logoX, y + 4, 48, 19); } catch (e) { console.warn("Error logo", e); }
+        try { doc.addImage(logoDataUrl, "PNG", logoX, y + 3.5, 38, 15); } catch (e) { console.warn("Error logo", e); }
         // si hay logo, texto a la derecha
-        const tx = PDF.MARGIN + 58;
+        const tx = PDF.MARGIN + 49;
         doc.setTextColor(...PDF.GOLD);
         doc.setFont("helvetica", "bold");
-        doc.setFontSize(7);
-        doc.text("REPÚBLICA DE COSTA RICA", tx, y + 9);
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(9);
-        doc.text("Ministerio de Educación Pública", tx, y + 14.5);
-        doc.setFont("helvetica", "normal");
         doc.setFontSize(6.2);
+        doc.text("REPÚBLICA DE COSTA RICA", tx, y + 7.5);
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(8.2);
+        doc.text("Ministerio de Educación Pública", tx, y + 13);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(5.8);
         doc.setTextColor(200, 215, 235);
-        doc.text("Dirección Regional Pacífico Central  ·  Sistema de Evaluación de Ferias", tx, y + 19);
+        doc.text("Dirección Regional Pacífico Central · Evaluación de Ferias", tx, y + 17.5);
     } else {
         doc.setTextColor(...PDF.GOLD);
         doc.setFont("helvetica", "bold");
-        doc.setFontSize(7);
-        doc.text("REPÚBLICA DE COSTA RICA", PDF.MARGIN + 6, y + 9);
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(10);
-        doc.text("Ministerio de Educación Pública", PDF.MARGIN + 6, y + 15);
-        doc.setFont("helvetica", "normal");
         doc.setFontSize(6.2);
+        doc.text("REPÚBLICA DE COSTA RICA", PDF.MARGIN + 6, y + 7.5);
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(8.2);
+        doc.text("Ministerio de Educación Pública", PDF.MARGIN + 6, y + 13);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(5.8);
         doc.setTextColor(200, 215, 235);
-        doc.text("Dirección Regional Pacífico Central  ·  Sistema de Evaluación de Ferias", PDF.MARGIN + 6, y + 20);
+        doc.text("Dirección Regional Pacífico Central · Evaluación de Ferias", PDF.MARGIN + 6, y + 17.5);
     }
-    y += 38;
+    y += 29;
     doc.setTextColor(...PDF.PRIMARY);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(15);
@@ -363,7 +363,8 @@ export async function generateJudgePDF(user) {
     );
     const obsMap = new Map();
     obsResults.forEach((o) => {
-        if (!o.error && o.data && o.data.length) obsMap.set(o.key, o.data[0]?.texto ?? "");
+        if (o.error) throw new Error("No se pudieron cargar las observaciones de las evaluaciones.");
+        if (o.data && o.data.length) obsMap.set(o.key, o.data[0]?.texto ?? "");
     });
     const grouped = new Map();
     data.forEach((item) => {
@@ -373,7 +374,7 @@ export async function generateJudgePDF(user) {
         if (!grouped.has(key)) {
             const proj = projectsMap.get(pid);
             const titulo = item.titulo || item.proyectos_ferias?.titulo || proj?.titulo || `Proyecto #${pid}`;
-            grouped.set(key, { titulo, tipo, projectData: proj ?? null, items: [], total: 0, observacion: obsMap.get(key) ?? "" });
+            grouped.set(key, { projectId: pid, titulo, tipo, projectData: proj ?? null, items: [], total: 0, observacion: obsMap.get(key) ?? "" });
         }
         const g = grouped.get(key);
         g.items.push({ criterio: item.criterio, nota: Number(item.nota || 0) });
@@ -387,13 +388,14 @@ export async function generateJudgePDF(user) {
     const now = new Date();
     const M = PDF.MARGIN, W = PDF.PAGE_W;
     let y = pdfHeader(doc, "Reporte de Evaluaciones", logoData);
+    const evaluatedProjectCount = new Set([...grouped.values()].map((group) => group.projectId)).size;
 
     const infoLines = [
         `Juez: ${user.nombre}`,
         `Fecha: ${now.toLocaleDateString("es-CR")}`,
         `Hora: ${now.toLocaleTimeString("es-CR")}`,
         user.tipo_feria ? `Feria: ${user.tipo_feria}` : "",
-        `Proyectos evaluados: ${grouped.size}`,
+        `Proyectos evaluados: ${evaluatedProjectCount}`,
     ].filter(Boolean);
     y = pdfInfoBox(doc, infoLines, y);
 
@@ -404,26 +406,34 @@ export async function generateJudgePDF(user) {
     let grandTotal = 0;
     for (const [, g] of grouped) grandTotal += g.total;
     const resumenBody = [...grouped.values()].map(g => {
-        const feriaLbl = g.projectData?.tipo_feria === "Feria Cientifica y Tecnologica" ? (g.projectData.categoria_pronatecyt?.split(" -")[0] || "") : (g.projectData?.categoria_expotecnica || g.projectData?.categoria_festival || "");
-        const titulo = feriaLbl ? `${g.titulo}  ·  ${feriaLbl.slice(0,30)}` : g.titulo;
-        return [titulo, g.tipo === "Escrito" ? "ESCRITO" : "EXPO", String(g.items.length), String(g.total)];
+        const p = g.projectData;
+        const classification = p?.tipo_feria === "Feria Expotecnica"
+            ? [p.categoria_expotecnica, p.eje_tematico].filter(Boolean).join(" · ")
+            : p?.tipo_feria === "Feria Cientifica y Tecnologica"
+                ? [p.categoria_pronatecyt, p.nivel_educativo].filter(Boolean).join(" · ")
+                : p?.tipo_feria === "Festival Estudiantil de las Artes"
+                    ? getFestivalProjectLabel(p, true) || p.categoria_festival || ""
+                    : p?.tipo_feria || "";
+        return [String(g.projectId), [g.titulo, classification].filter(Boolean).join("\n"), g.tipo === "Escrito" ? "ESCRITO" : "EXPO", String(g.items.length), String(g.total)];
     });
     doc.autoTable({
         startY: y,
-        head: [["PROYECTO", "TIPO", "CRIT.", "PUNTAJE"]],
+        head: [["ID", "PROYECTO / CATEGORÍA", "TIPO", "CRIT.", "PUNTAJE"]],
         body: resumenBody,
         theme: "plain",
         margin: { left: M, right: M },
         headStyles: { fillColor: PDF.PRIMARY, textColor: 255, fontStyle: "bold", fontSize: 6.3, halign: "center", valign: "middle", cellPadding: {top:2,bottom:2,left:2,right:2} },
         columnStyles: {
-            0: { cellWidth: tableW - 22 - 16 - 24, fontStyle: "bold", fontSize: 6.8, textColor: PDF.INK, cellPadding: {top:2,bottom:2,left:2,right:2} },
-            1: { cellWidth: 22, halign: "center", fontSize: 5.5, textColor: PDF.MUTED },
-            2: { cellWidth: 16, halign: "center", fontSize: 6.8, textColor: PDF.MUTED },
-            3: { cellWidth: 24, halign: "center", fontStyle: "bold", fontSize: 8, textColor: PDF.PRIMARY }
+            0: { cellWidth: 12, halign: "center", fontStyle: "bold", fontSize: 6.4, textColor: PDF.PRIMARY },
+            1: { cellWidth: tableW - 12 - 20 - 16 - 22, fontStyle: "bold", fontSize: 6.8, textColor: PDF.INK, cellPadding: {top:1.6,bottom:1.6,left:2,right:2} },
+            2: { cellWidth: 20, halign: "center", fontSize: 5.5, textColor: PDF.MUTED },
+            3: { cellWidth: 16, halign: "center", fontSize: 6.8, textColor: PDF.MUTED },
+            4: { cellWidth: 22, halign: "center", fontStyle: "bold", fontSize: 8, textColor: PDF.PRIMARY }
         },
-        styles: { font: "helvetica", fontSize: 6.8, cellPadding: 2, textColor: PDF.INK_LIGHT, lineColor: PDF.BORDER, lineWidth: 0.18, valign: "middle", overflow: "linebreak" },
+        styles: { font: "helvetica", fontSize: 6.8, cellPadding: 1.6, textColor: PDF.INK_LIGHT, lineColor: PDF.BORDER, lineWidth: 0.18, valign: "middle", overflow: "linebreak" },
         alternateRowStyles: { fillColor: PDF.ROW_ALT },
         didParseCell: function(data){
+            if (data.column.index === 0) data.cell.styles.halign = "center";
             if(data.section==='head'){
                 data.cell.styles.fillColor = PDF.PRIMARY;
                 data.cell.styles.textColor = 255;
@@ -483,11 +493,13 @@ export async function generateJudgePDF(user) {
         doc.setFont("helvetica", "bold");
         doc.setFontSize(5);
         const tipoTmpW = doc.getTextWidth(g.tipo.toUpperCase()) + 8;
-        const hdrWidth = innerW - 18 - tipoTmpW - 6;
+        const idBadge = `ID ${g.projectId}`;
+        const idBadgeW = Math.max(14, doc.getTextWidth(idBadge) + 5);
+        const hdrWidth = innerW - idBadgeW - tipoTmpW - 10;
         doc.setFont("helvetica", "bold");
         doc.setFontSize(8);
         const hdrLines = doc.splitTextToSize(g.titulo, hdrWidth);
-        const hdrH = Math.min(16, hdrLines.length > 2 ? 14 : hdrLines.length * 4.8 + 6);
+        const hdrH = Math.max(12, hdrLines.length * 3.7 + 6);
         doc.setFont("helvetica", "italic");
         doc.setFontSize(6.2);
         const catLines = catText ? doc.splitTextToSize(catText, innerW - 10) : [];
@@ -504,18 +516,17 @@ export async function generateJudgePDF(user) {
         const cardX = M, cardW = tableW;
         doc.setFillColor(...PDF.PRIMARY);
         doc.roundedRect(cardX, y, cardW, hdrH, 2, 2, "F");
-        const idBadge = `#${g.projectData?.id || "—"}`;
         const tipoBadge = g.tipo.toUpperCase();
         const tipoW = doc.getTextWidth(tipoBadge) + 8;
         doc.setFillColor(...PDF.GOLD);
-        doc.roundedRect(cardX + cardW - 18, y + 2, 14, 5, 1.5, 1.5, "F");
+        doc.roundedRect(cardX + cardW - idBadgeW - 4, y + 2, idBadgeW, 5, 1.5, 1.5, "F");
         doc.setFont("helvetica", "bold");
         doc.setFontSize(5.5);
         doc.setTextColor(...PDF.PRIMARY);
-        doc.text(idBadge, cardX + cardW - 11, y + 5.3, { align: "center" });
+        doc.text(idBadge, cardX + cardW - idBadgeW / 2 - 4, y + 5.3, { align: "center" });
         doc.setFillColor(255, 255, 255);
         doc.setDrawColor(...PDF.GOLD);
-        doc.roundedRect(cardX + cardW - 18 - tipoW - 4, y + 2, tipoW, 5, 1.5, 1.5, "FD");
+        doc.roundedRect(cardX + cardW - idBadgeW - tipoW - 8, y + 2, tipoW, 5, 1.5, 1.5, "FD");
         doc.setFont("helvetica", "bold");
         doc.setFontSize(5);
         doc.setTextColor(...PDF.PRIMARY);
@@ -523,8 +534,7 @@ export async function generateJudgePDF(user) {
         doc.setTextColor(255, 255, 255);
         doc.setFont("helvetica", "bold");
         doc.setFontSize(7.2);
-        const hdrDisplay = hdrLines.length > 3 ? [hdrLines[0], hdrLines[1], hdrLines[2].slice(0,-3)+"…"] : hdrLines;
-        doc.text(hdrDisplay, cardX + 3, y + 5);
+        doc.text(hdrLines, cardX + 3, y + 5);
         y += hdrH + 2;
         if (catText) {
             y = pdfCheckPage(doc, y, catBoxH + 2);
@@ -546,7 +556,7 @@ export async function generateJudgePDF(user) {
             margin: { left: M + 2, right: M + 2, bottom: 15 },
             headStyles: { fillColor: PDF.BORDER, textColor: PDF.MUTED, fontStyle: "bold", fontSize: 5.8, halign: "left", cellPadding: 2 },
             columnStyles: {
-                0: { cellWidth: innerW - 18, fontSize: 6.8, textColor: PDF.INK_LIGHT, cellPadding: {top:1.5,bottom:1.5,left:2,right:2}, overflow: "linebreak" },
+                0: { cellWidth: innerW - 12, fontSize: 6.8, textColor: PDF.INK_LIGHT, cellPadding: {top:1.5,bottom:1.5,left:2,right:2}, overflow: "linebreak" },
                 1: { cellWidth: 14, halign: "center", fontStyle: "bold", fontSize: 7, textColor: PDF.INK, overflow: "linebreak" }
             },
             styles: { font: "helvetica", fontSize: 6.8, cellPadding: 2, lineColor: PDF.BORDER, lineWidth: 0.12, valign: "middle", overflow: "linebreak", minCellHeight: 0 },
@@ -622,7 +632,8 @@ export async function generateJudgePDF(user) {
             doc.setFont("helvetica", "bold");
             doc.setFontSize(6.2);
             doc.setTextColor(...PDF.PRIMARY);
-            doc.text("Observación del juez", M + 6, y + 6);
+            const observationLabel = `Observación · ${g.titulo} · ID ${g.projectId} · ${g.tipo}`;
+            doc.text(doc.splitTextToSize(observationLabel, innerW - 12), M + 6, y + 6);
             doc.setFont("helvetica", "normal");
             doc.setFontSize(obsFontSize);
             doc.setTextColor(...PDF.INK_LIGHT);
@@ -669,15 +680,31 @@ export function pdfSubHeader(doc, title, y) {
 }
 
 
+function pdfResultsTableHeader(doc, y) {
+  const M = PDF.MARGIN, W = PDF.PAGE_W, headerH = 7;
+  y = pdfCheckPage(doc, y, headerH + 2);
+  doc.setFillColor(...PDF.PRIMARY);
+  doc.roundedRect(M, y, W - 2 * M, headerH, 1.6, 1.6, "F");
+  doc.setTextColor(255, 255, 255);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(6.2);
+  doc.text("ID", M + 8, y + 4.5, { align: "center" });
+  doc.text("PROYECTO", M + 18, y + 4.5);
+  doc.text("PUNTAJE", M + W - 2 * M - 24, y + 4.5, { align: "center" });
+  doc.text("ESTADO", M + W - 2 * M - 4, y + 4.5, { align: "right" });
+  return y + headerH + 2;
+}
+
 export async function generateAdminPDF() {
   await loadJSPDF();
   const logoData = await loadMEPLogo();
   try {
-    const [users, projectsResult, evaluations, assignmentsResult] = await Promise.all([
+    const [users, projectsResult, evaluations, assignmentsResult, observationsResult] = await Promise.all([
       loadUsers(),
       fetchAllRpc("get_projects"),
       fetchAllEvaluations(),
-      fetchAllRpc("get_assignments")
+      fetchAllRpc("get_assignments"),
+      fetchAllRpc("get_observations")
     ]);
     const filterEl = document.querySelector("[data-feria-results-filter]");
     const selectedFeria = filterEl ? filterEl.value : "";
@@ -691,6 +718,18 @@ export async function generateAdminPDF() {
     const usersById = new Map((users ?? []).map((item) => [item.id, item]));
     const projectsById = new Map(filteredProjects.map((item) => [item.id, item]));
     const filteredEvals = (evaluations ?? []).filter((r) => projectIds.has(r.proyecto_id));
+    const observationsByAssignment = new Map();
+    (observationsResult ?? []).forEach((observation) => {
+      const projectId = Number(observation.proyecto_id);
+      const judgeId = Number(observation.juez_id);
+      const text = String(observation.texto ?? "");
+      if (!projectIds.has(projectId) || !text.trim()) return;
+      const tipo = observation.tipo_evaluacion ?? "Exposición";
+      const key = `${projectId}-${judgeId}-${tipo}`;
+      const texts = observationsByAssignment.get(key) ?? [];
+      texts.push(text);
+      observationsByAssignment.set(key, texts);
+    });
     if (!filteredProjects.length) {
       showToast("No hay proyectos para generar el reporte con esos filtros.", "info");
       return;
@@ -720,7 +759,14 @@ export async function generateAdminPDF() {
         const tipo = aj.tipo_evaluacion ?? "Exposición";
         const key = `${projectId}-${aj.juez_id}-${tipo}`;
         const voted = votedSet.has(key);
-        const entry = { judgeName: aj.judgeName, sum: scoreMap.get(key) || 0, voted };
+        const observationKey = `${Number(projectId)}-${Number(aj.juez_id)}-${aj.tipo_evaluacion ?? "Exposición"}`;
+        const entry = {
+          judgeId: aj.juez_id,
+          judgeName: aj.judgeName,
+          sum: scoreMap.get(key) || 0,
+          voted,
+          observation: (observationsByAssignment.get(observationKey) ?? []).join("\n\n")
+        };
         if (aj.tipo_evaluacion === "Escrito") { escritoJudges.push(entry); escritoTotal++; if (voted) escritoVoted++; } else { expoJudges.push(entry); expoTotal++; if (voted) expoVoted++; }
       });
       const expoAvg = calcAverage(expoJudges);
@@ -786,80 +832,56 @@ export async function generateAdminPDF() {
     y = pdfInfoBox(doc, infoLines, y);
     y = pdfSubHeader(doc, "Ranking de proyectos", y);
     const dualCols = !isFEA;
-    // Header
-    const headerH = 7;
-    y = pdfCheckPage(doc, y, headerH+2);
-    doc.setFillColor(...PDF.PRIMARY);
-    doc.roundedRect(M, y, W-2*M, headerH, 1.6,1.6,"F");
-    doc.setTextColor(255,255,255);
-    doc.setFont("helvetica","bold");
-    doc.setFontSize(6.2);
-    if (dualCols) {
-      doc.text("#", M+3, y+4.5);
-      doc.text("PROYECTO", M+10, y+4.5);
-      doc.text("EXPO", M+124, y+4.5);
-      doc.text("ESCRITO", M+144, y+4.5);
-      doc.text("FINAL", M+W-2*M-24, y+4.5, {align:"center"});
-      doc.text("ESTADO", M+W-2*M-4, y+4.5, {align:"right"});
-    } else {
-      doc.text("#", M+3, y+4.5);
-      doc.text("PROYECTO", M+10, y+4.5);
-      doc.text("PUNTAJE", M+W-2*M-24, y+4.5, {align:"center"});
-      doc.text("ESTADO", M+W-2*M-4, y+4.5, {align:"right"});
-    }
-    y+=headerH+2;
+    y = pdfResultsTableHeader(doc, y);
     let rowIdx=0;
     for(let idx=0; idx<results.length; idx++){
       const r = results[idx];
-      const feriaLbl = r.projData?.categoria_pronatecyt?.split(" -")[0] || r.projData?.categoria_expotecnica || r.projData?.categoria_festival || "";
+      const feriaLbl = r.projData?.categoria_pronatecyt || r.projData?.categoria_expotecnica || r.projData?.categoria_festival || "";
       const levelLbl = r.projData?.tipo_feria === FESTIVAL_FERIA_NAME ? r.projData?.nivel_educativo : "";
       const resultLabel = [feriaLbl, levelLbl].filter(Boolean).join(" — ");
-      const nameW = dualCols ? 110 : 130;
+      const nameW = 130;
       doc.setFont("helvetica","bold");
-      doc.setFontSize(6.8);
+      doc.setFontSize(7.4);
       const tLines = doc.splitTextToSize(r.projectName, nameW);
-      const display = tLines.length > 3 ? [tLines[0], tLines[1], tLines[2].slice(0, -3) + "…"] : tLines;
-      const rowH = Math.max(10, display.length * 3.6 + (resultLabel ? 4.5 : 0) + 4);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(6.2);
+      const categoryLines = resultLabel ? doc.splitTextToSize(resultLabel, nameW) : [];
+      const rowH = Math.max(11, tLines.length * 3.6 + categoryLines.length * 3 + (categoryLines.length ? 2 : 0) + 4.5);
+      const pagesBeforeRow = doc.internal.getNumberOfPages();
       y = pdfCheckPage(doc, y, rowH+0.6);
+      if (doc.internal.getNumberOfPages() > pagesBeforeRow) y = pdfResultsTableHeader(doc, y);
+      const scoreY = y + rowH / 2 + 0.5;
       const isFirst = idx===0;
       doc.setFillColor(isFirst?253: (rowIdx%2===0?255:248), isFirst?251:(rowIdx%2===0?255:250), isFirst?247:(rowIdx%2===0?255:252));
       doc.setDrawColor(...PDF.BORDER);
       doc.roundedRect(M, y-1, W-2*M, rowH, 1.1,1.1,"FD");
       if(isFirst){ doc.setFillColor(...PDF.GOLD); doc.roundedRect(M, y-1, 1.3, rowH, 0.4,0.4,"F"); }
       doc.setFont("helvetica","bold");
-      doc.setFontSize(6.8);
+      doc.setFontSize(6.2);
       doc.setTextColor(...PDF.INK);
-      doc.text(String(idx+1), M+3, y+4);
+      doc.setTextColor(...PDF.PRIMARY);
+      doc.text(String(r.projectId), M+8, scoreY, { align: "center" });
       doc.setFont("helvetica","bold");
       doc.setFontSize(6.8);
-      doc.text(display, M+10, y+3.2);
-      if(resultLabel){
+      doc.text(tLines, M+18, y+3.1);
+      if(categoryLines.length){
         doc.setFont("helvetica","normal");
         doc.setFontSize(5.2);
         doc.setTextColor(...PDF.MUTED);
-        doc.text(resultLabel.slice(0,32), M+10, y+ display.length*3.6+3.8);
+        doc.text(categoryLines, M+18, y + 3.1 + tLines.length * 3.3);
       }
       if(dualCols){
-        const expoMax = getMaxScoreForProject(r.projectId, "Exposición");
-        const escritoMax = getMaxScoreForProject(r.projectId, "Escrito");
-        const expoScore = r.expoTotal>0 && r.expoVoted>0 ? String(Math.round(r.expoAvg)) : "—";
-        const escritoScore = r.manualEscrito!==null ? String(Math.round(r.manualEscrito)) : (r.escritoTotal>0 && r.escritoVoted>0 ? String(Math.round(r.escritoAvg)) : "—");
-        doc.setFont("helvetica","normal");
-        doc.setFontSize(6.8);
-        doc.setTextColor(...PDF.MUTED);
-        doc.text(`${expoScore}/${expoMax}`, M+128, y+4.5, {align:"center"});
-        doc.text(`${escritoScore}/${escritoMax}`, M+148, y+4.5, {align:"center"});
         doc.setFont("helvetica","bold");
         doc.setFontSize(7.5);
-        doc.setTextColor(r.evaluationComplete?PDF.PRIMARY:PDF.MUTED_LIGHT);
-        doc.text(r.evaluationComplete? String(Math.round(r.finalScore)) : "—", M+W-2*M-24, y+4.5, {align:"center"});
+        doc.setTextColor(...(r.evaluationComplete?PDF.PRIMARY:PDF.MUTED_LIGHT));
+        doc.text(r.evaluationComplete? String(Math.round(r.finalScore)) : "—", M+W-2*M-24, scoreY, {align:"center"});
       } else {
         const maxScore = getMaxScoreForProject(r.projectId, "Exposición");
         const score = r.expoTotal>0 && r.expoVoted>0 ? String(Math.round(r.expoAvg)) : "0";
         doc.setFont("helvetica","bold");
         doc.setFontSize(7.5);
         doc.setTextColor(...PDF.PRIMARY);
-        doc.text(`${score}/${maxScore}`, M+W-2*M-24, y+4.5, {align:"center"});
+        doc.text(`${score}/${maxScore}`, M+W-2*M-24, scoreY, {align:"center"});
       }
       const totalVoted = r.expoVoted + r.escritoVoted;
       const stateText = getEvaluationStatus({
@@ -871,80 +893,119 @@ export async function generateAdminPDF() {
       doc.setFont("helvetica","bold");
       doc.setFontSize(5.5);
       doc.setTextColor(...stateColor);
-      doc.text(stateText.toUpperCase(), M+W-2*M-4, y+4.5, {align:"right"});
+      doc.text(stateText.toUpperCase(), M+W-2*M-4, scoreY, {align:"right"});
       y+=rowH+0.6;
       rowIdx++;
     }
     y+=4;
     y = pdfSubHeader(doc, "Detalle por proyecto — jueces", y);
-    for(const r of results){
-      const proj = r.projData;
-      const cat = [proj?.categoria_pronatecyt || proj?.categoria_expotecnica || proj?.categoria_festival || "", proj?.tipo_feria === FESTIVAL_FERIA_NAME ? proj?.nivel_educativo : ""].filter(Boolean).join(" — ");
-      doc.setFont("helvetica","bold");
-      doc.setFontSize(7.5);
-      const hdrLines = doc.splitTextToSize(r.projectName, W-2*M-6);
-      const hdrDisplay = hdrLines.length > 2 ? [hdrLines[0], hdrLines[1].slice(0,-3)+"…"] : hdrLines;
-      const hdrH = Math.max(12, hdrDisplay.length*4.8 + 6);
-      doc.setFont("helvetica", "italic");
-      doc.setFontSize(6);
-      const catLines = cat ? doc.splitTextToSize(cat.slice(0, 120), W-2*M-14) : [];
-      const catBoxH = cat ? Math.max(7.2, catLines.length * 3.4 + 4.8) : 0;
-      const catH = cat ? catBoxH + 4 : 0;
-      const rowsNeeded = (r.expoJudges.length + r.escritoJudges.length)*7 + 8;
-      const blockH = hdrH + catH + 7 + rowsNeeded + 8;
-      if(blockH < PDF.PAGE_LIMIT - PDF.MARGIN*2 && y + blockH > PDF.PAGE_LIMIT){
-        y = pdfNewPage(doc);
-      }
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(5.8);
+    doc.setTextColor(...PDF.MUTED);
+    doc.text("El nombre completo vincula cada fila con el ranking. Evaluado incluye puntaje 0; Pendiente = asignado sin voto; Sin asignación = no hay juez.", M, y+3);
+    y += 6;
+    const detailCols = { project: M+2, judge: M+72, expo: M+107, escrito: M+146 };
+    const detailWidths = { project: 68, judge: 31, expo: 35, escrito: 36 };
+    const drawJudgeTableHeader = (headerY) => {
       doc.setFillColor(...PDF.PRIMARY);
-      doc.roundedRect(M, y, W-2*M, hdrH, 2,2,"F");
+      doc.roundedRect(M, headerY, W-2*M, 6, 1.2,1.2,"F");
       doc.setTextColor(255,255,255);
       doc.setFont("helvetica","bold");
-      doc.setFontSize(7.5);
-      doc.text(hdrDisplay, M+3, y+ (hdrDisplay.length>1?6:7));
-      y+=hdrH+2;
-      if(cat){
-        y = pdfCheckPage(doc, y, catBoxH + 2);
-        doc.setFillColor(...PDF.GOLD_LIGHT);
-        doc.setDrawColor(...PDF.GOLD);
-        doc.roundedRect(M+2, y, W-2*M-4, catBoxH, 1.2,1.2,"FD");
-        doc.setFont("helvetica","italic");
-        doc.setFontSize(6);
-        doc.setTextColor(...PDF.MUTED);
-        doc.text(catLines, M+5, y + (catLines.length === 1 ? 4.6 : 4.1));
-        y+=catBoxH+4;
+      doc.setFontSize(5.8);
+      doc.text("PROYECTO", detailCols.project, headerY+4);
+      doc.text("JUEZ", detailCols.judge, headerY+4);
+      doc.text("EXPO · PUNTAJE / MÁX.", detailCols.expo, headerY+4);
+      doc.text("ESCRITO · PUNTAJE / MÁX.", detailCols.escrito, headerY+4);
+    };
+    y = pdfCheckPage(doc, y, 8);
+    drawJudgeTableHeader(y);
+    y += 8;
+    let detailRowIndex = 0;
+    for (const r of results) {
+      const judgeGroups = new Map();
+      for (const [type, judges] of [["expo", r.expoJudges], ["escrito", r.escritoJudges]]) {
+        for (const judge of judges) {
+          const key = String(judge.judgeId ?? judge.judgeName);
+          if (!judgeGroups.has(key)) judgeGroups.set(key, { judgeName: judge.judgeName, expo: [], escrito: [] });
+          judgeGroups.get(key)[type].push(judge);
+        }
       }
-      y = pdfCheckPage(doc, y, 6);
-      doc.setFillColor(...PDF.PRIMARY);
-      doc.roundedRect(M, y, W-2*M, 6, 1.2,1.2,"F");
-      doc.setTextColor(255,255,255);
-      doc.setFont("helvetica","bold");
-      doc.setFontSize(6);
-      doc.text("JUEZ", M+3, y+4);
-      doc.text("TIPO", M+70, y+4);
-      doc.text("PUNTAJE", M+110, y+4);
-      doc.text("ESTADO", M+W-2*M-6, y+4, {align:"right"});
-      y+=8;
-      const entries=[...r.expoJudges.map(j=>({...j,tipo:"Exposición"})), ...r.escritoJudges.map(j=>({...j,tipo:"Escrito"}))];
-      let eIdx=0;
-      for(const e of entries){
-        const rh=7;
-        y = pdfCheckPage(doc, y, rh);
-        if(eIdx%2===1){ doc.setFillColor(...PDF.ROW_ALT); doc.roundedRect(M, y-1, W-2*M, rh, 0.8,0.8,"F"); }
-        doc.setFont("helvetica","normal");
-        doc.setFontSize(7);
+      const rows = [];
+      for (const group of judgeGroups.values()) {
+        const count = Math.max(group.expo.length, group.escrito.length);
+        for (let index = 0; index < count; index++) {
+        rows.push({ judgeId: group.expo[index]?.judgeId ?? group.escrito[index]?.judgeId, judgeName: group.judgeName, expo: group.expo[index] ?? null, escrito: group.escrito[index] ?? null });
+        }
+      }
+      if (r.manualEscrito !== null) rows.push({ judgeName: "Puntaje escrito manual", expo: null, escrito: { sum: r.manualEscrito, voted: true, manual: true } });
+      for (const row of rows) {
+        const projectLines = doc.splitTextToSize(r.projectName, detailWidths.project);
+        const judgeLines = doc.splitTextToSize(row.judgeName, detailWidths.judge);
+        const expoLabel = row.expo?.manual ? `Manual · ${row.expo.sum}/${getMaxScoreForProject(r.projectId, "Exposición")}` : row.expo ? (row.expo.voted ? `Evaluado · ${row.expo.sum}/${getMaxScoreForProject(r.projectId, "Exposición")}` : `Pendiente · —/${getMaxScoreForProject(r.projectId, "Exposición")}`) : "Sin asignación";
+        const escritoLabel = row.escrito?.manual ? `Manual · ${row.escrito.sum}/${getMaxScoreForProject(r.projectId, "Escrito")}` : row.escrito ? (row.escrito.voted ? `Evaluado · ${row.escrito.sum}/${getMaxScoreForProject(r.projectId, "Escrito")}` : `Pendiente · —/${getMaxScoreForProject(r.projectId, "Escrito")}`) : "Sin asignación";
+        const expoLines = doc.splitTextToSize(expoLabel, detailWidths.expo);
+        const escritoLines = doc.splitTextToSize(escritoLabel, detailWidths.escrito);
+        const lineCount = Math.max(projectLines.length, judgeLines.length, expoLines.length, escritoLines.length);
+        const rowH = Math.max(7.2, lineCount * 2.8 + 2.4);
+        const pagesBeforeRow = doc.internal.getNumberOfPages();
+        y = pdfCheckPage(doc, y, rowH);
+        if (doc.internal.getNumberOfPages() > pagesBeforeRow) {
+          drawJudgeTableHeader(y);
+          y += 8;
+        }
+        if (detailRowIndex % 2 === 1) {
+          doc.setFillColor(...PDF.ROW_ALT);
+          doc.rect(M, y-1, W-2*M, rowH, "F");
+        }
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(6.2);
+        doc.setTextColor(...PDF.PRIMARY);
+        doc.text(projectLines, detailCols.project, y+3.8);
         doc.setTextColor(...PDF.INK_LIGHT);
-        doc.text(e.judgeName, M+3, y+4);
-        doc.text(e.tipo, M+70, y+4);
-        doc.setFont("helvetica","bold");
-        doc.setTextColor(...(e.voted?PDF.PRIMARY:PDF.MUTED_LIGHT));
-        doc.text(e.voted?String(e.sum):"—", M+110, y+4);
-        doc.setTextColor(...(e.voted?PDF.SUCCESS:PDF.MUTED_LIGHT));
-        doc.setFontSize(6);
-        doc.text(e.voted?"VOTÓ":"PENDIENTE", M+W-2*M-6, y+4, {align:"right"});
-        y+=rh;
-        eIdx++;
+        doc.text(judgeLines, detailCols.judge, y+3.8);
+        doc.text(expoLines, detailCols.expo, y+3.8);
+        doc.text(escritoLines, detailCols.escrito, y+3.8);
+        doc.setDrawColor(...PDF.BORDER);
+        doc.setLineWidth(0.12);
+        doc.line(M, y+rowH, W-M, y+rowH);
+        y += rowH;
+        for (const observation of [
+          { tipo: "Exposición", text: row.expo?.observation },
+          { tipo: "Escrito", text: row.escrito?.observation }
+        ]) {
+          if (!observation.text?.trim()) continue;
+          const label = `Observación · ${r.projectName} · ${row.judgeName} · ${observation.tipo}`;
+          const obsWidth = W - 2 * M - 10;
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(5.8);
+          const labelLines = doc.splitTextToSize(label, obsWidth);
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(5.8);
+          const textLines = String(observation.text).replace(/\r\n?/g, "\n").split("\n").flatMap((line) => line ? doc.splitTextToSize(line, obsWidth) : [""]);
+          const lineH = 2.8;
+          const obsH = 3 + labelLines.length * lineH + textLines.length * lineH + 3;
+          const pagesBeforeObservation = doc.internal.getNumberOfPages();
+          y = pdfCheckPage(doc, y, obsH);
+          if (doc.internal.getNumberOfPages() > pagesBeforeObservation) {
+            drawJudgeTableHeader(y);
+            y += 8;
+          }
+          doc.setFillColor(...PDF.GOLD_LIGHT);
+          doc.setDrawColor(...PDF.BORDER);
+          doc.roundedRect(M, y - 1, W - 2 * M, obsH, 1, 1, "FD");
+          doc.setFillColor(...PDF.GOLD);
+          doc.roundedRect(M, y - 1, 1.4, obsH, 0.3, 0.3, "F");
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(5.8);
+          doc.setTextColor(...PDF.PRIMARY);
+          doc.text(labelLines, M + 5, y + 2.3);
+          doc.setFont("helvetica", "normal");
+          doc.setTextColor(...PDF.INK_LIGHT);
+          doc.text(textLines, M + 5, y + 2.3 + labelLines.length * lineH);
+          y += obsH + 1;
+        }
+        detailRowIndex++;
       }
-      y+=6;
     }
     // Resumen general
     y = pdfCheckPage(doc, y, 14);

@@ -1,3 +1,4 @@
+import { readFile } from "node:fs/promises";
 import {
   calcAverage,
   calcFinalScore,
@@ -10,6 +11,15 @@ import {
 const SNAPSHOT_PAGE_SIZE = 500;
 const ARCHIVE_QUIET_WINDOW_MS = 750;
 const MAX_REST_PAGES = 1000;
+let mepLogoDataUrlPromise;
+
+function loadMEPLogoDataUrl() {
+  if (!mepLogoDataUrlPromise) {
+    mepLogoDataUrlPromise = readFile(new URL("../img/descarga.png", import.meta.url))
+      .then((image) => `data:image/png;base64,${image.toString("base64")}`);
+  }
+  return mepLogoDataUrlPromise;
+}
 
 function wait(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -173,43 +183,74 @@ async function makePdf({ evaluationDate, projects, assignments, evaluations, gen
   ]);
   const completeCount = resultRows.filter((row) => row.complete).length;
   const doc = new jsPDF({ unit: "mm", format: "a4" });
+  const logoDataUrl = await loadMEPLogoDataUrl();
   doc.setProperties({ title: `Resultados del ${evaluationDate}`, subject: "Corte diario de evaluaciones" });
-  doc.setFillColor(13, 42, 91);
-  doc.rect(0, 0, 210, 34, "F");
-  doc.setTextColor(255, 255, 255);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(16);
-  doc.text("Corte diario de evaluaciones", 14, 16);
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(10);
-  doc.text(`Día de evaluación: ${new Date(`${evaluationDate}T12:00:00`).toLocaleDateString("es-CR", { dateStyle: "long" })}`, 14, 24);
+  const pageHeaderAndFooter = () => {
+      const pageCount = doc.internal.getNumberOfPages();
+      for (let page = 1; page <= pageCount; page++) {
+        doc.setPage(page);
+        doc.setFillColor(13, 42, 91);
+        doc.roundedRect(14, 8, 182, 23, 2, 2, "F");
+        doc.addImage(logoDataUrl, "PNG", 18, 13, 35, 9.3);
+        doc.setTextColor(255, 255, 255);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(11);
+        doc.text("Corte diario de resultados", 58, 17);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(7.5);
+        doc.setTextColor(225, 234, 247);
+        doc.text(`Día: ${new Date(`${evaluationDate}T12:00:00`).toLocaleDateString("es-CR", { dateStyle: "long" })} · Todas las ferias`, 58, 24);
 
-  doc.setTextColor(13, 42, 91);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(10);
-  doc.text(`${projects.length} proyectos · ${completeCount} evaluaciones completas · ${projects.length - completeCount} pendientes`, 14, 44);
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(7.5);
-  doc.setTextColor(95, 107, 129);
-  doc.text("Puntajes finales calculados con las reglas oficiales de cada feria; los pendientes no muestran puntaje final.", 14, 49);
+      doc.setFillColor(253, 251, 247);
+      doc.setDrawColor(201, 168, 106);
+      doc.roundedRect(14, 34, 182, 14, 1.5, 1.5, "FD");
+      const metrics = [
+        [`${projects.length}`, "PROYECTOS"],
+        [`${completeCount}`, "COMPLETOS"],
+        [`${projects.length - completeCount}`, "PENDIENTES"]
+      ];
+      metrics.forEach(([value, label], index) => {
+        const x = 21 + index * 59;
+        doc.setTextColor(13, 42, 91);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(9);
+        doc.text(value, x, 40);
+        doc.setTextColor(100, 116, 139);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(5.5);
+        doc.text(label, x, 45);
+      });
+
+      doc.setDrawColor(201, 168, 106);
+      doc.setLineWidth(0.35);
+      doc.line(14, 284, 196, 284);
+      doc.setTextColor(100, 116, 139);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(6.5);
+      doc.text(`Generado: ${generatedAt.toLocaleString("es-CR", { timeZone: "America/Costa_Rica", dateStyle: "medium", timeStyle: "short" })}`, 14, 289);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(13, 42, 91);
+      doc.text(`Página ${page} de ${pageCount}`, 196, 289, { align: "right" });
+    }
+  };
 
   autoTable(doc, {
-    startY: 54,
+    tableWidth: 182,
+    startY: 56,
     head: [["ID", "Proyecto", "Feria y categoría", "Estado", "Exposición", "Escrito", "Puntaje final"]],
     body: rows,
-    theme: "grid",
-    styles: { font: "helvetica", fontSize: 7.5, cellPadding: 2.2, overflow: "linebreak" },
-    headStyles: { fillColor: [13, 42, 91], textColor: 255, fontStyle: "bold" },
+    theme: "plain",
+    showHead: "everyPage",
+    styles: { font: "helvetica", fontSize: 7, cellPadding: 1.6, overflow: "linebreak", lineColor: [226, 232, 240], lineWidth: 0.12, valign: "middle" },
+    headStyles: { fillColor: [13, 42, 91], textColor: 255, fontStyle: "bold", fontSize: 6.5 },
     alternateRowStyles: { fillColor: [244, 247, 252] },
-    columnStyles: { 0: { cellWidth: 9 }, 1: { cellWidth: 44 }, 2: { cellWidth: 29 }, 3: { cellWidth: 23 }, 4: { cellWidth: 19, halign: "right" }, 5: { cellWidth: 19, halign: "right" }, 6: { cellWidth: 21, halign: "right" } },
-    margin: { left: 14, right: 14, bottom: 16 },
-    didDrawPage: () => {
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(8);
-      doc.setTextColor(95, 107, 129);
-      doc.text(`Generado: ${generatedAt.toLocaleString("es-CR", { timeZone: "America/Costa_Rica", dateStyle: "medium", timeStyle: "short" })}`, 14, 288);
-    }
+    didParseCell(data) {
+      if (data.column.index === 0) data.cell.styles.halign = "center";
+    },
+    columnStyles: { 0: { cellWidth: 12, halign: "center" }, 1: { cellWidth: 45 }, 2: { cellWidth: 42 }, 3: { cellWidth: 23 }, 4: { cellWidth: 18, halign: "right" }, 5: { cellWidth: 18, halign: "right" }, 6: { cellWidth: 24, halign: "right" } },
+    margin: { top: 53, left: 14, right: 14, bottom: 19 }
   });
+  pageHeaderAndFooter();
 
   return Buffer.from(doc.output("arraybuffer")).toString("base64");
 }
