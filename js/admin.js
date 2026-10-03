@@ -2,7 +2,7 @@ import { supabase } from "./supabase.js?v=4";
 import { escapeHTML, showToast, setMessage, normalizeRoleName, fillSelect, setupHamburgerMenu, setupHideOnScroll, highlightActiveNavLink, buildFeriaOptions, FESTIVAL_FERIA_NAME, FESTIVAL_CATEGORIES, FESTIVAL_SUBCATEGORIES, FESTIVAL_EDUCATIONAL_LEVELS, EXPOTECNICA_CATEGORIES, EXPOTECNICA_EJES, PRONAFECYT_CATEGORIES, PRONAFECYT_EDUCATIONAL_CATEGORIES, PRONAFECYT_C_RAW_MAX, updateProjectFormFieldsByFeria, getResultCategoryGroupLabel, getFestivalProjectLabel, showSkeleton, confirmDialog, PRONAFECYT_BY_NIVEL, getNivelFromPronatecyt, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore, openModalAccesible, closeModalAccesible, normalizeSearchText, paginateItems, getJudgeProgressLabel, isEvaluationComplete, sortEvaluationResults } from "./utils.js?v=16.17";
 import { enforceRole, hashPassword, bindLogout } from "./auth.js?v=3.37";
 import { loadProjects, loadJudgeAssignments, loadUsers, fetchAllEvaluations, fetchAllRpc, startAdminReferenceDataSync, startEvaluationsSync } from "./data.js?v=3.34";
-import { generateAdminPDF } from "./pdf.js?v=3.32";
+import { generateAdminPDF } from "./pdf.js?v=3.34";
 import { icon } from "./icons.js?v=1";
 import { areRowsEqual, CACHE_SCOPE, clearSessionCache } from "./cache.js?v=3.30";
 

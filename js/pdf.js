@@ -1,5 +1,5 @@
 import { supabase } from "./supabase.js?v=4";
-import { showToast, FESTIVAL_FERIA_NAME, PRONAFECYT_CODE_MAX, getFestivalProjectLabel, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore, getEvaluationStatus, isEvaluationComplete, sortEvaluationResults } from "./utils.js?v=16.17";
+import { showToast, FESTIVAL_FERIA_NAME, PRONAFECYT_CODE_MAX, PRONAFECYT_C_RAW_MAX, getFestivalProjectLabel, getResultCategoryGroupLabel, calcAverage, calcFinalScore, calcPronatecytFinalScore, calcExpotecnicaFinalScore, getEvaluationStatus, isEvaluationComplete, sortEvaluationResults } from "./utils.js?v=16.17";
 import { getExpotecnicaRubricByCategory, getFestivalRubricBySubcategory } from "./rubrics.js?v=2.1";
 import { loadUsers, fetchAllEvaluations, fetchAllRpc } from "./data.js?v=3.34";
 
@@ -690,7 +690,7 @@ function pdfResultsTableHeader(doc, y) {
   doc.setFontSize(6.2);
   doc.text("ID", M + 8, y + 4.5, { align: "center" });
   doc.text("PROYECTO", M + 18, y + 4.5);
-  doc.text("PUNTAJE", M + W - 2 * M - 24, y + 4.5, { align: "center" });
+  doc.text("PUNTAJE FINAL", M + W - 2 * M - 30, y + 4.5, { align: "center" });
   doc.text("ESTADO", M + W - 2 * M - 4, y + 4.5, { align: "right" });
   return y + headerH + 2;
 }
@@ -771,7 +771,12 @@ export async function generateAdminPDF() {
       });
       const expoAvg = calcAverage(expoJudges);
       const escritoAvg = calcAverage(escritoJudges);
-      const manualEscrito = projData?.puntaje_escrito_manual != null ? Number(projData.puntaje_escrito_manual) : null;
+      const manualWrittenMax = projData?.tipo_feria === "Feria Cientifica y Tecnologica"
+        ? PRONAFECYT_C_RAW_MAX[String(projData.categoria_pronatecyt || "").split(" ")[0].replace("B", "C")] || 0
+        : projData?.tipo_feria === "Feria Expotecnica"
+          ? ({ "DESAFIO STEAM": 105, "EMPRENDIMIENTO E INNOVACION": 72 }[projData.categoria_expotecnica] || 0)
+          : 0;
+      const manualEscrito = manualWrittenMax > 0 && projData?.puntaje_escrito_manual != null ? Number(projData.puntaje_escrito_manual) : null;
       const escritoAvgFinal = manualEscrito !== null ? manualEscrito : escritoAvg;
       const escritoVotedFinal = manualEscrito !== null ? 1 : escritoVoted;
       const evaluationComplete = isEvaluationComplete({ expoTotal, expoVoted, escritoTotal, escritoVoted, manualEscrito });
@@ -826,76 +831,160 @@ export async function generateAdminPDF() {
         .filter((assignment) => projectIds.has(assignment.proyecto_id))
         .map((assignment) => assignment.juez_id)
     );
-    const isFEA = selectedFeria === FESTIVAL_FERIA_NAME || (results.length > 0 && results.every(r => projectsById.get(r.projectId)?.tipo_feria === FESTIVAL_FERIA_NAME));
     const evaluationDateLabel = selectedDate ? new Date(`${selectedDate}T00:00:00`).toLocaleDateString("es-CR", { dateStyle: "long" }) : "Todos los días";
     const infoLines = [`Día de evaluación: ${evaluationDateLabel}`, `Feria: ${feriaLabel}`, `Total de proyectos: ${results.length}`, `Total de jueces asignados: ${assignedJudgeIds.size}`, `Total evaluaciones: ${filteredEvals.length}`, `Generado: ${now.toLocaleDateString("es-CR")} ${now.toLocaleTimeString("es-CR")}`];
     y = pdfInfoBox(doc, infoLines, y);
     y = pdfSubHeader(doc, "Ranking de proyectos", y);
-    const dualCols = !isFEA;
-    y = pdfResultsTableHeader(doc, y);
-    let rowIdx=0;
-    for(let idx=0; idx<results.length; idx++){
-      const r = results[idx];
-      const feriaLbl = r.projData?.categoria_pronatecyt || r.projData?.categoria_expotecnica || r.projData?.categoria_festival || "";
-      const levelLbl = r.projData?.tipo_feria === FESTIVAL_FERIA_NAME ? r.projData?.nivel_educativo : "";
-      const resultLabel = [feriaLbl, levelLbl].filter(Boolean).join(" — ");
-      const nameW = 130;
-      doc.setFont("helvetica","bold");
-      doc.setFontSize(7.4);
-      const tLines = doc.splitTextToSize(r.projectName, nameW);
-      doc.setFont("helvetica", "normal");
+    const resultGroups = new Map();
+    for (const result of results) {
+      const project = projectsById.get(result.projectId);
+      const category = project?.tipo_feria === "Feria Cientifica y Tecnologica"
+        ? project.categoria_pronatecyt || "Sin categoría"
+        : project?.categoria_expotecnica ?? project?.categoria_festival ?? "Sin categoría";
+      const subcategory = project?.tipo_feria === FESTIVAL_FERIA_NAME
+        ? project.subcategoria_festival || "Sin subcategoría"
+        : "";
+      const level = project?.tipo_feria === FESTIVAL_FERIA_NAME
+        ? project.nivel_educativo || "Sin nivel"
+        : "";
+      const groupLabel = getResultCategoryGroupLabel(project?.tipo_feria ?? "Feria", category, level, selectedFeria, subcategory);
+      const groupKey = JSON.stringify([project?.tipo_feria ?? "Feria", groupLabel]);
+      if (!resultGroups.has(groupKey)) {
+        const categoryTitle = [category, subcategory, level].filter(Boolean).join(" — ");
+        resultGroups.set(groupKey, {
+          label: groupLabel,
+          feria: project?.tipo_feria ?? "Feria",
+          categoryTitle,
+          results: []
+        });
+      }
+      resultGroups.get(groupKey).results.push(result);
+    }
+    const getCategoryHeading = (group, winner, continued = false) => {
+      const contentW = W - 2 * M - 8;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(5.2);
+      const feriaLines = doc.splitTextToSize(group.feria.toLocaleUpperCase("es-CR"), contentW);
+      doc.setFontSize(12);
+      const categoryLines = doc.splitTextToSize(group.categoryTitle || group.label, contentW - 4);
+      const continuationLines = continued ? ["CONTINUACIÓN"] : [];
+      const winnerText = winner
+        ? `Ganador: ${winner.projectName} (${winner.finalScore.toFixed(0)} pts)`
+        : "Ganador pendiente de evaluación";
       doc.setFontSize(6.2);
-      const categoryLines = resultLabel ? doc.splitTextToSize(resultLabel, nameW) : [];
-      const rowH = Math.max(11, tLines.length * 3.6 + categoryLines.length * 3 + (categoryLines.length ? 2 : 0) + 4.5);
-      const pagesBeforeRow = doc.internal.getNumberOfPages();
-      y = pdfCheckPage(doc, y, rowH+0.6);
-      if (doc.internal.getNumberOfPages() > pagesBeforeRow) y = pdfResultsTableHeader(doc, y);
-      const scoreY = y + rowH / 2 + 0.5;
-      const isFirst = idx===0;
-      doc.setFillColor(isFirst?253: (rowIdx%2===0?255:248), isFirst?251:(rowIdx%2===0?255:250), isFirst?247:(rowIdx%2===0?255:252));
+      const winnerLines = continued ? [] : doc.splitTextToSize(winnerText, contentW);
+      const kickerH = feriaLines.length * 2.2;
+      const categoryBandH = Math.max(7.8, categoryLines.length * 4.8 + 1.8);
+      const continuationH = continuationLines.length * 2.1;
+      const winnerH = winnerLines.length * 2.8;
+      const headingH = 1.5 + kickerH + 0.3 + categoryBandH + 0.5 + continuationH + winnerH + 1.5;
+      return { feriaLines, categoryLines, continuationLines, winnerLines, categoryBandH, headingH };
+    };
+    const drawCategoryHeading = (group, winner, headingY, layout) => {
+      doc.setFillColor(255, 255, 255);
       doc.setDrawColor(...PDF.BORDER);
-      doc.roundedRect(M, y-1, W-2*M, rowH, 1.1,1.1,"FD");
-      if(isFirst){ doc.setFillColor(...PDF.GOLD); doc.roundedRect(M, y-1, 1.3, rowH, 0.4,0.4,"F"); }
-      doc.setFont("helvetica","bold");
-      doc.setFontSize(6.2);
-      doc.setTextColor(...PDF.INK);
+      doc.roundedRect(M, headingY, W - 2 * M, layout.headingH, 1.5, 1.5, "FD");
+      doc.setFillColor(...PDF.GOLD);
+      doc.roundedRect(M, headingY, 1.5, layout.headingH, 0.4, 0.4, "F");
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(5.2);
+      doc.setTextColor(...PDF.MUTED);
+      doc.text(layout.feriaLines, M + 4, headingY + 3.1);
+      const bandX = M + 3;
+      const bandY = headingY + 1.5 + layout.feriaLines.length * 2.2 + 0.3;
+      const bandW = W - 2 * M - 6;
+      doc.setFillColor(242, 246, 252);
+      doc.setDrawColor(...PDF.BORDER);
+      doc.roundedRect(bandX, bandY, bandW, layout.categoryBandH, 1, 1, "FD");
+      doc.setFillColor(...PDF.GOLD);
+      doc.roundedRect(bandX, bandY, 1.2, layout.categoryBandH, 0.3, 0.3, "F");
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(12);
       doc.setTextColor(...PDF.PRIMARY);
-      doc.text(String(r.projectId), M+8, scoreY, { align: "center" });
-      doc.setFont("helvetica","bold");
-      doc.setFontSize(6.8);
-      doc.text(tLines, M+18, y+3.1);
-      if(categoryLines.length){
-        doc.setFont("helvetica","normal");
+      doc.text(layout.categoryLines, bandX + 3, bandY + 5.1);
+      let lowerY = bandY + layout.categoryBandH + 2.5;
+      if (layout.continuationLines.length) {
         doc.setFontSize(5.2);
         doc.setTextColor(...PDF.MUTED);
-        doc.text(categoryLines, M+18, y + 3.1 + tLines.length * 3.3);
+        doc.text(layout.continuationLines, M + 4, lowerY);
+        lowerY += layout.continuationLines.length * 2.1;
       }
-      if(dualCols){
-        doc.setFont("helvetica","bold");
-        doc.setFontSize(7.5);
-        doc.setTextColor(...(r.evaluationComplete?PDF.PRIMARY:PDF.MUTED_LIGHT));
-        doc.text(r.evaluationComplete? String(Math.round(r.finalScore)) : "—", M+W-2*M-24, scoreY, {align:"center"});
-      } else {
-        const maxScore = getMaxScoreForProject(r.projectId, "Exposición");
-        const score = r.expoTotal>0 && r.expoVoted>0 ? String(Math.round(r.expoAvg)) : "0";
-        doc.setFont("helvetica","bold");
-        doc.setFontSize(7.5);
-        doc.setTextColor(...PDF.PRIMARY);
-        doc.text(`${score}/${maxScore}`, M+W-2*M-24, scoreY, {align:"center"});
+      if (layout.winnerLines.length) {
+        doc.setFontSize(6.2);
+        doc.setTextColor(...(winner ? PDF.SUCCESS : PDF.MUTED));
+        doc.text(layout.winnerLines, M + 4, lowerY);
       }
+      return layout.headingH + 1.5;
+    };
+    let rowIdx=0;
+    const getResultRow = (r) => {
+      const project = projectsById.get(r.projectId);
+      const feriaLabel = project?.categoria_pronatecyt || project?.categoria_expotecnica || project?.categoria_festival || "";
+      const levelLabel = project?.tipo_feria === FESTIVAL_FERIA_NAME ? project?.nivel_educativo : "";
+      const classification = [feriaLabel, levelLabel].filter(Boolean).join(" — ");
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(7.4);
+      const titleLines = doc.splitTextToSize(r.projectName, 130);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(6.2);
+      const classificationLines = classification ? doc.splitTextToSize(classification, 130) : [];
+      const height = Math.max(11, titleLines.length * 3.6 + classificationLines.length * 3 + (classificationLines.length ? 2 : 0) + 4.5);
       const totalVoted = r.expoVoted + r.escritoVoted;
       const stateText = getEvaluationStatus({
         evaluationComplete: r.evaluationComplete,
         totalVoted,
         totalAssigned: r.expoTotal + r.escritoTotal
       });
-      const stateColor = stateText === "Completa" ? PDF.SUCCESS : stateText === "Incompleta" ? PDF.WARNING : PDF.MUTED_LIGHT;
-      doc.setFont("helvetica","bold");
-      doc.setFontSize(5.5);
-      doc.setTextColor(...stateColor);
-      doc.text(stateText.toUpperCase(), M+W-2*M-4, scoreY, {align:"right"});
-      y+=rowH+0.6;
-      rowIdx++;
+      return { r, titleLines, classificationLines, height, stateText };
+    };
+    for (const group of resultGroups.values()) {
+      const winner = group.results.find((result) => result.evaluationComplete && result.finalScore > 0);
+      const rows = group.results.map(getResultRow);
+      const heading = getCategoryHeading(group, winner);
+      y = pdfCheckPage(doc, y, heading.headingH + 1.5 + 9 + rows[0].height);
+      drawCategoryHeading(group, winner, y, heading);
+      y += heading.headingH + 1.5;
+      y = pdfResultsTableHeader(doc, y);
+      for (const row of rows) {
+        const pagesBeforeRow = doc.internal.getNumberOfPages();
+        const continuedHeading = getCategoryHeading(group, winner, true);
+        y = pdfCheckPage(doc, y, row.height + 0.6);
+        if (doc.internal.getNumberOfPages() > pagesBeforeRow) {
+          drawCategoryHeading(group, winner, y, continuedHeading);
+          y += continuedHeading.headingH + 1.5;
+          y = pdfResultsTableHeader(doc, y);
+        }
+        const { r, titleLines, classificationLines, height } = row;
+        const scoreY = y + height / 2 + 0.5;
+        const isFirst = rowIdx === 0;
+        doc.setFillColor(isFirst ? 253 : (rowIdx % 2 === 0 ? 255 : 248), isFirst ? 251 : (rowIdx % 2 === 0 ? 255 : 250), isFirst ? 247 : (rowIdx % 2 === 0 ? 255 : 252));
+        doc.setDrawColor(...PDF.BORDER);
+        doc.roundedRect(M, y - 1, W - 2 * M, height, 1.1, 1.1, "FD");
+        if (isFirst) { doc.setFillColor(...PDF.GOLD); doc.roundedRect(M, y - 1, 1.3, height, 0.4, 0.4, "F"); }
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(6.2);
+        doc.setTextColor(...PDF.PRIMARY);
+        doc.text(String(r.projectId), M + 8, scoreY, { align: "center" });
+        doc.setFontSize(6.8);
+        doc.text(titleLines, M + 18, y + 3.1);
+        if (classificationLines.length) {
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(5.2);
+          doc.setTextColor(...PDF.MUTED);
+          doc.text(classificationLines, M + 18, y + 3.1 + titleLines.length * 3.3);
+        }
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(7.5);
+        doc.setTextColor(...(r.evaluationComplete ? PDF.PRIMARY : PDF.MUTED_LIGHT));
+        doc.text(r.evaluationComplete ? r.finalScore.toFixed(0) : "Pendiente", M + W - 2 * M - 30, scoreY, { align: "center" });
+        const stateColor = row.stateText === "Completa" ? PDF.SUCCESS : row.stateText === "Incompleta" ? PDF.WARNING : PDF.MUTED_LIGHT;
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(5.5);
+        doc.setTextColor(...stateColor);
+        doc.text(row.stateText.toUpperCase(), M + W - 2 * M - 4, scoreY, { align: "right" });
+        y += height + 0.6;
+        rowIdx++;
+      }
     }
     y+=4;
     y = pdfSubHeader(doc, "Detalle por proyecto — jueces", y);
@@ -942,7 +1031,7 @@ export async function generateAdminPDF() {
         const projectLines = doc.splitTextToSize(r.projectName, detailWidths.project);
         const judgeLines = doc.splitTextToSize(row.judgeName, detailWidths.judge);
         const expoLabel = row.expo?.manual ? `Manual · ${row.expo.sum}/${getMaxScoreForProject(r.projectId, "Exposición")}` : row.expo ? (row.expo.voted ? `Evaluado · ${row.expo.sum}/${getMaxScoreForProject(r.projectId, "Exposición")}` : `Pendiente · —/${getMaxScoreForProject(r.projectId, "Exposición")}`) : "Sin asignación";
-        const escritoLabel = row.escrito?.manual ? `Manual · ${row.escrito.sum}/${getMaxScoreForProject(r.projectId, "Escrito")}` : row.escrito ? (row.escrito.voted ? `Evaluado · ${row.escrito.sum}/${getMaxScoreForProject(r.projectId, "Escrito")}` : `Pendiente · —/${getMaxScoreForProject(r.projectId, "Escrito")}`) : "Sin asignación";
+        const escritoLabel = r.projData?.tipo_feria === FESTIVAL_FERIA_NAME ? "No aplica" : row.escrito?.manual ? `Manual · ${row.escrito.sum}/${getMaxScoreForProject(r.projectId, "Escrito")}` : row.escrito ? (row.escrito.voted ? `Evaluado · ${row.escrito.sum}/${getMaxScoreForProject(r.projectId, "Escrito")}` : `Pendiente · —/${getMaxScoreForProject(r.projectId, "Escrito")}`) : "Sin asignación";
         const expoLines = doc.splitTextToSize(expoLabel, detailWidths.expo);
         const escritoLines = doc.splitTextToSize(escritoLabel, detailWidths.escrito);
         const lineCount = Math.max(projectLines.length, judgeLines.length, expoLines.length, escritoLines.length);
@@ -974,7 +1063,7 @@ export async function generateAdminPDF() {
           { tipo: "Escrito", text: row.escrito?.observation }
         ]) {
           if (!observation.text?.trim()) continue;
-          const label = `Observación · ${r.projectName} · ${row.judgeName} · ${observation.tipo}`;
+          const label = `Observación · ID ${r.projectId} · ${r.projectName} · ${row.judgeName} · ${observation.tipo}`;
           const obsWidth = W - 2 * M - 10;
           doc.setFont("helvetica", "bold");
           doc.setFontSize(5.8);
