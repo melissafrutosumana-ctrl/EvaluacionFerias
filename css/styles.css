@@ -5792,6 +5792,11 @@ body[data-page="login"] .login-form button:active {
     color: var(--ink-secondary);
 }
 
+.consolidated-winner-names {
+    color: var(--primary-dark);
+    font-weight: 800;
+}
+
 .consolidated-winners-empty {
     line-height: 1.5;
 }

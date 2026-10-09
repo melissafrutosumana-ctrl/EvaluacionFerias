@@ -481,7 +481,7 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
         winnersContainer.innerHTML = winnerGroups.length ? winnerGroups.map(({ label, score, winners }) => `
             <article class="consolidated-winner-group">
                 <h3>${escapeHTML(label)}</h3>
-                <p>${winners.map((winner) => escapeHTML(winner.projectName)).join(", ")} <strong>(${score.toFixed(0)} pts)</strong></p>
+                <p><strong class="consolidated-winner-names">${winners.map((winner) => escapeHTML(winner.projectName)).join(", ")}</strong> <strong>(${score.toFixed(0)} pts)</strong></p>
             </article>
         `).join("") : '<p class="consolidated-winners-empty">Aún no hay proyectos con evaluación completa y puntaje ganador en los filtros seleccionados.</p>';
     }
