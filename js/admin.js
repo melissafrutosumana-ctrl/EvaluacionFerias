@@ -1589,7 +1589,8 @@ export async function bootstrapAdminPage() {
   winnersToggle?.addEventListener("click", () => {
     const isExpanded = winnersToggle.getAttribute("aria-expanded") === "true";
     winnersToggle.setAttribute("aria-expanded", String(!isExpanded));
-    winnersToggle.textContent = isExpanded ? "Mostrar ganadores" : "Ocultar ganadores";
+    const label = winnersToggle.querySelector("[data-winners-toggle-label]");
+    if (label) label.textContent = isExpanded ? "Ver lista de ganadores" : "Ocultar lista de ganadores";
     if (winnersPanel) winnersPanel.hidden = isExpanded;
   });
 

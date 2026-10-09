@@ -5649,6 +5649,23 @@ body[data-page="login"] .login-form button:active {
     max-width: 42rem;
 }
 
+.results-winners-cta {
+    min-height: 48px;
+    margin-top: 0.9rem;
+    padding: 0.75rem 1.15rem;
+    border: 1px solid rgba(255, 255, 255, 0.72);
+    background: var(--secondary-light);
+    box-shadow: 0 6px 18px rgba(6, 21, 49, 0.22);
+    color: var(--primary-dark);
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.results-winners-cta:hover {
+    background: #fff;
+    color: var(--primary-dark);
+}
+
 .page-intro-mark {
     color: rgba(255, 255, 255, 0.16);
     font-size: clamp(3rem, 8vw, 5.5rem);
@@ -5759,6 +5776,10 @@ body[data-page="login"] .login-form button:active {
     display: none;
 }
 
+.results-winners-panel {
+    margin: -0.35rem 0 1rem;
+}
+
 .consolidated-winner-group h3 {
     margin: 0 0 0.25rem;
     color: var(--primary);
@@ -5836,6 +5857,11 @@ body[data-page="judge"] .rubric-table thead th {
     .page-intro-mark {
         font-size: 3rem;
         margin-top: 0.15rem;
+    }
+
+    .results-winners-cta {
+        justify-content: center;
+        width: 100%;
     }
 
     .results-filter-card label {
