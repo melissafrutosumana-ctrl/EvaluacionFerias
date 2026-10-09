@@ -460,6 +460,31 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
     const tbody = document.querySelector("[data-project-results]");
     if (!tbody) return;
     const pagination = document.querySelector("[data-results-pagination]");
+    const winnersContainer = document.querySelector("[data-consolidated-winners]");
+
+    function renderWinners(results) {
+        if (!winnersContainer) return;
+        const groups = new Map();
+        results.forEach((result) => {
+            const label = getResultCategoryGroupLabel(result.feria, result.categoria, result.nivel, selectedFeria, result.subcategoria);
+            if (!groups.has(label)) groups.set(label, []);
+            groups.get(label).push(result);
+        });
+
+        const winnerGroups = [...groups].map(([label, items]) => {
+            const eligible = items.filter((item) => item.evaluationComplete && item.finalScore > 0);
+            if (!eligible.length) return null;
+            const highestScore = Math.max(...eligible.map((item) => item.finalScore));
+            return { label, score: highestScore, winners: eligible.filter((item) => Math.abs(item.finalScore - highestScore) < 1e-9) };
+        }).filter(Boolean);
+
+        winnersContainer.innerHTML = winnerGroups.length ? winnerGroups.map(({ label, score, winners }) => `
+            <article class="consolidated-winner-group">
+                <h3>${escapeHTML(label)}</h3>
+                <p>${winners.map((winner) => escapeHTML(winner.projectName)).join(", ")} <strong>(${score.toFixed(0)} pts)</strong></p>
+            </article>
+        `).join("") : '<p class="consolidated-winners-empty">Aún no hay proyectos con evaluación completa y puntaje ganador en los filtros seleccionados.</p>';
+    }
 
     const votedSet = new Set();
     const scoreMap = new Map();
@@ -476,6 +501,7 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
     if (!projectsById ?.size) {
         tbody.innerHTML = `<tr role="row"><td role="cell" colspan="4">${selectedFeria ? "No hay proyectos para la feria seleccionada." : "No hay proyectos registrados en ninguna feria."}</td></tr>`;
         if (pagination) pagination.innerHTML = "";
+        renderWinners([]);
         const highScoreEl = document.querySelector("[data-highest-score]");
         if (highScoreEl) highScoreEl.textContent = "—";
         return;
@@ -564,6 +590,7 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
     }
 
     sortEvaluationResults(results);
+    renderWinners(results);
 
     const highScoreEl = document.querySelector("[data-highest-score]");
     if (highScoreEl && results.length > 0) {
@@ -727,9 +754,11 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
 
         const html = [];
         for (const [groupLabel, items] of visibleGroups) {
-            const winner = (allGroups.get(groupLabel) ?? []).find((item) => item.evaluationComplete && item.finalScore > 0);
-            const winnerText = winner ?
-                `Ganador: ${escapeHTML(winner.projectName)} (${winner.finalScore.toFixed(0)} pts)` :
+            const eligible = (allGroups.get(groupLabel) ?? []).filter((item) => item.evaluationComplete && item.finalScore > 0);
+            const highestScore = eligible.length ? Math.max(...eligible.map((item) => item.finalScore)) : 0;
+            const winners = eligible.filter((item) => Math.abs(item.finalScore - highestScore) < 1e-9);
+            const winnerText = winners.length ?
+                `Ganador${winners.length > 1 ? "es" : ""}: ${winners.map((winner) => escapeHTML(winner.projectName)).join(", ")} (${highestScore.toFixed(0)} pts)` :
                 "Ganador pendiente de evaluacion";
             const groupParts = groupLabel.split(" — ");
             const hasLevel = groupParts.length >= 3;
@@ -1555,6 +1584,15 @@ export async function bootstrapAdminPage() {
     exportBtn.addEventListener("click", () => generateAdminPDF());
   }
 
+  const winnersToggle = document.querySelector("[data-winners-toggle]");
+  const winnersPanel = document.querySelector("[data-consolidated-winners]");
+  winnersToggle?.addEventListener("click", () => {
+    const isExpanded = winnersToggle.getAttribute("aria-expanded") === "true";
+    winnersToggle.setAttribute("aria-expanded", String(!isExpanded));
+    winnersToggle.textContent = isExpanded ? "Mostrar ganadores" : "Ocultar ganadores";
+    if (winnersPanel) winnersPanel.hidden = isExpanded;
+  });
+
   if (document.querySelector("[data-observaciones-groups]")) {
     const feriaFilter = document.querySelector("[data-observaciones-feria-filter]");
     const proyectoFilter = document.querySelector("[data-observaciones-proyecto-filter]");
@@ -1669,6 +1707,7 @@ async function renderAdminObservaciones(feriaType = "", proyectoFilter, juezFilt
   const normalizedJudgeSearch = juezSearchText.trim().toLowerCase();
 
   const filtered = rows.filter((r) => {
+    if (!String(r.texto ?? "").trim()) return false;
     if (selectedProjectId && Number(r.proyecto_id) !== selectedProjectId) return false;
     if (selectedJudgeId && Number(r.juez_id) !== selectedJudgeId) return false;
     const projectTitle = String(projectsById.get(r.proyecto_id)?.titulo ?? "").toLowerCase();

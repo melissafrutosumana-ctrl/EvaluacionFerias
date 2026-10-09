@@ -316,6 +316,7 @@ export async function bootstrapJudgePage() {
     const selectionToken = ++rubricLoadToken;
     currentRubricModel = resolveRubricModelForProject(projectId);
     renderJudgeRubric(currentRubricModel.indicators, currentRubricModel.scoreOptions);
+    ensureZeroScoreOptions();
     updateJudgeWorkflow();
     Promise.all([loadSavedEvaluations(projectId, selectionToken), loadSavedObservacion(projectId, selectionToken)]).then(([hasSavedEvaluation, hasSavedObservation]) => {
       if (selectionToken !== rubricLoadToken || Number(projectSelect?.value) !== Number(projectId)) return;
@@ -330,6 +331,23 @@ export async function bootstrapJudgePage() {
       badge.dataset.tipo = tipo;
       badge.hidden = false;
     }
+  }
+
+  function ensureZeroScoreOptions() {
+    let inputIndex = 0;
+    currentRubricModel.indicators.forEach((item) => {
+      if (item && typeof item === "object" && item.section) return;
+      const group = evaluationForm.querySelectorAll(`input[name="indicador_${inputIndex}"]`);
+      if (group.length && ![...group].some((radio) => Number(radio.value) === 0)) {
+        const zeroOption = document.createElement("input");
+        zeroOption.type = "radio";
+        zeroOption.name = `indicador_${inputIndex}`;
+        zeroOption.value = "0";
+        zeroOption.hidden = true;
+        group[group.length - 1].parentElement.append(zeroOption);
+      }
+      inputIndex++;
+    });
   }
 
   async function loadSavedEvaluations(projectId, selectionToken) {
@@ -383,7 +401,7 @@ export async function bootstrapJudgePage() {
 
   async function saveObservacion(projectId, judgeId, tipoEval, texto) {
     const trimmed = String(texto ?? "").trim();
-    if (!projectId || !judgeId) return;
+    if (!projectId || !judgeId || !trimmed) return;
 
     await saveObservationRpc((...args) => supabase.rpc(...args), {
         p_proyecto_id: projectId,
@@ -730,6 +748,20 @@ export async function bootstrapJudgePage() {
       scheduleDraftSave();
       updateJudgeWorkflow();
     }
+  });
+  evaluationForm.querySelector("[data-no-show-button]")?.addEventListener("click", () => {
+    ensureZeroScoreOptions();
+    let inputIndex = 0;
+    currentRubricModel.indicators.forEach((item) => {
+      if (item && typeof item === "object" && item.section) return;
+      const zeroOption = evaluationForm.querySelector(`input[name="indicador_${inputIndex}"][value="0"]`);
+      if (zeroOption) zeroOption.checked = true;
+      inputIndex++;
+    });
+    const textarea = evaluationForm.querySelector("[data-observacion-input]");
+    if (textarea) textarea.value = "No se presentó";
+    scheduleDraftSave();
+    updateJudgeWorkflow();
   });
   evaluationForm.querySelector("[data-observacion-input]")?.addEventListener("input", scheduleDraftSave);
 }

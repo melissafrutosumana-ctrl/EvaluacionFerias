@@ -2536,6 +2536,10 @@ body[data-page="judge"] .project-form .textarea-observacion::placeholder {
     opacity: 0.7;
 }
 
+body[data-page="judge"] .no-show-button {
+    margin-top: 0.65rem;
+}
+
 
 /* Save button */
 
@@ -5739,6 +5743,36 @@ body[data-page="login"] .login-form button:active {
 .results-export-actions {
     justify-content: flex-end;
     margin-top: 1rem;
+}
+
+.consolidated-winners {
+    display: grid;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    padding: 1rem;
+    border: 1px solid rgba(16, 47, 104, 0.14);
+    border-radius: var(--radius-md, 12px);
+    background: var(--surface-soft, #f7f9fc);
+}
+
+.consolidated-winners[hidden] {
+    display: none;
+}
+
+.consolidated-winner-group h3 {
+    margin: 0 0 0.25rem;
+    color: var(--primary);
+    font-size: 0.95rem;
+}
+
+.consolidated-winner-group p,
+.consolidated-winners-empty {
+    margin: 0;
+    color: var(--ink-secondary);
+}
+
+.consolidated-winners-empty {
+    line-height: 1.5;
 }
 
 .section-lead {
