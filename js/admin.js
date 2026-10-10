@@ -484,7 +484,7 @@ function renderAdminScoresTable(rows, projectsById, assignmentsByProject, select
                 <ul class="consolidated-winner-list" aria-label="Proyectos ganadores de la categoría">
                     ${winners.map((winner) => `
                         <li class="consolidated-winner-row">
-                            <span class="consolidated-winner-rank">1</span>
+                            <span class="consolidated-winner-label">Ganador</span>
                             <span class="consolidated-winner-title">${escapeHTML(winner.projectName)}</span>
                             <strong class="consolidated-winner-score">${score.toFixed(0)} pts</strong>
                         </li>

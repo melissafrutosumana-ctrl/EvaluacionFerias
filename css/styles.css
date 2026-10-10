@@ -5764,9 +5764,14 @@ body[data-page="login"] .login-form button:active {
 
 .consolidated-winners {
     display: grid;
-    gap: 0.75rem;
+    align-items: start;
+    gap: 0.55rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 21rem), 1fr));
+    max-height: min(25rem, 42vh);
     margin-top: 1rem;
-    padding: 1rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0.6rem;
     border: 1px solid rgba(16, 47, 104, 0.14);
     border-radius: var(--radius-md, 12px);
     background: var(--surface-soft, #f7f9fc);
@@ -5780,10 +5785,22 @@ body[data-page="login"] .login-form button:active {
     margin: -0.35rem 0 1rem;
 }
 
+.consolidated-winner-group {
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid rgba(16, 47, 104, 0.15);
+    border-radius: 11px;
+    background: #fff;
+}
+
 .consolidated-winner-group h3 {
-    margin: 0 0 0.25rem;
-    color: var(--primary);
-    font-size: 0.95rem;
+    margin: 0;
+    padding: 0.55rem 0.7rem;
+    border-bottom: 1px solid rgba(16, 47, 104, 0.13);
+    background: #edf3fc;
+    color: var(--primary-dark);
+    font-size: 0.88rem;
+    line-height: 1.35;
 }
 
 .consolidated-winners-empty {
@@ -5793,33 +5810,33 @@ body[data-page="login"] .login-form button:active {
 
 .consolidated-winner-list {
     display: grid;
-    gap: 0.6rem;
     list-style: none;
-    margin: 0.7rem 0 0;
+    margin: 0;
     padding: 0;
 }
 
 .consolidated-winner-row {
     align-items: center;
-    background: #fff;
-    border: 1px solid rgba(16, 47, 104, 0.14);
-    border-radius: 13px;
-    box-shadow: 0 3px 10px rgba(16, 47, 104, 0.05);
     display: grid;
-    gap: 0.75rem;
-    grid-template-columns: 2.75rem minmax(0, 1fr) auto;
-    min-height: 3.8rem;
-    overflow: hidden;
+    gap: 0.5rem;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    min-height: 3.15rem;
+    padding: 0.45rem 0.65rem;
 }
 
-.consolidated-winner-rank {
-    align-self: stretch;
+.consolidated-winner-row + .consolidated-winner-row {
+    border-top: 1px solid rgba(16, 47, 104, 0.1);
+}
+
+.consolidated-winner-label {
+    border-radius: 5px;
     background: #f6e3a1;
     color: var(--primary-dark);
-    display: grid;
-    font-size: 1.15rem;
+    font-size: 0.75rem;
     font-weight: 800;
-    place-items: center;
+    letter-spacing: 0.025em;
+    padding: 0.3rem 0.4rem;
+    white-space: nowrap;
 }
 
 .consolidated-winner-title {
@@ -5827,17 +5844,16 @@ body[data-page="login"] .login-form button:active {
     font-weight: 700;
     min-width: 0;
     overflow-wrap: anywhere;
-    padding-block: 0.65rem;
+    line-height: 1.35;
 }
 
 .consolidated-winner-score {
     background: var(--secondary-light);
-    border-radius: 9px;
+    border-radius: 7px;
     color: var(--primary-dark);
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     font-weight: 800;
-    margin-right: 0.65rem;
-    padding: 0.5rem 0.7rem;
+    padding: 0.35rem 0.5rem;
     white-space: nowrap;
 }
 
@@ -5913,15 +5929,9 @@ body[data-page="judge"] .rubric-table thead th {
         width: 100%;
     }
 
-    .consolidated-winner-row {
-        gap: 0.5rem;
-        grid-template-columns: 2.5rem minmax(0, 1fr) auto;
-    }
-
     .consolidated-winner-score {
-        font-size: 0.82rem;
-        margin-right: 0.5rem;
-        padding-inline: 0.55rem;
+        font-size: 0.75rem;
+        padding-inline: 0.4rem;
     }
 
     .results-filter-card label {
