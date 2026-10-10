@@ -5786,15 +5786,59 @@ body[data-page="login"] .login-form button:active {
     font-size: 0.95rem;
 }
 
-.consolidated-winner-group p,
 .consolidated-winners-empty {
     margin: 0;
     color: var(--ink-secondary);
 }
 
-.consolidated-winner-names {
+.consolidated-winner-list {
+    display: grid;
+    gap: 0.6rem;
+    list-style: none;
+    margin: 0.7rem 0 0;
+    padding: 0;
+}
+
+.consolidated-winner-row {
+    align-items: center;
+    background: #fff;
+    border: 1px solid rgba(16, 47, 104, 0.14);
+    border-radius: 13px;
+    box-shadow: 0 3px 10px rgba(16, 47, 104, 0.05);
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: 2.75rem minmax(0, 1fr) auto;
+    min-height: 3.8rem;
+    overflow: hidden;
+}
+
+.consolidated-winner-rank {
+    align-self: stretch;
+    background: #f6e3a1;
     color: var(--primary-dark);
+    display: grid;
+    font-size: 1.15rem;
     font-weight: 800;
+    place-items: center;
+}
+
+.consolidated-winner-title {
+    color: var(--primary-dark);
+    font-weight: 700;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    padding-block: 0.65rem;
+}
+
+.consolidated-winner-score {
+    background: var(--secondary-light);
+    border-radius: 9px;
+    color: var(--primary-dark);
+    font-size: 0.9rem;
+    font-weight: 800;
+    margin-right: 0.65rem;
+    padding: 0.5rem 0.7rem;
+    white-space: nowrap;
 }
 
 .consolidated-winners-empty {
@@ -5867,6 +5911,17 @@ body[data-page="judge"] .rubric-table thead th {
     .results-winners-cta {
         justify-content: center;
         width: 100%;
+    }
+
+    .consolidated-winner-row {
+        gap: 0.5rem;
+        grid-template-columns: 2.5rem minmax(0, 1fr) auto;
+    }
+
+    .consolidated-winner-score {
+        font-size: 0.82rem;
+        margin-right: 0.5rem;
+        padding-inline: 0.55rem;
     }
 
     .results-filter-card label {
