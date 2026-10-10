@@ -7203,6 +7203,10 @@ body[data-page="judge"] .rubric-table thead th {
     border-color: rgba(16, 47, 104, 0.18);
 }
 
+.results-search-card .results-winners-cta[aria-expanded="false"]:hover {
+    background: var(--secondary-light);
+}
+
 .results-search-card .results-winners-panel {
     grid-column: 1 / -1;
     margin: 0;
