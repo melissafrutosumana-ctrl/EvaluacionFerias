@@ -2538,6 +2538,10 @@ body[data-page="judge"] .project-form .textarea-observacion::placeholder {
 
 body[data-page="judge"] .no-show-button {
     align-self: flex-start;
+    border: 1px solid var(--secondary-dark);
+    background: var(--secondary-light);
+    color: var(--primary-dark);
+    font-weight: 700;
     margin-top: 0;
 }
 
