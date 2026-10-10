@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/styles.css?v=17.51">
+    <link rel="stylesheet" href="/css/styles.css?v=17.52">
 </head>
 <body data-page="admin" data-admin-view="results">
 
@@ -55,10 +55,6 @@
                 <span class="eyebrow">Control y seguimiento</span>
                 <h2>Resultados de evaluacion</h2>
                 <p>Consulta el avance de las evaluaciones y el puntaje consolidado por feria.</p>
-                <button type="button" class="btn-primary results-winners-cta" data-winners-toggle aria-expanded="false" aria-controls="consolidated-winners">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8m-4-4v4m-7-17h14v4a7 7 0 0 1-14 0V4Z"/><path d="M5 6H3v2a4 4 0 0 0 4 4m12-6h2v2a4 4 0 0 1-4 4"/></svg>
-                    <span data-winners-toggle-label>Ver lista de ganadores</span>
-                </button>
             </div>
             <span class="page-intro-mark" aria-hidden="true"><span>0</span><span>4</span></span>
         </section>
@@ -104,6 +100,10 @@
             <select id="results-date-filter" data-results-date-filter aria-controls="project-results-table admin-projects-table">
                 <option value="">Todos los días</option>
             </select>
+            <button type="button" class="btn-primary results-winners-cta" data-winners-toggle aria-expanded="false" aria-controls="consolidated-winners">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8m-4-4v4m-7-17h14v4a7 7 0 0 1-14 0V4Z"/><path d="M5 6H3v2a4 4 0 0 0 4 4m12-6h2v2a4 4 0 0 1-4 4"/></svg>
+                <span data-winners-toggle-label>Ver lista de ganadores</span>
+            </button>
             <p class="results-filter-help">Sin una fecha seleccionada se muestran todos los días.</p>
         </section>
 
